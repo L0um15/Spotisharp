@@ -19,8 +19,6 @@ namespace SpotiSharp
 
     class SearchProvider
     {
-
-
         public static async Task SearchSpotify(string input, ConfigurationHandler configuration) {
             var loginRequest = new ClientCredentialsRequest(configuration.CLIENTID, configuration.SECRETID);
             var loginResponse = await new OAuthClient().RequestToken(loginRequest);
@@ -38,7 +36,6 @@ namespace SpotiSharp
             catch (ArgumentOutOfRangeException)
             {
                 Console.WriteLine("Spotify returned no results. Exiting.");
-                Console.ReadKey();
                 Environment.Exit(0);
             }
         }

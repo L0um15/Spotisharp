@@ -30,7 +30,6 @@ namespace SpotiSharp
                 .Start();
             File.Delete(destination + trackName);
             Console.WriteLine("Done.");
-            Console.WriteLine(Path.GetFileNameWithoutExtension(destination + trackName));
         }
     }
 }
