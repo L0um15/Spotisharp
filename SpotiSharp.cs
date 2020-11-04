@@ -15,7 +15,16 @@ namespace SpotiSharp
         ConfigurationHandler configuration = new ConfigurationHandler();
         public async Task MainAsync(string[] args)
         {
-            if (args.Length != 1) return;
+            if (args.Length != 1) {
+                Console.WriteLine();
+                Console.WriteLine("\tHelp Page: ");
+                Console.WriteLine("\tUsage: .\\SpotiSharp \"<Search>\"");
+                Console.WriteLine();
+                return;
+            };
+
+            //Check for updates
+            await new VersionChecker().checkForUpdates();
 
             //Check if FFmpeg is installed.
             Console.WriteLine("Checking ffmpeg.");
