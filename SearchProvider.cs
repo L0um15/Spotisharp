@@ -1,6 +1,8 @@
 ﻿using SpotifyAPI.Web;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -13,8 +15,13 @@ namespace SpotiSharp
     {
         public static string Artist { get; set; }
         public static string Title { get; set; }
+        public static int TrackNr { get; set; }
         public static string Album { get; set; }
-        public static string TrackId { get; set; }
+        public static string Url { get; set; }
+        public static int Year { get; set; }
+        public static string Comments { get; set; }
+        public static string Genres { get; set; }
+        public static string AlbumArt { get; set; }
     }
 
     class SearchProvider
@@ -28,10 +35,16 @@ namespace SpotiSharp
             {
                 searchResponse = await spotifyClient.Search.Item(new SearchRequest(SearchRequest.Types.Track, input));
                 var track = searchResponse.Tracks.Items[0];
+                var artist = await spotifyClient.Artists.Get(track.Artists[0].Id);
                 TrackInfo.Artist = track.Artists[0].Name;
                 TrackInfo.Title = track.Name;
                 TrackInfo.Album = track.Album.Name;
-                TrackInfo.TrackId = track.Id;
+                TrackInfo.Genres = artist.Genres[0];
+                TrackInfo.Url = track.ExternalUrls.First().Value;
+                TrackInfo.TrackNr = track.TrackNumber;
+                TrackInfo.Year = Convert.ToDateTime(track.Album.ReleaseDate).Year;
+                TrackInfo.AlbumArt = track.Album.Images[0].Url;
+                
             }
             catch (ArgumentOutOfRangeException)
             {

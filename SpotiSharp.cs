@@ -15,6 +15,7 @@ namespace SpotiSharp
         ConfigurationHandler configuration = new ConfigurationHandler();
         public async Task MainAsync(string[] args)
         {
+            // Print Help page when no arguments passed.
             if (args.Length != 1) {
                 Console.WriteLine();
                 Console.WriteLine("\tHelp Page: ");
@@ -24,7 +25,7 @@ namespace SpotiSharp
             };
 
             //Check for updates
-            await new VersionChecker().checkForUpdates();
+            new VersionChecker().checkForUpdates();
 
             //Check if FFmpeg is installed.
             Console.WriteLine("Checking ffmpeg.");

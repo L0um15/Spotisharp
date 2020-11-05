@@ -10,7 +10,7 @@ namespace SpotiSharp
     class VersionChecker
     {
         private string Version { get { return Assembly.GetExecutingAssembly().GetName().Version.ToString(); } }
-        public async Task checkForUpdates()
+        public void checkForUpdates()
         {
             try
             {
