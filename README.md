@@ -20,7 +20,7 @@ Config.json will be generated on first run with empty fields.
 ```json
 {
     "CLIENTID": "",
-    "SECRETID": ""
+    "SECRETID": "" 
 }
 ```
 
@@ -28,7 +28,7 @@ FFmpeg is required, but SpotiSharp will download latest binary by itself to the 
 
 SpotiSharp is very easy to use...
 ```sh
-.\SpotiSharp.exe "<Text Search>"
+.\SpotiSharp.exe "<Text Search/Spotify URL>"
 ```
 ... and thats it. Without any complicated flags, prefixes etc.
 
