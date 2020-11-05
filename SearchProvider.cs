@@ -59,7 +59,7 @@ namespace SpotiSharp
             var loginResponse = await new OAuthClient().RequestToken(loginRequest);
             var spotifyClient = new SpotifyClient(loginResponse.AccessToken);
 
-            var spotifyTrackID = Regex.Match(input, @"[^/]+$");
+            var spotifyTrackID = Regex.Match(input, @"(?<=track\/)\w+");
 
             var track = spotifyClient.Tracks.Get(spotifyTrackID.Value).Result;
             var artist = await spotifyClient.Artists.Get(track.Artists[0].Id);
