@@ -26,7 +26,7 @@ namespace SpotiSharp
 
     class SearchProvider
     {
-        public static async Task SearchSpotify(string input, ConfigurationHandler configuration) {
+        public static async Task SearchSpotifyByText(string input, ConfigurationHandler configuration) {
             var loginRequest = new ClientCredentialsRequest(configuration.CLIENTID, configuration.SECRETID);
             var loginResponse = await new OAuthClient().RequestToken(loginRequest);
             SearchResponse searchResponse = null;
@@ -52,7 +52,29 @@ namespace SpotiSharp
                 Environment.Exit(0);
             }
         }
-        public static async Task<string> SearchYoutube(string input)
+
+        public static async Task<string> SearchSpotifyByLink(string input, ConfigurationHandler configuration)
+        {
+            var loginRequest = new ClientCredentialsRequest(configuration.CLIENTID, configuration.SECRETID);
+            var loginResponse = await new OAuthClient().RequestToken(loginRequest);
+            var spotifyClient = new SpotifyClient(loginResponse.AccessToken);
+
+            var spotifyTrackID = Regex.Match(input, @"[^/]+$");
+
+            var track = spotifyClient.Tracks.Get(spotifyTrackID.Value).Result;
+            var artist = await spotifyClient.Artists.Get(track.Artists[0].Id);
+            TrackInfo.Artist = track.Artists[0].Name;
+            TrackInfo.Title = track.Name;
+            TrackInfo.Album = track.Album.Name;
+            TrackInfo.Genres = artist.Genres[0];
+            TrackInfo.Url = track.ExternalUrls.First().Value;
+            TrackInfo.TrackNr = track.TrackNumber;
+            TrackInfo.Year = Convert.ToDateTime(track.Album.ReleaseDate).Year;
+            TrackInfo.AlbumArt = track.Album.Images[0].Url;
+            return $"{TrackInfo.Artist} - {TrackInfo.Title}";
+        }
+
+        public static async Task<string> SearchYoutubeByText(string input)
         {
             string youtubeSearchUrl = "https://www.youtube.com/results?search_query=";
             string unFormatedSearchQuery = $"{TrackInfo.Artist} - {TrackInfo.Title}";
