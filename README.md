@@ -11,6 +11,8 @@
 
 ### Usage
 
+**KEEP THESE KEYS PRIVATE, DO NOT SHARE THEM TO ANYONE**
+
 Create Application on [Spotify Developer Dashboard](https://developer.spotify.com/dashboard/) then provide these keys to config.json
 
         - ClientID
