@@ -34,10 +34,11 @@ namespace SpotiSharp
                 file.Tag.AlbumArtists = new string [] { TrackInfo.Artist };
                 file.Tag.Performers = new string [] { TrackInfo.Artist };
                 file.Tag.Composers = new string[] { TrackInfo.Artist };
-                file.Tag.Copyright = $"{TrackInfo.Year} {TrackInfo.Artist}";
+                file.Tag.Copyright = TrackInfo.Copyright;
                 file.Tag.Title = TrackInfo.Title;
                 file.Tag.Album = TrackInfo.Album;
                 file.Tag.Track = Convert.ToUInt32(TrackInfo.TrackNr);
+                file.Tag.Disc = Convert.ToUInt32(TrackInfo.DiscNr);
                 file.Tag.Year = Convert.ToUInt32(TrackInfo.Year);
                 file.Tag.Comment = TrackInfo.Url;
                 file.Tag.Genres = new string[] { TrackInfo.Genres };

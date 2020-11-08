@@ -45,14 +45,13 @@ namespace SpotiSharp
             else
             {
                 // Search Spotify for results, Exit when nothing were found.
-                await SearchProvider.SearchSpotifyByText(keyboardInput, configuration);
+                var text = await SearchProvider.SearchSpotifyByText(keyboardInput, configuration);
                 //Search for this track on Youtube.
-                url = await SearchProvider.SearchYoutubeByText(keyboardInput);
+                url = await SearchProvider.SearchYoutubeByText(text);
             }
             
             // Print Found Track
             Console.WriteLine($"Spotify Returned: {TrackInfo.Artist} - {TrackInfo.Title}");
-            
             //Try to download video and convert it to mp3.
             await DownloadHandler.DownloadTrack(url, Environment.GetFolderPath(Environment.SpecialFolder.MyMusic) + "\\SpotiSharp\\");
         }
