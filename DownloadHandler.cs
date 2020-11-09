@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Mime;
 using System.Threading.Tasks;
 using VideoLibrary;
 using Xabe.FFmpeg;
@@ -35,6 +34,7 @@ namespace SpotiSharp
                 file.Tag.Performers = new string [] { TrackInfo.Artist };
                 file.Tag.Composers = new string[] { TrackInfo.Artist };
                 file.Tag.Copyright = TrackInfo.Copyright;
+                file.Tag.Lyrics = TrackInfo.Lyrics;
                 file.Tag.Title = TrackInfo.Title;
                 file.Tag.Album = TrackInfo.Album;
                 file.Tag.Track = Convert.ToUInt32(TrackInfo.TrackNr);

@@ -1,10 +1,9 @@
-﻿using SpotifyAPI.Web;
+﻿using HtmlAgilityPack;
+using SpotifyAPI.Web;
 using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -15,6 +14,7 @@ namespace SpotiSharp
     {
         public static string Artist { get; set; }
         public static string Title { get; set; }
+        public static string Lyrics { get; set; }
         public static int TrackNr { get; set; }
         public static int DiscNr { get; set; }
         public static string Album { get; set; }
@@ -39,7 +39,7 @@ namespace SpotiSharp
                 var track = searchResponse.Tracks.Items[0];
                 var album = await spotifyClient.Albums.Get(track.Album.Id);
                 var artist = await spotifyClient.Artists.Get(track.Artists[0].Id);
-                await SetMetaData(track, artist, album);
+                SetMetaData(track, artist, album);
             }
             catch (ArgumentOutOfRangeException)
             {
@@ -48,7 +48,6 @@ namespace SpotiSharp
             }
             return $"{TrackInfo.Artist} - {TrackInfo.Title}";
         }
-
         public static async Task<string> SearchSpotifyByLink(string input, ConfigurationHandler configuration)
         {
             var loginRequest = new ClientCredentialsRequest(configuration.CLIENTID, configuration.SECRETID);
@@ -57,10 +56,10 @@ namespace SpotiSharp
             var spotifyTrackID = Regex.Match(input, @"(?<=track\/)\w+");
             try
             {
-                var track = spotifyClient.Tracks.Get(spotifyTrackID.Value).Result;
+                var track = await spotifyClient.Tracks.Get(spotifyTrackID.Value);
                 var album = await spotifyClient.Albums.Get(track.Album.Id);
                 var artist = await spotifyClient.Artists.Get(track.Artists[0].Id);
-                await SetMetaData(track, artist, album);
+                SetMetaData(track, artist, album);
             }
             catch (ArgumentOutOfRangeException)
             {
@@ -72,7 +71,7 @@ namespace SpotiSharp
             return $"{TrackInfo.Artist} - {TrackInfo.Title}";
         }
 
-        public static async Task<string> SearchYoutubeByText(string input)
+        public static string SearchYoutubeByText(string input)
         {
             string youtubeSearchUrl = "https://www.youtube.com/results?search_query=";
             string formattedSearchQuery = Regex.Replace(input, "\\s+", "%20");
@@ -84,7 +83,24 @@ namespace SpotiSharp
             return youtubeTrackUrl;
         }
 
-        private static async Task SetMetaData(FullTrack track, FullArtist artist, FullAlbum album)
+        public static void SearchMusixMatchByText(string input)
+        {
+            
+            // Scrap lyrics from Musixmatch.com
+
+            string musixMatchMain = "https://www.musixmatch.com";
+            string musixMatchSearch = "https://www.musixmatch.com/search/";
+            var htmlWeb = new HtmlWeb();
+            var htmlDoc = htmlWeb.Load(new Uri(musixMatchSearch + input));
+            var node = htmlDoc.DocumentNode.SelectSingleNode("/html/body/div[2]/div/div[2]/div/div/div/div[2]/div/div[1]/div[1]/div[2]/div/ul/li/div/div[2]/div/h2/a").Attributes["href"].Value;
+            htmlDoc = htmlWeb.Load(new Uri(musixMatchMain + node));
+            var lyrics = htmlDoc.DocumentNode.SelectSingleNode("/html/body/div[2]/div/div/div/main/div/div/div[3]/div[1]/div/div/div/div[2]/div[1]/span").InnerText;
+            TrackInfo.Lyrics = lyrics;
+            Console.WriteLine($"MusixMatch returned: {musixMatchMain+node}");
+        }
+
+
+        private static void SetMetaData(FullTrack track, FullArtist artist, FullAlbum album)
         {
             TrackInfo.Title = track.Name;
             TrackInfo.Url = track.ExternalUrls.First().Value;

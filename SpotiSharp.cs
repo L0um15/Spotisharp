@@ -29,10 +29,14 @@ namespace SpotiSharp
             new VersionChecker().checkForUpdates();
 
             //Check if FFmpeg is installed.
-            Console.WriteLine("Checking ffmpeg.");
+            Console.WriteLine("Testing FFmpeg...");
             FFmpeg.SetExecutablesPath(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "ffmpeg", "ffprobe");
-            await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official);
-            
+            if (!File.Exists("ffmpeg.exe") || !File.Exists("ffprobe.exe"))
+                Console.WriteLine("FFmpeg not installed. Downloading.");
+                await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official);
+            Console.WriteLine("FFmpeg was found.");
+
+
             string url = null;
             string keyboardInput = args[0];
             if (IsValidUrl(keyboardInput))
@@ -40,14 +44,18 @@ namespace SpotiSharp
                 // Search Spotify for specified Track bu URL.
                 var text = await SearchProvider.SearchSpotifyByLink(keyboardInput, configuration);
                 //Search for this track on Youtube.
-                url = await SearchProvider.SearchYoutubeByText(text);
+                url = SearchProvider.SearchYoutubeByText(text);
+
+                SearchProvider.SearchMusixMatchByText(text);
             }
             else
             {
                 // Search Spotify for results, Exit when nothing were found.
                 var text = await SearchProvider.SearchSpotifyByText(keyboardInput, configuration);
                 //Search for this track on Youtube.
-                url = await SearchProvider.SearchYoutubeByText(text);
+                url = SearchProvider.SearchYoutubeByText(text);
+                // Search Genius for lyrics.
+                SearchProvider.SearchMusixMatchByText(keyboardInput);
             }
             
             // Print Found Track
