@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
     <Description>Music Download using Spotify Web API</Description>
     <Authors>L0um15</Authors>
     <PackageProjectUrl>https://github.com/L0um15/SpotiSharp</PackageProjectUrl>
