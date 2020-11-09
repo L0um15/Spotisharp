@@ -9,6 +9,9 @@
 
 ## Music Downloader using Spotify Web API
 
+SpotiSharp applies metadata like `Artist` `Title` `Lyrics` `Genres` `Album` `AlbumArt` and more...<br />
+Also supports Spotify Url's
+
 ### Usage
 
 **KEEP THESE KEYS PRIVATE, DO NOT SHARE THEM TO ANYONE**
