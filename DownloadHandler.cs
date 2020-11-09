@@ -12,7 +12,7 @@ namespace SpotiSharp
     {
         public static async Task DownloadTrack(string url, string destination)
         {
-            if(!Directory.Exists(destination))
+            if (!Directory.Exists(destination))
                 Directory.CreateDirectory(destination);
             var youtubeEngine = YouTube.Default;
             var video = await youtubeEngine.GetVideoAsync(url);
@@ -29,9 +29,10 @@ namespace SpotiSharp
                 .Start();
             File.Delete(destination + trackName);
             Console.WriteLine("Merging Metadata.");
-            using (TagLib.File file = TagLib.File.Create(destination + Path.GetFileNameWithoutExtension(trackName) + ".mp3")) {
-                file.Tag.AlbumArtists = new string [] { TrackInfo.Artist };
-                file.Tag.Performers = new string [] { TrackInfo.Artist };
+            using (TagLib.File file = TagLib.File.Create(destination + Path.GetFileNameWithoutExtension(trackName) + ".mp3"))
+            {
+                file.Tag.AlbumArtists = new string[] { TrackInfo.Artist };
+                file.Tag.Performers = new string[] { TrackInfo.Artist };
                 file.Tag.Composers = new string[] { TrackInfo.Artist };
                 file.Tag.Copyright = TrackInfo.Copyright;
                 file.Tag.Lyrics = TrackInfo.Lyrics;
@@ -45,7 +46,7 @@ namespace SpotiSharp
                 var httpClient = new HttpClient();
                 var response = await httpClient.GetAsync(TrackInfo.AlbumArt);
                 byte[] bytes = await response.Content.ReadAsByteArrayAsync();
-                file.Tag.Pictures = new TagLib.IPicture [] { new TagLib.Picture(bytes) };
+                file.Tag.Pictures = new TagLib.IPicture[] { new TagLib.Picture(bytes) };
                 file.Save();
             }
             Console.WriteLine("Done.");

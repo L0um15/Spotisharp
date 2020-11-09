@@ -9,7 +9,7 @@ using Xabe.FFmpeg.Downloader;
 namespace SpotiSharp
 {
 
-    
+
 
     class SpotiSharp
     {
@@ -17,7 +17,8 @@ namespace SpotiSharp
         public async Task MainAsync(string[] args)
         {
             // Print Help page when no arguments passed.
-            if (args.Length != 1) {
+            if (args.Length != 1)
+            {
                 Console.WriteLine();
                 Console.WriteLine("\tHelp Page: ");
                 Console.WriteLine("\tUsage: .\\SpotiSharp \"<Search/SpotifyURL>\"");
@@ -33,7 +34,7 @@ namespace SpotiSharp
             FFmpeg.SetExecutablesPath(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "ffmpeg", "ffprobe");
             if (!File.Exists("ffmpeg.exe") || !File.Exists("ffprobe.exe"))
                 Console.WriteLine("FFmpeg not installed. Downloading.");
-                await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official);
+            await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official);
             Console.WriteLine("FFmpeg was found.");
 
 
@@ -57,7 +58,7 @@ namespace SpotiSharp
                 // Search Genius for lyrics.
                 SearchProvider.SearchMusixMatchByText(keyboardInput);
             }
-            
+
             // Print Found Track
             Console.WriteLine($"Spotify Returned: {TrackInfo.Artist} - {TrackInfo.Title}");
             //Try to download video and convert it to mp3.

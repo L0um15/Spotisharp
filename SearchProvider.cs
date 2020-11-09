@@ -28,7 +28,8 @@ namespace SpotiSharp
 
     class SearchProvider
     {
-        public static async Task<string> SearchSpotifyByText(string input, ConfigurationHandler configuration) {
+        public static async Task<string> SearchSpotifyByText(string input, ConfigurationHandler configuration)
+        {
             var loginRequest = new ClientCredentialsRequest(configuration.CLIENTID, configuration.SECRETID);
             var loginResponse = await new OAuthClient().RequestToken(loginRequest);
             SearchResponse searchResponse = null;
@@ -85,7 +86,7 @@ namespace SpotiSharp
 
         public static void SearchMusixMatchByText(string input)
         {
-            
+
             // Scrap lyrics from Musixmatch.com
 
             string musixMatchMain = "https://www.musixmatch.com";
@@ -96,7 +97,7 @@ namespace SpotiSharp
             htmlDoc = htmlWeb.Load(new Uri(musixMatchMain + node));
             var lyrics = htmlDoc.DocumentNode.SelectSingleNode("/html/body/div[2]/div/div/div/main/div/div/div[3]/div[1]/div/div/div/div[2]/div[1]/span").InnerText;
             TrackInfo.Lyrics = lyrics;
-            Console.WriteLine($"MusixMatch returned: {musixMatchMain+node}");
+            Console.WriteLine($"MusixMatch returned: {musixMatchMain + node}");
         }
 
 

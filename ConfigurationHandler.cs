@@ -37,7 +37,7 @@ namespace SpotiSharp
             JObject jObject = JObject.Parse(File.ReadAllText(configfile));
             CLIENTID = jObject.SelectToken("CLIENTID").Value<string>();
             SECRETID = jObject.SelectToken("SECRETID").Value<string>();
-            if(CLIENTID == "" || SECRETID == "")
+            if (CLIENTID == "" || SECRETID == "")
             {
                 Console.WriteLine("Config.json has empty fields. Exiting.");
                 Environment.Exit(0);
