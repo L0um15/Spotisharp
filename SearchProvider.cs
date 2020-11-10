@@ -2,7 +2,6 @@
 using SpotifyAPI.Web;
 using System;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -92,12 +91,23 @@ namespace SpotiSharp
             string musixMatchMain = "https://www.musixmatch.com";
             string musixMatchSearch = "https://www.musixmatch.com/search/";
             var htmlWeb = new HtmlWeb();
-            var htmlDoc = htmlWeb.Load(new Uri(musixMatchSearch + input));
-            var node = htmlDoc.DocumentNode.SelectSingleNode("/html/body/div[2]/div/div[2]/div/div/div/div[2]/div/div[1]/div[1]/div[2]/div/ul/li/div/div[2]/div/h2/a").Attributes["href"].Value;
-            htmlDoc = htmlWeb.Load(new Uri(musixMatchMain + node));
-            var lyrics = htmlDoc.DocumentNode.SelectSingleNode("/html/body/div[2]/div/div/div/main/div/div/div[3]/div[1]/div/div/div/div[2]/div[1]/span").InnerText;
-            TrackInfo.Lyrics = lyrics;
-            Console.WriteLine($"MusixMatch returned: {musixMatchMain + node}");
+            try
+            {
+                var htmlDoc = htmlWeb.Load(new Uri(musixMatchSearch + input));
+                var node = htmlDoc.DocumentNode.SelectSingleNode("/html/body/div[2]/div/div[2]/div/div/div/div[2]/div/div[1]/div[1]/div[2]/div/ul/li/div/div[2]/div/h2/a").Attributes["href"].Value;
+                htmlDoc = htmlWeb.Load(new Uri(musixMatchMain + node));
+                var lyrics = htmlDoc.DocumentNode.SelectSingleNode("/html/body/div[2]/div/div/div/main/div/div/div[3]/div[1]/div/div/div/div[2]/div[1]/span").InnerText;
+                TrackInfo.Lyrics = lyrics;
+                Console.WriteLine($"MusixMatch returned: {musixMatchMain + node}");
+            }
+            catch (NullReferenceException)
+            {
+                Console.WriteLine($"MusixMatch returned no results for: {input}");
+                TrackInfo.Lyrics = null;
+            }
+            
+
+            
         }
 
 
