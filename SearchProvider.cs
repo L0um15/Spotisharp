@@ -33,19 +33,16 @@ namespace SpotiSharp
             var loginResponse = await new OAuthClient().RequestToken(loginRequest);
             SearchResponse searchResponse = null;
             var spotifyClient = new SpotifyClient(loginResponse.AccessToken);
-            try
-            {
-                searchResponse = await spotifyClient.Search.Item(new SearchRequest(SearchRequest.Types.Track, input));
-                var track = searchResponse.Tracks.Items[0];
-                var album = await spotifyClient.Albums.Get(track.Album.Id);
-                var artist = await spotifyClient.Artists.Get(track.Artists[0].Id);
-                SetMetaData(track, artist, album);
-            }
-            catch (ArgumentOutOfRangeException)
+            searchResponse = await spotifyClient.Search.Item(new SearchRequest(SearchRequest.Types.Track, input));
+            var track = searchResponse.Tracks.Items[0];
+            if(track == null)
             {
                 Console.WriteLine("Spotify returned no results. Exiting.");
                 Environment.Exit(0);
             }
+            var album = await spotifyClient.Albums.Get(track.Album.Id);
+            var artist = await spotifyClient.Artists.Get(track.Artists[0].Id);
+            SetMetaData(track, artist, album);
             return $"{TrackInfo.Artist} - {TrackInfo.Title}";
         }
         public static async Task<string> SearchSpotifyByLink(string input, ConfigurationHandler configuration)
@@ -54,20 +51,15 @@ namespace SpotiSharp
             var loginResponse = await new OAuthClient().RequestToken(loginRequest);
             var spotifyClient = new SpotifyClient(loginResponse.AccessToken);
             var spotifyTrackID = Regex.Match(input, @"(?<=track\/)\w+");
-            try
+            var track = await spotifyClient.Tracks.Get(spotifyTrackID.Value);
+            if (track == null) 
             {
-                var track = await spotifyClient.Tracks.Get(spotifyTrackID.Value);
-                var album = await spotifyClient.Albums.Get(track.Album.Id);
-                var artist = await spotifyClient.Artists.Get(track.Artists[0].Id);
-                SetMetaData(track, artist, album);
-            }
-            catch (ArgumentOutOfRangeException)
-            {
-                // Sometimes Spotify wont return anything with direct link. Working on it.
                 Console.WriteLine("Spotify returned no results. Exiting.");
                 Environment.Exit(0);
             }
-            //Returns text that will be passed to youtube search.
+            var album = await spotifyClient.Albums.Get(track.Album.Id);
+            var artist = await spotifyClient.Artists.Get(track.Artists[0].Id);
+            SetMetaData(track, artist, album);
             return $"{TrackInfo.Artist} - {TrackInfo.Title}";
         }
 
@@ -91,23 +83,24 @@ namespace SpotiSharp
             string musixMatchMain = "https://www.musixmatch.com";
             string musixMatchSearch = "https://www.musixmatch.com/search/";
             var htmlWeb = new HtmlWeb();
-            try
-            {
-                var htmlDoc = htmlWeb.Load(new Uri(musixMatchSearch + input));
-                var node = htmlDoc.DocumentNode.SelectSingleNode("/html/body/div[2]/div/div[2]/div/div/div/div[2]/div/div[1]/div[1]/div[2]/div/ul/li/div/div[2]/div/h2/a").Attributes["href"].Value;
-                htmlDoc = htmlWeb.Load(new Uri(musixMatchMain + node));
-                var lyrics = htmlDoc.DocumentNode.SelectSingleNode("/html/body/div[2]/div/div/div/main/div/div/div[3]/div[1]/div/div/div/div[2]/div[1]/span").InnerText;
-                TrackInfo.Lyrics = lyrics;
-                Console.WriteLine($"MusixMatch returned: {musixMatchMain + node}");
-            }
-            catch (NullReferenceException)
+            var htmlDoc = htmlWeb.Load(new Uri(musixMatchSearch + input));
+            var node = htmlDoc.DocumentNode.SelectSingleNode("/html/body/div[2]/div/div[2]/div/div/div/div[2]/div/div[1]/div[1]/div[2]/div/ul/li/div/div[2]/div/h2/a").Attributes["href"].Value;
+            htmlDoc = htmlWeb.Load(new Uri(musixMatchMain + node));
+            var lyrics = htmlDoc.DocumentNode.SelectSingleNode("/html/body/div[2]/div/div/div/main/div/div/div[3]/div[1]/div/div/div/div[2]/div[1]/span");
+            // Scrap Unverified Lyrics if original was not found
+            if (lyrics == null)
+                lyrics = htmlDoc.DocumentNode.SelectSingleNode("/html/body/div[2]/div/div/div/main/div/div/div[3]/div[1]/div/div/div/div[2]/div[2]/span");
+            // No results? Return null and proceed
+            if (lyrics == null)
             {
                 Console.WriteLine($"MusixMatch returned no results for: {input}");
                 TrackInfo.Lyrics = null;
             }
-            
-
-            
+            else 
+            {
+                TrackInfo.Lyrics = lyrics.InnerText;
+                Console.WriteLine($"MusixMatch returned: {musixMatchMain + node}");
+            }
         }
 
 
@@ -118,11 +111,14 @@ namespace SpotiSharp
             TrackInfo.DiscNr = track.DiscNumber;
             TrackInfo.TrackNr = track.TrackNumber;
             TrackInfo.Artist = artist.Name;
-            TrackInfo.Genres = artist.Genres[0];
-            TrackInfo.Copyright = album.Copyrights[0].Text;
-            TrackInfo.AlbumArt = album.Images[0].Url;
+            TrackInfo.AlbumArt = album.Images.First().Url;
             TrackInfo.Year = Convert.ToDateTime(album.ReleaseDate).Year;
             TrackInfo.Album = album.Name;
+            // Sometimes Track has no Genres information. Return blank field.
+            TrackInfo.Genres = artist.Genres.First() != null ? artist.Genres.First() : "";
+            // Sometimes Track has no copyright entry. Include Year and artist name instead of blank field.
+            TrackInfo.Copyright = album.Copyrights.FirstOrDefault() != null 
+                ? album.Copyrights.First().Text : $"{TrackInfo.Year} {TrackInfo.Artist}";
         }
     }
 }

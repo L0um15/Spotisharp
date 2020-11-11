@@ -56,7 +56,7 @@ namespace SpotiSharp
                 //Search for this track on Youtube.
                 url = SearchProvider.SearchYoutubeByText(text);
                 // Search Genius for lyrics.
-                SearchProvider.SearchMusixMatchByText(keyboardInput);
+                SearchProvider.SearchMusixMatchByText(text);
             }
 
             // Print Found Track
