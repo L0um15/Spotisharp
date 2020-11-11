@@ -7,7 +7,7 @@
 ![ISSUES](https://img.shields.io/github/issues/L0um15/SpotiSharp?style=flat-square)
 ![LAST COMMIT](https://img.shields.io/github/last-commit/L0um15/SpotiSharp?style=flat-square)
 
-<img style="float: right;" src=".github/images/icon.png" width="128px" height="128px" />
+<img align="right" src=".github/images/icon.png" width="128px" height="128px" />
 
 ## Music Downloader using Spotify Web API
 
