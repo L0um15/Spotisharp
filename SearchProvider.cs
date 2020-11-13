@@ -116,7 +116,7 @@ namespace SpotiSharp
             TrackInfo.Year = Convert.ToDateTime(album.ReleaseDate).Year;
             TrackInfo.Album = album.Name;
             // Sometimes Track has no Genres information. Return blank field.
-            TrackInfo.Genres = artist.Genres.First() != null ? artist.Genres.First() : "";
+            TrackInfo.Genres = artist.Genres.FirstOrDefault() != null ? artist.Genres.First() : "";
             // Sometimes Track has no copyright entry. Include Year and artist name instead of blank field.
             TrackInfo.Copyright = album.Copyrights.FirstOrDefault() != null 
                 ? album.Copyrights.First().Text : $"{TrackInfo.Year} {TrackInfo.Artist}";
