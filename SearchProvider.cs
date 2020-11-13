@@ -34,15 +34,16 @@ namespace SpotiSharp
             SearchResponse searchResponse = null;
             var spotifyClient = new SpotifyClient(loginResponse.AccessToken);
             searchResponse = await spotifyClient.Search.Item(new SearchRequest(SearchRequest.Types.Track, input));
-            var track = searchResponse.Tracks.Items[0];
-            if(track == null)
+            var tracks = searchResponse.Tracks;
+            if(tracks.Items.Count == 0)
             {
                 Console.WriteLine("Spotify returned no results. Exiting.");
                 Environment.Exit(0);
             }
-            var album = await spotifyClient.Albums.Get(track.Album.Id);
-            var artist = await spotifyClient.Artists.Get(track.Artists[0].Id);
-            SetMetaData(track, artist, album);
+            var item = tracks.Items[0];
+            var album = await spotifyClient.Albums.Get(item.Album.Id);
+            var artist = await spotifyClient.Artists.Get(item.Artists[0].Id);
+            SetMetaData(item, artist, album);
             return $"{TrackInfo.Artist} - {TrackInfo.Title}";
         }
         public static async Task<string> SearchSpotifyByLink(string input, ConfigurationHandler configuration)
