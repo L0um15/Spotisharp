@@ -49,5 +49,5 @@ SpotiSharp will automatically download all tracks to C:\Users\YOU\MyMusic\SpotiS
 
 <img src=".github/images/result.png" />
 
-Screenshot was taken from my [Clair Musicplayer](https://github.com/L0um15/Clair-Musicplayer) which will have SpotiSharp Builtin (stay tuned!).
+Screenshot was taken from my [Clair Musicplayer](https://github.com/L0um15/Clair-Musicplayer)
 
