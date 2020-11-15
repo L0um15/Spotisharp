@@ -27,7 +27,7 @@ namespace SpotiSharp
             };
 
             //Check for updates
-            new VersionChecker().checkForUpdates();
+            //new VersionChecker().checkForUpdates();
 
             //Check if FFmpeg is installed.
             Console.WriteLine("Testing FFmpeg...");
@@ -37,32 +37,22 @@ namespace SpotiSharp
             await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official);
             Console.WriteLine("FFmpeg was found.");
 
-
-            string url = null;
             string keyboardInput = args[0];
+            
             if (IsValidUrl(keyboardInput))
             {
-                // Search Spotify for specified Track bu URL.
-                var text = await SearchProvider.SearchSpotifyByLink(keyboardInput, configuration);
-                //Search for this track on Youtube.
-                url = SearchProvider.SearchYoutubeByText(text);
-
-                SearchProvider.SearchMusixMatchByText(text);
+                if (keyboardInput.Contains("track"))
+                {
+                    await SearchProvider.SearchSpotifyByLink(keyboardInput, configuration);
+                }
+                else if (keyboardInput.Contains("playlist")) 
+                {
+                    await SearchProvider.SearchSpotifyByPlaylist(keyboardInput, configuration);
+                    return;
+                }
             }
             else
-            {
-                // Search Spotify for results, Exit when nothing were found.
-                var text = await SearchProvider.SearchSpotifyByText(keyboardInput, configuration);
-                //Search for this track on Youtube.
-                url = SearchProvider.SearchYoutubeByText(text);
-                // Search Genius for lyrics.
-                SearchProvider.SearchMusixMatchByText(text);
-            }
-
-            // Print Found Track
-            Console.WriteLine($"Spotify Returned: {TrackInfo.Artist} - {TrackInfo.Title}");
-            //Try to download video and convert it to mp3.
-            await DownloadHandler.DownloadTrack(url, Environment.GetFolderPath(Environment.SpecialFolder.MyMusic) + "\\SpotiSharp\\");
+                await SearchProvider.SearchSpotifyByText(keyboardInput, configuration);
         }
 
 

@@ -1,6 +1,8 @@
 ﻿using HtmlAgilityPack;
 using SpotifyAPI.Web;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
@@ -27,7 +29,8 @@ namespace SpotiSharp
 
     class SearchProvider
     {
-        public static async Task<string> SearchSpotifyByText(string input, ConfigurationHandler configuration)
+        static string musicFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic) + "\\SpotiSharp\\";
+        public static async Task SearchSpotifyByText(string input, ConfigurationHandler configuration)
         {
             var loginRequest = new ClientCredentialsRequest(configuration.CLIENTID, configuration.SECRETID);
             var loginResponse = await new OAuthClient().RequestToken(loginRequest);
@@ -44,9 +47,11 @@ namespace SpotiSharp
             var album = await spotifyClient.Albums.Get(item.Album.Id);
             var artist = await spotifyClient.Artists.Get(item.Artists[0].Id);
             SetMetaData(item, artist, album);
-            return $"{TrackInfo.Artist} - {TrackInfo.Title}";
+            var fullName = $"{TrackInfo.Artist} - {TrackInfo.Title}";
+            SearchMusixMatchByText(fullName);
+            await DownloadHandler.DownloadTrack(SearchYoutubeByText(fullName), musicFolder);
         }
-        public static async Task<string> SearchSpotifyByLink(string input, ConfigurationHandler configuration)
+        public static async Task SearchSpotifyByLink(string input, ConfigurationHandler configuration)
         {
             var loginRequest = new ClientCredentialsRequest(configuration.CLIENTID, configuration.SECRETID);
             var loginResponse = await new OAuthClient().RequestToken(loginRequest);
@@ -61,22 +66,52 @@ namespace SpotiSharp
             var album = await spotifyClient.Albums.Get(track.Album.Id);
             var artist = await spotifyClient.Artists.Get(track.Artists[0].Id);
             SetMetaData(track, artist, album);
-            return $"{TrackInfo.Artist} - {TrackInfo.Title}";
+            var fullName = $"{TrackInfo.Artist} - {TrackInfo.Title}";
+            SearchMusixMatchByText(fullName);
+            await DownloadHandler.DownloadTrack(SearchYoutubeByText(fullName), musicFolder);
         }
 
-        public static string SearchYoutubeByText(string input)
+        public static async Task SearchSpotifyByPlaylist(string input, ConfigurationHandler configuration) 
         {
-            string youtubeSearchUrl = "https://www.youtube.com/results?search_query=";
+            var loginRequest = new ClientCredentialsRequest(configuration.CLIENTID, configuration.SECRETID);
+            var loginResponse = await new OAuthClient().RequestToken(loginRequest);
+            var spotifyClient = new SpotifyClient(loginResponse.AccessToken);
+            var spotifyPlaylistID = Regex.Match(input, @"(?<=playlist\/)\w+");
+            var playlist = await spotifyClient.Playlists.Get(spotifyPlaylistID.Value);
+            int i = 1;
+            foreach(var item in playlist.Tracks.Items)
+            {
+                if(item.Track is FullTrack track)
+                {
+                    var artist = await spotifyClient.Artists.Get(track.Artists[0].Id);
+                    var album = await spotifyClient.Albums.Get(track.Album.Id);
+                    SetMetaData(track, artist, album);
+                    var fullName = $"{TrackInfo.Artist} - {TrackInfo.Title}";
+                    Console.Clear();
+                    Console.WriteLine($"Downloading Track: {fullName} | {i}/{playlist.Tracks.Items.Count}\nInformation:\n\n");
+                    SearchMusixMatchByText(fullName);
+                    await DownloadHandler.DownloadTrack(SearchYoutubeByText(fullName), musicFolder); ;
+                    i++;
+                }
+            }
+        }
+
+        private static string SearchYoutubeByText(string input)
+        {
+            string youtubeSearchUrl = "https://www.youtube.com/search?q=";
             string formattedSearchQuery = Regex.Replace(input, "\\s+", "%20");
             var httpClient = new HttpClient();
             var htmlPage = httpClient.GetStringAsync(youtubeSearchUrl + formattedSearchQuery);
-            // Gets first vidId from html code. 
-            Match match = Regex.Match(htmlPage.Result, "v=[a-zA-Z0-9]{11}");
-            string youtubeTrackUrl = "https://youtube.com/watch?" + match.Value;
+            List<string> matches = new List<string>();
+            // Get all matches
+            foreach(Match match in Regex.Matches(htmlPage.Result, @"v=[a-zA-Z0-9_-]{11}"))
+                matches.Add(match.Value);
+            // Get first element of list
+            string youtubeTrackUrl = "https://youtube.com/watch?" + matches.First();
             return youtubeTrackUrl;
         }
 
-        public static void SearchMusixMatchByText(string input)
+        private static void SearchMusixMatchByText(string input)
         {
 
             // Scrap lyrics from Musixmatch.com
@@ -85,8 +120,15 @@ namespace SpotiSharp
             string musixMatchSearch = "https://www.musixmatch.com/search/";
             var htmlWeb = new HtmlWeb();
             var htmlDoc = htmlWeb.Load(new Uri(musixMatchSearch + input));
-            var node = htmlDoc.DocumentNode.SelectSingleNode("/html/body/div[2]/div/div[2]/div/div/div/div[2]/div/div[1]/div[1]/div[2]/div/ul/li/div/div[2]/div/h2/a").Attributes["href"].Value;
-            htmlDoc = htmlWeb.Load(new Uri(musixMatchMain + node));
+            var node = htmlDoc.DocumentNode.SelectSingleNode("/html/body/div[2]/div/div[2]/div/div/div/div[2]/div/div[1]/div[1]");
+            if (node == null) 
+            {
+                Console.WriteLine($"MusixMatch returned no results for: {input}");
+                TrackInfo.Lyrics = null;
+                return;
+            }
+            var link = htmlDoc.DocumentNode.SelectSingleNode("/html/body/div[2]/div/div[2]/div/div/div/div[2]/div/div[1]/div[1]/div[2]/div/ul/li/div/div[2]/div/h2/a").Attributes["href"].Value;
+            htmlDoc = htmlWeb.Load(new Uri(musixMatchMain + link));
             var lyrics = htmlDoc.DocumentNode.SelectSingleNode("/html/body/div[2]/div/div/div/main/div/div/div[3]/div[1]/div/div/div/div[2]/div[1]/span");
             // Scrap Unverified Lyrics if original was not found
             if (lyrics == null)
@@ -100,7 +142,7 @@ namespace SpotiSharp
             else 
             {
                 TrackInfo.Lyrics = lyrics.InnerText;
-                Console.WriteLine($"MusixMatch returned: {musixMatchMain + node}");
+                Console.WriteLine($"MusixMatch returned: {musixMatchMain + link}");
             }
         }
 
