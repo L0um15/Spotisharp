@@ -2,7 +2,6 @@
 using SpotifyAPI.Web;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
@@ -34,9 +33,8 @@ namespace SpotiSharp
         {
             var loginRequest = new ClientCredentialsRequest(configuration.CLIENTID, configuration.SECRETID);
             var loginResponse = await new OAuthClient().RequestToken(loginRequest);
-            SearchResponse searchResponse = null;
             var spotifyClient = new SpotifyClient(loginResponse.AccessToken);
-            searchResponse = await spotifyClient.Search.Item(new SearchRequest(SearchRequest.Types.Track, input));
+            var searchResponse = await spotifyClient.Search.Item(new SearchRequest(SearchRequest.Types.Track, input));
             var tracks = searchResponse.Tracks;
             if(tracks.Items.Count == 0)
             {
@@ -155,7 +153,6 @@ namespace SpotiSharp
             TrackInfo.Url = track.ExternalUrls.First().Value;
             TrackInfo.DiscNr = track.DiscNumber;
             TrackInfo.TrackNr = track.TrackNumber;
-            string pattern = "asd\"asd\"";
             TrackInfo.Artist = Regex.Replace(artist.Name, @"[\/\\\?\*\<\>\|\:\""]", " ");
             TrackInfo.AlbumArt = album.Images.First().Url;
             TrackInfo.Year = Convert.ToDateTime(album.ReleaseDate).Year;

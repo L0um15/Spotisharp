@@ -26,8 +26,7 @@ namespace SpotiSharp
                 return;
             };
 
-            //Check for updates
-            //new VersionChecker().checkForUpdates();
+            new VersionChecker().checkForUpdates();
 
             //Check if FFmpeg is installed.
             Console.WriteLine("Testing FFmpeg...");
