@@ -41,9 +41,13 @@ SpotiSharp is very easy to use...
 
 SpotiSharp will automatically download all tracks to C:\Users\YOU\MyMusic\SpotiSharp\
 
-### In Action
+### Single Track
 
-<img src=".github/images/preview.png"/>
+<img src=".github/images/preview.png"/><br />
+
+### Playlist
+
+<img src=".github/images/preview2.png"/><br />
 
 ### Result
 
