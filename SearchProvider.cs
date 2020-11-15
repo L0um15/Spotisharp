@@ -99,7 +99,7 @@ namespace SpotiSharp
         private static string SearchYoutubeByText(string input)
         {
             string youtubeSearchUrl = "https://www.youtube.com/search?q=";
-            string formattedSearchQuery = Regex.Replace(input, "\\s+", "%20");
+            string formattedSearchQuery = Regex.Replace(input, @"[\s+\&]", "%20");
             var httpClient = new HttpClient();
             var htmlPage = httpClient.GetStringAsync(youtubeSearchUrl + formattedSearchQuery);
             List<string> matches = new List<string>();
