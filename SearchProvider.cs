@@ -112,7 +112,10 @@ namespace SpotiSharp
                         await DownloadHandler.DownloadTrack(SearchYoutubeByText(fullName), myFolder);
                     }
                     else
+                    {
                         Console.WriteLine("Track Found. Skipping");
+                        await Task.Delay(500);
+                    } 
                     i++;
                 }
             }
