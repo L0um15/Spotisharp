@@ -129,10 +129,12 @@ namespace SpotiSharp
             }
             var link = htmlDoc.DocumentNode.SelectSingleNode("/html/body/div[2]/div/div[2]/div/div/div/div[2]/div/div[1]/div[1]/div[2]/div/ul/li/div/div[2]/div/h2/a").Attributes["href"].Value;
             htmlDoc = htmlWeb.Load(new Uri(musixMatchMain + link));
-            var lyrics = htmlDoc.DocumentNode.SelectSingleNode("/html/body/div[2]/div/div/div/main/div/div/div[3]/div[1]/div/div/div/div[2]/div[1]/span");
+            var lyrics = htmlDoc.DocumentNode.SelectSingleNode("//div[@class='mxm-lyrics']/span");
             // Scrap Unverified Lyrics if original was not found
             if (lyrics == null)
-                lyrics = htmlDoc.DocumentNode.SelectSingleNode("/html/body/div[2]/div/div/div/main/div/div/div[3]/div[1]/div/div/div/div[2]/div[2]/span");
+                lyrics = htmlDoc.DocumentNode.SelectSingleNode("//span[@class='lyrics__content__ok']");
+            if (lyrics == null)
+                lyrics = htmlDoc.DocumentNode.SelectSingleNode("//span[@class='lyrics__content__warning']");
             // No results? Return null and proceed
             if (lyrics == null)
             {
@@ -149,11 +151,12 @@ namespace SpotiSharp
 
         private static void SetMetaData(FullTrack track, FullArtist artist, FullAlbum album)
         {
-            TrackInfo.Title = track.Name;
+            TrackInfo.Title = Regex.Replace(track.Name, @"[\/\\\?\*\<\>\|\:\""]", " ");
             TrackInfo.Url = track.ExternalUrls.First().Value;
             TrackInfo.DiscNr = track.DiscNumber;
             TrackInfo.TrackNr = track.TrackNumber;
-            TrackInfo.Artist = artist.Name;
+            string pattern = "asd\"asd\"";
+            TrackInfo.Artist = Regex.Replace(artist.Name, @"[\/\\\?\*\<\>\|\:\""]", " ");
             TrackInfo.AlbumArt = album.Images.First().Url;
             TrackInfo.Year = Convert.ToDateTime(album.ReleaseDate).Year;
             TrackInfo.Album = album.Name;
