@@ -30,7 +30,7 @@ namespace SpotiSharp
 
             //Check if FFmpeg is installed.
             Console.WriteLine("Testing FFmpeg...");
-            FFmpeg.SetExecutablesPath(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "ffmpeg", "ffprobe");
+            FFmpeg.SetExecutablesPath(Directory.GetCurrentDirectory(), "ffmpeg", "ffprobe");
             if (!File.Exists("ffmpeg.exe") || !File.Exists("ffprobe.exe"))
                 Console.WriteLine("FFmpeg not installed. Downloading.");
             await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official);
@@ -64,7 +64,5 @@ namespace SpotiSharp
             }
             return false;
         }
-
-
     }
 }
