@@ -38,7 +38,7 @@ namespace SpotiSharp
             var spotifyClient = new SpotifyClient(loginResponse.AccessToken);
             var searchResponse = await spotifyClient.Search.Item(new SearchRequest(SearchRequest.Types.Track, input));
             var tracks = searchResponse.Tracks;
-            if(tracks.Items.Count == 0)
+            if (tracks.Items.Count == 0)
             {
                 Console.WriteLine("Spotify returned no results. Exiting.");
                 Environment.Exit(0);
@@ -49,7 +49,7 @@ namespace SpotiSharp
             SetMetaData(item, artist, album);
             var fullName = $"{TrackInfo.Artist} - {TrackInfo.Title}";
             var doesExist = Directory.GetFiles(musicFolder, "*.mp3", SearchOption.AllDirectories)
-                .Any(x=>x.Contains(fullName));
+                .Any(x => x.Contains(fullName));
             if (doesExist != true)
             {
                 SearchMusixMatchByText(fullName);
@@ -57,7 +57,7 @@ namespace SpotiSharp
             }
             else
                 Console.WriteLine("Track Found. Skipping");
-            
+
         }
         public static async Task SearchSpotifyByLink(string input, ConfigurationHandler configuration)
         {
@@ -66,7 +66,7 @@ namespace SpotiSharp
             var spotifyClient = new SpotifyClient(loginResponse.AccessToken);
             var spotifyTrackID = Regex.Match(input, @"(?<=track\/)\w+");
             var track = await spotifyClient.Tracks.Get(spotifyTrackID.Value);
-            if (track == null) 
+            if (track == null)
             {
                 Console.WriteLine("Spotify returned no results. Exiting.");
                 Environment.Exit(0);
@@ -86,7 +86,7 @@ namespace SpotiSharp
                 Console.WriteLine("Track Found. Skipping");
         }
 
-        public static async Task SearchSpotifyByPlaylist(string input, ConfigurationHandler configuration) 
+        public static async Task SearchSpotifyByPlaylist(string input, ConfigurationHandler configuration)
         {
             var loginRequest = new ClientCredentialsRequest(configuration.CLIENTID, configuration.SECRETID);
             var loginResponse = await new OAuthClient().RequestToken(loginRequest);
@@ -94,9 +94,9 @@ namespace SpotiSharp
             var spotifyPlaylistID = Regex.Match(input, @"(?<=playlist\/)\w+");
             var playlist = await spotifyClient.Playlists.Get(spotifyPlaylistID.Value);
             int i = 1;
-            foreach(var item in playlist.Tracks.Items)
+            foreach (var item in playlist.Tracks.Items)
             {
-                if(item.Track is FullTrack track)
+                if (item.Track is FullTrack track)
                 {
                     var artist = await spotifyClient.Artists.Get(track.Artists[0].Id);
                     var album = await spotifyClient.Albums.Get(track.Album.Id);
@@ -115,7 +115,7 @@ namespace SpotiSharp
                     {
                         Console.WriteLine("Track Found. Skipping");
                         await Task.Delay(500);
-                    } 
+                    }
                     i++;
                 }
             }
@@ -129,7 +129,7 @@ namespace SpotiSharp
             var htmlPage = httpClient.GetStringAsync(youtubeSearchUrl + formattedSearchQuery);
             List<string> matches = new List<string>();
             // Get all matches
-            foreach(Match match in Regex.Matches(htmlPage.Result, @"v=[a-zA-Z0-9_-]{11}"))
+            foreach (Match match in Regex.Matches(htmlPage.Result, @"v=[a-zA-Z0-9_-]{11}"))
                 matches.Add(match.Value);
             // Get first element of list
             string youtubeTrackUrl = "https://youtube.com/watch?" + matches.First();
@@ -146,7 +146,7 @@ namespace SpotiSharp
             var htmlWeb = new HtmlWeb();
             var htmlDoc = htmlWeb.Load(new Uri(musixMatchSearch + input));
             var node = htmlDoc.DocumentNode.SelectSingleNode("/html/body/div[2]/div/div[2]/div/div/div/div[2]/div/div[1]/div[1]");
-            if (node == null) 
+            if (node == null)
             {
                 Console.WriteLine($"MusixMatch returned no results for: {input}");
                 TrackInfo.Lyrics = null;
@@ -166,7 +166,7 @@ namespace SpotiSharp
                 Console.WriteLine($"MusixMatch returned no results for: {input}");
                 TrackInfo.Lyrics = null;
             }
-            else 
+            else
             {
                 TrackInfo.Lyrics = lyrics.InnerText;
                 Console.WriteLine($"MusixMatch returned: {musixMatchMain + link}");
@@ -187,7 +187,7 @@ namespace SpotiSharp
             // Sometimes Track has no Genres information. Return blank field.
             TrackInfo.Genres = artist.Genres.FirstOrDefault() != null ? artist.Genres.First() : "";
             // Sometimes Track has no copyright entry. Include Year and artist name instead of blank field.
-            TrackInfo.Copyright = album.Copyrights.FirstOrDefault() != null 
+            TrackInfo.Copyright = album.Copyrights.FirstOrDefault() != null
                 ? album.Copyrights.First().Text : $"{TrackInfo.Year} {TrackInfo.Artist}";
         }
     }

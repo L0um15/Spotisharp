@@ -37,14 +37,14 @@ namespace SpotiSharp
             Console.WriteLine("FFmpeg was found.");
 
             string keyboardInput = args[0];
-            
+
             if (IsValidUrl(keyboardInput))
             {
                 if (keyboardInput.Contains("track"))
                 {
                     await SearchProvider.SearchSpotifyByLink(keyboardInput, configuration);
                 }
-                else if (keyboardInput.Contains("playlist")) 
+                else if (keyboardInput.Contains("playlist"))
                 {
                     await SearchProvider.SearchSpotifyByPlaylist(keyboardInput, configuration);
                     return;
