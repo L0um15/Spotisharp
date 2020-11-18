@@ -4,6 +4,10 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <ApplicationIcon>icon.ico</ApplicationIcon>
+    <Version>1.0.2</Version>
+    <Authors>L0um15</Authors>
+    <Description>Music Downloader using SpotifyWebApi</Description>
+    <Copyright>Copyright (c) 2020 L0um15</Copyright>
   </PropertyGroup>
 
   <ItemGroup>

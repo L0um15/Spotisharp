@@ -30,7 +30,7 @@ namespace SpotiSharp
     class SearchProvider
     {
         static string musicFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
-        static string myFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic) + "\\SpotiSharp\\";
+        static string myFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyMusic), "SpotiSharp");
         public static async Task SearchSpotifyByText(string input, ConfigurationHandler configuration)
         {
             var loginRequest = new ClientCredentialsRequest(configuration.CLIENTID, configuration.SECRETID);

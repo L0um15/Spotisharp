@@ -19,35 +19,35 @@ namespace SpotiSharp
             // Print Help page when no arguments passed.
             if (args.Length != 1)
             {
-                Console.WriteLine();
-                Console.WriteLine("\tHelp Page: ");
-                Console.WriteLine("\tUsage: .\\SpotiSharp \"<Search/SpotifyURL>\"");
-                Console.WriteLine();
+                Console.WriteLine("\n\tHelp Page: \n" +
+                    "\tUsage: .\\SpotiSharp \"<Search/SpotifyURL>\"");
                 return;
             };
 
             new VersionChecker().checkForUpdates();
 
             //Check if FFmpeg is installed.
-            Console.WriteLine("Testing FFmpeg...");
+            Console.WriteLine("Looking for FFmpeg.\n" +
+                "Please be patient.");
             FFmpeg.SetExecutablesPath(Directory.GetCurrentDirectory(), "ffmpeg", "ffprobe");
-            if (!File.Exists("ffmpeg.exe") || !File.Exists("ffprobe.exe"))
-                Console.WriteLine("FFmpeg not installed. Downloading.");
             await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official);
-            Console.WriteLine("FFmpeg was found.");
 
             string keyboardInput = args[0];
 
             if (IsValidUrl(keyboardInput))
             {
-                if (keyboardInput.Contains("track"))
+                switch (keyboardInput)
                 {
-                    await SearchProvider.SearchSpotifyByLink(keyboardInput, configuration);
-                }
-                else if (keyboardInput.Contains("playlist"))
-                {
-                    await SearchProvider.SearchSpotifyByPlaylist(keyboardInput, configuration);
-                    return;
+                    case "track":
+                        await SearchProvider.SearchSpotifyByLink(keyboardInput, configuration);
+                        break;
+                    case "playlist":
+                        await SearchProvider.SearchSpotifyByPlaylist(keyboardInput, configuration);
+                        break;
+                    default:
+                        Console.WriteLine("Sorry but this link format is not currently supported.\n" +
+                            "You can always request a new feature on SpotiSharp Github Issue Tracker");
+                        break;
                 }
             }
             else

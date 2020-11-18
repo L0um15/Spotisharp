@@ -10,6 +10,10 @@ namespace SpotiSharp
 {
     class DownloadHandler
     {
+
+        private static string UNCONVERTEDFILEPATH { get; set; }
+        private static string CONVERTEDFILEPATH { get; set; }
+
         public static async Task DownloadTrack(string url, string destination)
         {
             if (!Directory.Exists(destination))
@@ -18,20 +22,22 @@ namespace SpotiSharp
             var video = await youtubeEngine.GetVideoAsync(url);
             Console.WriteLine($"Downloading: {TrackInfo.Artist} - {TrackInfo.Title}");
             string trackName = $"{TrackInfo.Artist} - {TrackInfo.Title}" + video.FileExtension;
-            File.WriteAllBytes(destination + trackName, video.GetBytes());
+            UNCONVERTEDFILEPATH = Path.Combine(destination, trackName);
+            CONVERTEDFILEPATH = Path.Combine(destination, Path.GetFileNameWithoutExtension(trackName) + ".mp3");
+            File.WriteAllBytes(UNCONVERTEDFILEPATH, video.GetBytes());
             Console.WriteLine("Converting to mp3");
-            var mediaInfo = await FFmpeg.GetMediaInfo(destination + trackName);
+            var mediaInfo = await FFmpeg.GetMediaInfo(UNCONVERTEDFILEPATH);
             var audioStream = mediaInfo.AudioStreams.FirstOrDefault();
             IConversionResult conversionResult = await FFmpeg.Conversions.New()
                 .AddStream(audioStream)
-                .SetOutput(destination + Path.GetFileNameWithoutExtension(trackName) + ".mp3")
+                .SetOutput(CONVERTEDFILEPATH)
                 .SetOverwriteOutput(true)
                 .Start();
-            File.Delete(destination + trackName);
+            File.Delete(UNCONVERTEDFILEPATH);
             Console.WriteLine("Merging Metadata.");
             TagLib.Id3v2.Tag.DefaultVersion = 3;
             TagLib.Id3v2.Tag.ForceDefaultVersion = true;
-            TagLib.File file = TagLib.File.Create(destination + Path.GetFileNameWithoutExtension(trackName) + ".mp3");
+            TagLib.File file = TagLib.File.Create(CONVERTEDFILEPATH);
             file.Tag.AlbumArtists = new string[] { TrackInfo.Artist };
             file.Tag.Performers = new string[] { TrackInfo.Artist };
             file.Tag.Composers = new string[] { TrackInfo.Artist };
