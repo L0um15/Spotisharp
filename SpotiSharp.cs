@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Xabe.FFmpeg;
@@ -26,29 +28,28 @@ namespace SpotiSharp
 
             new VersionChecker().checkForUpdates();
 
+
             //Check if FFmpeg is installed.
             Console.WriteLine("Looking for FFmpeg.\n" +
                 "Please be patient.");
             FFmpeg.SetExecutablesPath(Directory.GetCurrentDirectory(), "ffmpeg", "ffprobe");
             await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official);
 
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) 
+                // Set execution permission for downloaded ffmpeg package
+                Process.Start("chmod", "+x ffmpeg ffprobe");
+
             string keyboardInput = args[0];
 
             if (IsValidUrl(keyboardInput))
             {
-                switch (keyboardInput)
-                {
-                    case "track":
-                        await SearchProvider.SearchSpotifyByLink(keyboardInput, configuration);
-                        break;
-                    case "playlist":
-                        await SearchProvider.SearchSpotifyByPlaylist(keyboardInput, configuration);
-                        break;
-                    default:
-                        Console.WriteLine("Sorry but this link format is not currently supported.\n" +
+                if (keyboardInput.Contains("track"))
+                    await SearchProvider.SearchSpotifyByLink(keyboardInput, configuration);
+                else if(keyboardInput.Contains("playlist"))
+                    await SearchProvider.SearchSpotifyByPlaylist(keyboardInput, configuration);
+                else
+                    Console.WriteLine("Sorry but this link format is not currently supported.\n" +
                             "You can always request a new feature on SpotiSharp Github Issue Tracker");
-                        break;
-                }
             }
             else
                 await SearchProvider.SearchSpotifyByText(keyboardInput, configuration);
