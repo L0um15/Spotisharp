@@ -77,13 +77,45 @@ namespace SpotiSharp
             var fullName = $"{TrackInfo.Artist} - {TrackInfo.Title}";
             var doesExist = Directory.GetFiles(musicFolder, "*.mp3", SearchOption.AllDirectories)
                 .Any(x => x.Contains(fullName));
-            if (doesExist != true)
+            if (doesExist == false)
             {
                 SearchMusixMatchByText(fullName);
                 await DownloadHandler.DownloadTrack(SearchYoutubeByText(fullName), myFolder);
             }
             else
                 Console.WriteLine("Track Found. Skipping");
+        }
+
+        public static async Task SearchSpotifyByAlbum(string input, ConfigurationHandler configuration)
+        {
+            var loginRequest = new ClientCredentialsRequest(configuration.CLIENTID, configuration.SECRETID);
+            var loginResponse = await new OAuthClient().RequestToken(loginRequest);
+            var spotifyClient = new SpotifyClient(loginResponse.AccessToken);
+            var spotifyAlbumID = Regex.Match(input, @"(?<=album\/)\w+");
+            var album = await spotifyClient.Albums.Get(spotifyAlbumID.Value);
+            int i = 1;
+            foreach(var item in album.Tracks.Items)
+            {
+                var track = await spotifyClient.Tracks.Get(item.Id);
+                var artist = await spotifyClient.Artists.Get(item.Artists[0].Id);
+                SetMetaData(track, artist, album);
+                var fullName = $"{TrackInfo.Artist} - {TrackInfo.Title}";
+                Console.Clear();
+                Console.WriteLine($"Downloading Track: {fullName} | {i}/{album.Tracks.Items.Count}\nInformation:\n\n");
+                var doesExist = Directory.GetFiles(musicFolder, "*.mp3", SearchOption.AllDirectories)
+                    .Any(x => x.Contains(fullName));
+                if (doesExist == false)
+                {
+                    SearchMusixMatchByText(fullName);
+                    await DownloadHandler.DownloadTrack(SearchYoutubeByText(fullName), myFolder);
+                }
+                else
+                {
+                    Console.WriteLine("Track Found. Skipping");
+                    await Task.Delay(500);
+                }
+                i++;
+            }
         }
 
         public static async Task SearchSpotifyByPlaylist(string input, ConfigurationHandler configuration)
@@ -172,7 +204,6 @@ namespace SpotiSharp
                 Console.WriteLine($"MusixMatch returned: {musixMatchMain + link}");
             }
         }
-
 
         private static void SetMetaData(FullTrack track, FullArtist artist, FullAlbum album)
         {

@@ -51,8 +51,10 @@ namespace SpotiSharp
             {
                 if (keyboardInput.Contains("track"))
                     await SearchProvider.SearchSpotifyByLink(keyboardInput, configuration);
-                else if(keyboardInput.Contains("playlist"))
+                else if (keyboardInput.Contains("playlist"))
                     await SearchProvider.SearchSpotifyByPlaylist(keyboardInput, configuration);
+                else if (keyboardInput.Contains("album"))
+                    await SearchProvider.SearchSpotifyByAlbum(keyboardInput, configuration);
                 else
                     Console.WriteLine("Sorry but this link format is not currently supported.\n" +
                             "You can always request a new feature on SpotiSharp Github Issue Tracker");
