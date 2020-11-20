@@ -18,6 +18,12 @@ namespace SpotiSharp
         ConfigurationHandler configuration = new ConfigurationHandler();
         public async Task MainAsync(string[] args)
         {
+            if (IsRoot)
+            {
+                Console.WriteLine("SpotiSharp does not require root privileges to run.\n" +
+                    "Please try without sudo");
+                Environment.Exit(0);
+            }
             // Print Help page when no arguments passed.
             if (args.Length != 1)
             {
@@ -35,8 +41,8 @@ namespace SpotiSharp
             FFmpeg.SetExecutablesPath(Directory.GetCurrentDirectory(), "ffmpeg", "ffprobe");
             await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official);
 
+            // Set execution permission for downloaded ffmpeg, ffprobe package
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) 
-                // Set execution permission for downloaded ffmpeg package
                 Process.Start("chmod", "+x ffmpeg ffprobe");
 
             string keyboardInput = args[0];
@@ -65,5 +71,7 @@ namespace SpotiSharp
             }
             return false;
         }
+        private bool IsRoot
+            => Environment.UserName == "root";
     }
 }
