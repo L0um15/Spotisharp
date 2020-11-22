@@ -45,8 +45,8 @@ Pass this commands to get it working.
 ```
 ... and thats it.
 
-SpotiSharp will automatically download all tracks to <b>/</b>home<b>/</b>Music<b>/</b>SpotiSharp<br/>
-SpotiSharp will also scan <b>/</b>home<b>/</b>Music recursively in order to skip already downloaded tracks.
+SpotiSharp will automatically download all tracks to <b>/</b>home<b>/</b>YOU<b>/</b>Music<b>/</b>SpotiSharp<br/>
+SpotiSharp will also scan <b>/</b>home<b>/</b>YOU<b>/</b>Music recursively in order to skip already downloaded tracks.
 
 ### Single Track
 
