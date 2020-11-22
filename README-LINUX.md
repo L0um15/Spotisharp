@@ -39,7 +39,7 @@ Let's assume you downloaded SpotiSharp and you have terminal opened in SpotiShar
 Pass this commands to get it working.
 
 ```sh
-~/Desktop/SpotiSharp$ sudo chmod +x ./SpotiSharp # Gives permission to execute as program.
+~/Desktop/SpotiSharp$ chmod +x ./SpotiSharp # Gives permission to execute as program.
 
 ~/Desktop/SpotiSharp$ ./SpotiSharp "<Text Search / Spotify URL>"
 ```
