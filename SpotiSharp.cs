@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -28,7 +27,7 @@ namespace SpotiSharp
             if (args.Length != 1)
             {
                 Console.WriteLine("\n\tHelp Page: \n" +
-                    "\tUsage: .\\SpotiSharp \"<Search/SpotifyURL>\"");
+                    "\tUsage: .\\SpotiSharp \"<Search/SpotifyURL>\"\n");
                 return;
             };
 
@@ -39,9 +38,10 @@ namespace SpotiSharp
             Console.WriteLine("Looking for FFmpeg.\n" +
                 "Please be patient.");
             FFmpeg.SetExecutablesPath(Directory.GetCurrentDirectory(), "ffmpeg", "ffprobe");
+            // If it is skip, if is not then download.
             await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official);
 
-            // Set execution permission for downloaded ffmpeg, ffprobe package
+            // Set execution permission for downloaded ffmpeg, ffprobe package.
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) 
                 Process.Start("chmod", "+x ffmpeg ffprobe");
 
@@ -62,8 +62,6 @@ namespace SpotiSharp
             else
                 await SearchProvider.SearchSpotifyByText(keyboardInput, configuration);
         }
-
-
         private bool IsValidUrl(string input)
         {
             if (Regex.IsMatch(input, @"([--:\w?@%&+~#=]*\.[a-z]{2,4}\/{0,2})((?:[?&](?:\w+)=(?:\w+))+|[--:\w?@%&+~#=]+)?"))
@@ -73,7 +71,8 @@ namespace SpotiSharp
             }
             return false;
         }
+        // Sudo makes you run program as root, just simply check if sudo was issued by checking username.
         private bool IsRoot
-            => Environment.UserName == "root";
+            => RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? Environment.UserName == "root" : false;
     }
 }

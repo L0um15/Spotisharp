@@ -8,6 +8,8 @@
     <Authors>L0um15</Authors>
     <Description>Music Downloader using SpotifyWebApi</Description>
     <Copyright>Copyright (c) 2020 L0um15</Copyright>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

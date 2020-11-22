@@ -35,6 +35,14 @@ namespace SpotiSharp
                 .Start();
             File.Delete(UNCONVERTEDFILEPATH);
             Console.WriteLine("Merging Metadata.");
+            await WriteMetaData(CONVERTEDFILEPATH);
+            Console.WriteLine("Done.");
+        }
+
+
+
+        private static async Task WriteMetaData(string path)
+        {
             TagLib.Id3v2.Tag.DefaultVersion = 3;
             TagLib.Id3v2.Tag.ForceDefaultVersion = true;
             TagLib.File file = TagLib.File.Create(CONVERTEDFILEPATH);
@@ -55,7 +63,6 @@ namespace SpotiSharp
             byte[] bytes = await response.Content.ReadAsByteArrayAsync();
             file.Tag.Pictures = new TagLib.IPicture[] { new TagLib.Picture(bytes) };
             file.Save();
-            Console.WriteLine("Done.");
         }
     }
 }
