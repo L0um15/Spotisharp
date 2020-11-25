@@ -10,15 +10,14 @@ assignees: ''
 **Describe the bug**
 A clear and concise description of what the bug is.
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
-
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+**How To Reproduce**
+Include song/playlist you was looking for.
+E.g. [https://open.spotify.com/track/28HX0PibeXSL6cfAsvwSgD]
 
 **Screenshots**
-If applicable, add screenshots to help explain your problem.
+Add screenshots to help explain your problem.
+
+**Desktop (please complete the following information):**
+ - OS: [e.g. Linux]
+ - Kernel [e.g. 4.15.0-39-generic] (Linux)
+- OS Version [e.g. 1809 build 17763.1577] (Windows)
