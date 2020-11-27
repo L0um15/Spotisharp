@@ -39,7 +39,11 @@ namespace SpotiSharp
                 "Please be patient.");
             FFmpeg.SetExecutablesPath(Directory.GetCurrentDirectory(), "ffmpeg", "ffprobe");
             // If it is skip, if is not then download.
-            await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official);
+            await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official, new Progress<ProgressInfo>(progress =>
+            {
+                Console.Write($"\rProgress: {(100 * progress.DownloadedBytes) / progress.TotalBytes}% | Downloading Binaries");
+            }));
+            Console.WriteLine();
 
             // Set execution permission for downloaded ffmpeg, ffprobe package.
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) 
