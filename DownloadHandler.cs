@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ShellProgressBar;
+using System;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -20,26 +21,47 @@ namespace SpotiSharp
                 Directory.CreateDirectory(destination);
             var youtubeEngine = YouTube.Default;
             var video = await youtubeEngine.GetVideoAsync(url);
-            Console.WriteLine($"Downloading: {TrackInfo.Artist} - {TrackInfo.Title}");
+            Console.WriteLine($"Status: {TrackInfo.Artist} - {TrackInfo.Title}");
             string trackName = $"{TrackInfo.Artist} - {TrackInfo.Title}" + video.FileExtension;
             UNCONVERTEDFILEPATH = Path.Combine(destination, trackName);
             CONVERTEDFILEPATH = Path.Combine(destination, Path.GetFileNameWithoutExtension(trackName) + ".mp3");
-            File.WriteAllBytes(UNCONVERTEDFILEPATH, video.GetBytes());
-            Console.WriteLine("Converting to mp3");
-            var mediaInfo = await FFmpeg.GetMediaInfo(UNCONVERTEDFILEPATH);
-            var audioStream = mediaInfo.AudioStreams.FirstOrDefault();
-            IConversionResult conversionResult = await FFmpeg.Conversions.New()
-                .AddStream(audioStream)
-                .SetOutput(CONVERTEDFILEPATH)
-                .SetOverwriteOutput(true)
-                .Start();
+            // Disposes BinaryWriter after job is done.
+            using (var writer = new BinaryWriter(File.Open(UNCONVERTEDFILEPATH, FileMode.OpenOrCreate)))
+            {
+                byte[] bytes = video.GetBytes();
+                var bytesLeft = bytes.Length;
+                var bytesWritten = 0;
+                while (bytesLeft > 0)
+                {
+                    int chunk = Math.Min(1024, bytesLeft);
+                    writer.Write(bytes, bytesWritten, chunk);
+                    bytesWritten += chunk;
+                    bytesLeft -= chunk;
+                    Console.Write($"\rProgress: {(100 * bytesWritten) / bytes.Length}% | Downloading");
+                }
+                Console.WriteLine();
+            }
+            await ConvertToMp3(UNCONVERTEDFILEPATH);
             File.Delete(UNCONVERTEDFILEPATH);
             Console.WriteLine("Merging Metadata.");
             await WriteMetaData(CONVERTEDFILEPATH);
             Console.WriteLine("Done.");
         }
 
-
+        private static async Task ConvertToMp3(string path)
+        {
+            var mediaInfo = await FFmpeg.GetMediaInfo(UNCONVERTEDFILEPATH);
+            var audioStream = mediaInfo.AudioStreams.FirstOrDefault();
+            var conversion = FFmpeg.Conversions.New();
+            conversion.AddStream(audioStream);
+            conversion.SetOutput(CONVERTEDFILEPATH);
+            conversion.SetOverwriteOutput(true);
+            conversion.OnProgress += (sender, args) => {
+                Console.Write($"\rProgress: {args.Percent}% | Converting");
+            };
+            await conversion.Start();
+            Console.WriteLine();
+        }
 
         private static async Task WriteMetaData(string path)
         {
