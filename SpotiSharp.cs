@@ -41,7 +41,8 @@ namespace SpotiSharp
             // If it is skip, if is not then download.
             await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official, new Progress<ProgressInfo>(progress =>
             {
-                Console.Write($"\rProgress: {(100 * progress.DownloadedBytes) / progress.TotalBytes}% | Downloading Binaries");
+                // Blank spaces are necessary to earse everything.
+                Console.Write($"\rDownloaded Bytes: {progress.DownloadedBytes} of {progress.TotalBytes}  | Downloading Missing Files                    ");
             }));
             Console.WriteLine();
 

@@ -36,7 +36,8 @@ namespace SpotiSharp
                     writer.Write(bytes, bytesWritten, chunk);
                     bytesWritten += chunk;
                     bytesLeft -= chunk;
-                    Console.Write($"\rProgress: {(100 * bytesWritten) / bytes.Length}% | Downloading");
+                    double percent = ((double) bytesWritten / bytes.Length) * 100;
+                    Console.Write($"\rProgress: {(int) percent}% | Downloading   ");
                 }
                 Console.WriteLine();
             }
@@ -56,7 +57,7 @@ namespace SpotiSharp
             conversion.SetOutput(CONVERTEDFILEPATH);
             conversion.SetOverwriteOutput(true);
             conversion.OnProgress += (sender, args) => {
-                Console.Write($"\rProgress: {args.Percent}% | Converting");
+                Console.Write($"\rProgress: {args.Percent}% | Converting   ");
             };
             await conversion.Start();
             Console.WriteLine();
