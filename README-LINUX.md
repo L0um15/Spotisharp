@@ -3,7 +3,6 @@
 ![HEART](https://img.shields.io/static/v1?label=made+with&message=❤&color=red&style=flat-square)
 ![LICENSE](https://img.shields.io/github/license/L0um15/SpotiSharp?style=flat-square)
 
-![DOWNLOADS](https://img.shields.io/github/downloads/L0um15/SpotiSharp/total?color=%23FF&label=Downloads&style=flat-square)
 ![ISSUES](https://img.shields.io/github/issues/L0um15/SpotiSharp?style=flat-square)
 ![LAST COMMIT](https://img.shields.io/github/last-commit/L0um15/SpotiSharp?style=flat-square)
 
