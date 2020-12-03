@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Text;
 
 namespace SpotiSharp
@@ -11,8 +12,8 @@ namespace SpotiSharp
     {
         public static string ClientID { get; set; } = "";
         public static string ClientSecret { get; set; } = "";
-        public static string FFmpegPath { get; set; } = ".";
-        public static string DownloadPath { get; set; } = ".";
+        public static string FFmpegPath { get; set; } = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+        public static string DownloadPath { get; set; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyMusic), "SpotiSharp");
     }
     class ConfigurationHandler
     {

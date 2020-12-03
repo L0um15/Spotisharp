@@ -30,7 +30,6 @@ namespace SpotiSharp
     class SearchProvider
     {
         static string musicFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
-        static string myFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyMusic), "SpotiSharp");
         public static async Task SearchSpotifyByText(string input)
         {
             var loginRequest = new ClientCredentialsRequest(Config.ClientID, Config.ClientSecret);
@@ -53,7 +52,7 @@ namespace SpotiSharp
             if (doesExist != true)
             {
                 SearchMusixMatchByText(fullName);
-                await DownloadHandler.DownloadTrack(SearchYoutubeByText(fullName), myFolder);
+                await DownloadHandler.DownloadTrack(SearchYoutubeByText(fullName), Config.DownloadPath);
             }
             else
                 Console.WriteLine("Track Found. Skipping");
@@ -80,7 +79,7 @@ namespace SpotiSharp
             if (doesExist == false)
             {
                 SearchMusixMatchByText(fullName);
-                await DownloadHandler.DownloadTrack(SearchYoutubeByText(fullName), myFolder);
+                await DownloadHandler.DownloadTrack(SearchYoutubeByText(fullName), Config.DownloadPath);
             }
             else
                 Console.WriteLine("Track Found. Skipping");
@@ -107,7 +106,7 @@ namespace SpotiSharp
                 if (doesExist == false)
                 {
                     SearchMusixMatchByText(fullName);
-                    await DownloadHandler.DownloadTrack(SearchYoutubeByText(fullName), myFolder);
+                    await DownloadHandler.DownloadTrack(SearchYoutubeByText(fullName), Config.DownloadPath);
                 }
                 else
                 {
@@ -141,7 +140,7 @@ namespace SpotiSharp
                     if (doesExist != true)
                     {
                         SearchMusixMatchByText(fullName);
-                        await DownloadHandler.DownloadTrack(SearchYoutubeByText(fullName), myFolder);
+                        await DownloadHandler.DownloadTrack(SearchYoutubeByText(fullName), Config.DownloadPath);
                     }
                     else
                     {
