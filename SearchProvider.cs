@@ -29,7 +29,7 @@ namespace SpotiSharp
 
     class SearchProvider
     {
-        static string musicFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
+        static string musicFolder = Path.Combine(Config.DownloadPath, @".."); // Move one folder up than specified. Then scan recursively.
         public static async Task SearchSpotifyByText(string input)
         {
             var loginRequest = new ClientCredentialsRequest(Config.ClientID, Config.ClientSecret);
