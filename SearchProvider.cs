@@ -33,7 +33,7 @@ namespace SpotiSharp
         static string myFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyMusic), "SpotiSharp");
         public static async Task SearchSpotifyByText(string input, ConfigurationHandler configuration)
         {
-            var loginRequest = new ClientCredentialsRequest(configuration.CLIENTID, configuration.SECRETID);
+            var loginRequest = new ClientCredentialsRequest(Config.ClientID, Config.ClientSecret);
             var loginResponse = await new OAuthClient().RequestToken(loginRequest);
             var spotifyClient = new SpotifyClient(loginResponse.AccessToken);
             var searchResponse = await spotifyClient.Search.Item(new SearchRequest(SearchRequest.Types.Track, input));
@@ -61,7 +61,7 @@ namespace SpotiSharp
         }
         public static async Task SearchSpotifyByLink(string input, ConfigurationHandler configuration)
         {
-            var loginRequest = new ClientCredentialsRequest(configuration.CLIENTID, configuration.SECRETID);
+            var loginRequest = new ClientCredentialsRequest(Config.ClientID, Config.ClientSecret);
             var loginResponse = await new OAuthClient().RequestToken(loginRequest);
             var spotifyClient = new SpotifyClient(loginResponse.AccessToken);
             var spotifyTrackID = Regex.Match(input, @"(?<=track\/)\w+");
@@ -88,7 +88,7 @@ namespace SpotiSharp
 
         public static async Task SearchSpotifyByAlbum(string input, ConfigurationHandler configuration)
         {
-            var loginRequest = new ClientCredentialsRequest(configuration.CLIENTID, configuration.SECRETID);
+            var loginRequest = new ClientCredentialsRequest(Config.ClientID, Config.ClientSecret);
             var loginResponse = await new OAuthClient().RequestToken(loginRequest);
             var spotifyClient = new SpotifyClient(loginResponse.AccessToken);
             var spotifyAlbumID = Regex.Match(input, @"(?<=album\/)\w+");
@@ -120,7 +120,7 @@ namespace SpotiSharp
 
         public static async Task SearchSpotifyByPlaylist(string input, ConfigurationHandler configuration)
         {
-            var loginRequest = new ClientCredentialsRequest(configuration.CLIENTID, configuration.SECRETID);
+            var loginRequest = new ClientCredentialsRequest(Config.ClientID, Config.ClientSecret);
             var loginResponse = await new OAuthClient().RequestToken(loginRequest);
             var spotifyClient = new SpotifyClient(loginResponse.AccessToken);
             var spotifyPlaylistID = Regex.Match(input, @"(?<=playlist\/)\w+");

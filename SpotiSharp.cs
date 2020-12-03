@@ -9,9 +9,6 @@ using Xabe.FFmpeg.Downloader;
 
 namespace SpotiSharp
 {
-
-
-
     class SpotiSharp
     {
         ConfigurationHandler configuration = new ConfigurationHandler();
@@ -31,7 +28,7 @@ namespace SpotiSharp
                 return;
             };
 
-            new VersionChecker().checkForUpdates();
+            VersionChecker.checkForUpdates();
 
 
             //Check if FFmpeg is installed.
