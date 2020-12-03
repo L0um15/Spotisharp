@@ -38,17 +38,13 @@ namespace SpotiSharp
             Console.WriteLine("Looking for FFmpeg.\n" +
                 "Please be patient.");
             FFmpeg.SetExecutablesPath(Config.FFmpegPath, "ffmpeg", "ffprobe");
-            // If it is skip, if is not then download.
-            var doesExist = Directory.GetFiles(Config.FFmpegPath, "*").Any(x => x.Contains("ffmpeg"));
-            if(doesExist == false)
+            // Download latest version of ffmpeg to specified directory. Handle auto-updating
+            await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official, Config.FFmpegPath, new Progress<ProgressInfo>(progress =>
             {
-                await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official, Config.FFmpegPath, new Progress<ProgressInfo>(progress =>
-                {
-                    // Blank spaces are necessary to earse everything.
-                    Console.Write($"\rDownloaded Bytes: {progress.DownloadedBytes} of {progress.TotalBytes}  | Downloading Missing Files                    ");
-                }));
-                Console.WriteLine();
-            }
+                // Blank spaces are necessary to earse everything.
+                Console.Write($"\rDownloaded Bytes: {progress.DownloadedBytes} of {progress.TotalBytes} | Downloading Latest FFmpeg                    ");
+            }));
+            Console.WriteLine();
             // Set execution permission for downloaded ffmpeg, ffprobe package.
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) 
                 Process.Start("chmod", "+x ffmpeg ffprobe");
