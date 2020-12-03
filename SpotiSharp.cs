@@ -47,7 +47,7 @@ namespace SpotiSharp
             Console.WriteLine();
             // Set execution permission for downloaded ffmpeg, ffprobe package.
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) 
-                Process.Start("chmod", "+x ffmpeg ffprobe");
+                Process.Start("chmod", $"+x {Path.Combine(Config.FFmpegPath, "ffmpeg")} {Path.Combine(Config.FFmpegPath, "ffprobe")}");
 
             string keyboardInput = args[0];
 
