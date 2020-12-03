@@ -31,7 +31,7 @@ namespace SpotiSharp
     {
         static string musicFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
         static string myFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyMusic), "SpotiSharp");
-        public static async Task SearchSpotifyByText(string input, ConfigurationHandler configuration)
+        public static async Task SearchSpotifyByText(string input)
         {
             var loginRequest = new ClientCredentialsRequest(Config.ClientID, Config.ClientSecret);
             var loginResponse = await new OAuthClient().RequestToken(loginRequest);
@@ -59,7 +59,7 @@ namespace SpotiSharp
                 Console.WriteLine("Track Found. Skipping");
 
         }
-        public static async Task SearchSpotifyByLink(string input, ConfigurationHandler configuration)
+        public static async Task SearchSpotifyByLink(string input)
         {
             var loginRequest = new ClientCredentialsRequest(Config.ClientID, Config.ClientSecret);
             var loginResponse = await new OAuthClient().RequestToken(loginRequest);
@@ -86,7 +86,7 @@ namespace SpotiSharp
                 Console.WriteLine("Track Found. Skipping");
         }
 
-        public static async Task SearchSpotifyByAlbum(string input, ConfigurationHandler configuration)
+        public static async Task SearchSpotifyByAlbum(string input)
         {
             var loginRequest = new ClientCredentialsRequest(Config.ClientID, Config.ClientSecret);
             var loginResponse = await new OAuthClient().RequestToken(loginRequest);
@@ -118,7 +118,7 @@ namespace SpotiSharp
             }
         }
 
-        public static async Task SearchSpotifyByPlaylist(string input, ConfigurationHandler configuration)
+        public static async Task SearchSpotifyByPlaylist(string input)
         {
             var loginRequest = new ClientCredentialsRequest(Config.ClientID, Config.ClientSecret);
             var loginResponse = await new OAuthClient().RequestToken(loginRequest);
