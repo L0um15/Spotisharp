@@ -72,7 +72,6 @@ namespace SpotiSharp
                 Environment.Exit(0);
             }
             var album = await spotifyClient.Albums.Get(track.Album.Id);
-            Console.WriteLine(album.ReleaseDate);
             var artist = await spotifyClient.Artists.Get(track.Artists[0].Id);
             SetMetaData(track, artist, album);
             var fullName = $"{TrackInfo.Artist} - {TrackInfo.Title}";
