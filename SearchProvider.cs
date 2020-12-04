@@ -72,6 +72,7 @@ namespace SpotiSharp
                 Environment.Exit(0);
             }
             var album = await spotifyClient.Albums.Get(track.Album.Id);
+            Console.WriteLine(album.ReleaseDate);
             var artist = await spotifyClient.Artists.Get(track.Artists[0].Id);
             SetMetaData(track, artist, album);
             var fullName = $"{TrackInfo.Artist} - {TrackInfo.Title}";
@@ -213,7 +214,7 @@ namespace SpotiSharp
             TrackInfo.TrackNr = track.TrackNumber;
             TrackInfo.Artist = Regex.Replace(artist.Name, @"[\/\\\?\*\<\>\|\:\""]", " ");
             TrackInfo.AlbumArt = album.Images.First().Url;
-            TrackInfo.Year = Convert.ToDateTime(album.ReleaseDate).Year;
+            TrackInfo.Year =  DateTime.TryParse(album.ReleaseDate, out var value) ? value.Year : int.Parse(album.ReleaseDate);
             TrackInfo.Album = album.Name;
             // Sometimes Track has no Genres information. Return blank field.
             TrackInfo.Genres = artist.Genres.FirstOrDefault() != null ? artist.Genres.First() : "";
