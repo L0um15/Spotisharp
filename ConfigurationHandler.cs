@@ -39,7 +39,7 @@ namespace SpotiSharp
         {
             var jsonstream = JObject.Parse(File.ReadAllText(configfile));
             assignProperties(jsonstream);
-            string configversion = jsonstream["SpotiSharp"]["ConfigVersion"].Value<string>();
+            string configversion = jsonstream["Settings"]["ConfigVersion"].Value<string>();
 
             if(configversion != VersionChecker.Version)
             {
@@ -81,9 +81,8 @@ namespace SpotiSharp
             foreach (var property in properties)
             {
                 if (jsonstream["Settings"][property.Name] != null)
-                    property.SetValue(null, jsonstream["Settings"][property.Name]);
+                    property.SetValue(null, jsonstream["Settings"][property.Name].Value<string>());
             }
         }
-
     }
 }
