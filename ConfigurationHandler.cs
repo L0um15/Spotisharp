@@ -38,10 +38,7 @@ namespace SpotiSharp
         private void Initialize()
         {
             var jsonstream = JObject.Parse(File.ReadAllText(configfile));
-            Config.ClientID = jsonstream["SpotifyAPI"][nameof(Config.ClientID)].Value<string>();
-            Config.ClientSecret = jsonstream["SpotifyAPI"][nameof(Config.ClientSecret)].Value<string>();
-            Config.FFmpegPath = jsonstream["SpotiSharp"][nameof(Config.FFmpegPath)].Value<string>();
-            Config.DownloadPath = jsonstream["SpotiSharp"][nameof(Config.DownloadPath)].Value<string>();
+            assignProperties(jsonstream);
             string configversion = jsonstream["SpotiSharp"]["ConfigVersion"].Value<string>();
 
             if(configversion != VersionChecker.Version)
@@ -63,12 +60,10 @@ namespace SpotiSharp
         private void generateConfigurationFile()
         {
             var configurationGroup = new Dictionary<string, Dictionary<string, object>>();
-            configurationGroup.Add("SpotifyAPI",new Dictionary<string, object>() {
-                { nameof(Config.ClientID), Config.ClientID},
-                { nameof(Config.ClientSecret), Config.ClientSecret }
-            });
-            configurationGroup.Add("SpotiSharp", new Dictionary<string, object>() {
+            configurationGroup.Add("Settings",new Dictionary<string, object>() {
                 { "ConfigVersion", VersionChecker.Version },
+                { nameof(Config.ClientID), Config.ClientID},
+                { nameof(Config.ClientSecret), Config.ClientSecret },
                 { nameof(Config.FFmpegPath), Config.FFmpegPath },
                 { nameof(Config.DownloadPath), Config.DownloadPath }
             });
@@ -77,6 +72,16 @@ namespace SpotiSharp
                 JsonSerializer serializer = new JsonSerializer();
                 serializer.Formatting = Formatting.Indented;
                 serializer.Serialize(streamWriter, configurationGroup );
+            }
+        }
+
+        private void assignProperties(JObject jsonstream)
+        {
+            var properties = typeof(Config).GetProperties();
+            foreach (var property in properties)
+            {
+                if (jsonstream["Settings"][property.Name] != null)
+                    property.SetValue(null, jsonstream["Settings"][property.Name]);
             }
         }
 
