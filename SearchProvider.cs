@@ -94,14 +94,14 @@ namespace SpotiSharp
             var spotifyAlbumID = Regex.Match(input, @"(?<=album\/)\w+");
             var album = await spotifyClient.Albums.Get(spotifyAlbumID.Value);
             int i = 1;
-            foreach(var item in album.Tracks.Items)
+            await foreach(var item in spotifyClient.Paginate(album.Tracks))
             {
                 var track = await spotifyClient.Tracks.Get(item.Id);
                 var artist = await spotifyClient.Artists.Get(item.Artists[0].Id);
                 SetMetaData(track, artist, album);
                 var fullName = $"{TrackInfo.Artist} - {TrackInfo.Title}";
                 Console.Clear();
-                Console.WriteLine($"Downloading Track: {fullName} | {i}/{album.Tracks.Items.Count}\nInformation:\n\n");
+                Console.WriteLine($"Downloading Track: {fullName} | {i}/{album.Tracks.Total.Value}\nInformation:\n\n");
                 var doesExist = Directory.GetFiles(musicFolder, "*.mp3", SearchOption.AllDirectories)
                     .Any(x => x.Contains(fullName));
                 if (doesExist == false)
@@ -124,9 +124,9 @@ namespace SpotiSharp
             var loginResponse = await new OAuthClient().RequestToken(loginRequest);
             var spotifyClient = new SpotifyClient(loginResponse.AccessToken);
             var spotifyPlaylistID = Regex.Match(input, @"(?<=playlist\/)\w+");
-            var playlist = await spotifyClient.Playlists.Get(spotifyPlaylistID.Value);
+            var playlist = await spotifyClient.Playlists.GetItems(spotifyPlaylistID.Value);
             int i = 1;
-            foreach (var item in playlist.Tracks.Items)
+            await foreach (var item in spotifyClient.Paginate(playlist))
             {
                 if (item.Track is FullTrack track)
                 {
@@ -135,7 +135,7 @@ namespace SpotiSharp
                     SetMetaData(track, artist, album);
                     var fullName = $"{TrackInfo.Artist} - {TrackInfo.Title}";
                     Console.Clear();
-                    Console.WriteLine($"Downloading Track: {fullName} | {i}/{playlist.Tracks.Items.Count}\nInformation:\n\n");
+                    Console.WriteLine($"Downloading Track: {fullName} | {i}/{playlist.Total.Value}\nInformation:\n\n");
                     var doesExist = Directory.GetFiles(musicFolder, "*.mp3", SearchOption.AllDirectories)
                         .Any(x => x.Contains(fullName));
                     if (doesExist != true)
