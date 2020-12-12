@@ -29,11 +29,10 @@ namespace SpotiSharp
 
     class SearchProvider
     {
-        static string musicFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
-        static string myFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyMusic), "SpotiSharp");
-        public static async Task SearchSpotifyByText(string input, ConfigurationHandler configuration)
+        static string musicFolder = Path.Combine(Config.DownloadPath, @".."); // Move one folder up than specified. Then scan recursively.
+        public static async Task SearchSpotifyByText(string input)
         {
-            var loginRequest = new ClientCredentialsRequest(configuration.CLIENTID, configuration.SECRETID);
+            var loginRequest = new ClientCredentialsRequest(Config.ClientID, Config.ClientSecret);
             var loginResponse = await new OAuthClient().RequestToken(loginRequest);
             var spotifyClient = new SpotifyClient(loginResponse.AccessToken);
             var searchResponse = await spotifyClient.Search.Item(new SearchRequest(SearchRequest.Types.Track, input));
@@ -53,15 +52,15 @@ namespace SpotiSharp
             if (doesExist != true)
             {
                 SearchMusixMatchByText(fullName);
-                await DownloadHandler.DownloadTrack(SearchYoutubeByText(fullName), myFolder);
+                await DownloadHandler.DownloadTrack(SearchYoutubeByText(fullName), Config.DownloadPath);
             }
             else
                 Console.WriteLine("Track Found. Skipping");
 
         }
-        public static async Task SearchSpotifyByLink(string input, ConfigurationHandler configuration)
+        public static async Task SearchSpotifyByLink(string input)
         {
-            var loginRequest = new ClientCredentialsRequest(configuration.CLIENTID, configuration.SECRETID);
+            var loginRequest = new ClientCredentialsRequest(Config.ClientID, Config.ClientSecret);
             var loginResponse = await new OAuthClient().RequestToken(loginRequest);
             var spotifyClient = new SpotifyClient(loginResponse.AccessToken);
             var spotifyTrackID = Regex.Match(input, @"(?<=track\/)\w+");
@@ -80,15 +79,15 @@ namespace SpotiSharp
             if (doesExist == false)
             {
                 SearchMusixMatchByText(fullName);
-                await DownloadHandler.DownloadTrack(SearchYoutubeByText(fullName), myFolder);
+                await DownloadHandler.DownloadTrack(SearchYoutubeByText(fullName), Config.DownloadPath);
             }
             else
                 Console.WriteLine("Track Found. Skipping");
         }
 
-        public static async Task SearchSpotifyByAlbum(string input, ConfigurationHandler configuration)
+        public static async Task SearchSpotifyByAlbum(string input)
         {
-            var loginRequest = new ClientCredentialsRequest(configuration.CLIENTID, configuration.SECRETID);
+            var loginRequest = new ClientCredentialsRequest(Config.ClientID, Config.ClientSecret);
             var loginResponse = await new OAuthClient().RequestToken(loginRequest);
             var spotifyClient = new SpotifyClient(loginResponse.AccessToken);
             var spotifyAlbumID = Regex.Match(input, @"(?<=album\/)\w+");
@@ -107,7 +106,7 @@ namespace SpotiSharp
                 if (doesExist == false)
                 {
                     SearchMusixMatchByText(fullName);
-                    await DownloadHandler.DownloadTrack(SearchYoutubeByText(fullName), myFolder);
+                    await DownloadHandler.DownloadTrack(SearchYoutubeByText(fullName), Config.DownloadPath);
                 }
                 else
                 {
@@ -118,9 +117,9 @@ namespace SpotiSharp
             }
         }
 
-        public static async Task SearchSpotifyByPlaylist(string input, ConfigurationHandler configuration)
+        public static async Task SearchSpotifyByPlaylist(string input)
         {
-            var loginRequest = new ClientCredentialsRequest(configuration.CLIENTID, configuration.SECRETID);
+            var loginRequest = new ClientCredentialsRequest(Config.ClientID, Config.ClientSecret);
             var loginResponse = await new OAuthClient().RequestToken(loginRequest);
             var spotifyClient = new SpotifyClient(loginResponse.AccessToken);
             var spotifyPlaylistID = Regex.Match(input, @"(?<=playlist\/)\w+");
@@ -141,7 +140,7 @@ namespace SpotiSharp
                     if (doesExist != true)
                     {
                         SearchMusixMatchByText(fullName);
-                        await DownloadHandler.DownloadTrack(SearchYoutubeByText(fullName), myFolder);
+                        await DownloadHandler.DownloadTrack(SearchYoutubeByText(fullName), Config.DownloadPath);
                     }
                     else
                     {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -9,12 +10,8 @@ using Xabe.FFmpeg.Downloader;
 
 namespace SpotiSharp
 {
-
-
-
     class SpotiSharp
     {
-        ConfigurationHandler configuration = new ConfigurationHandler();
         public async Task MainAsync(string[] args)
         {
             if (IsRoot)
@@ -23,6 +20,9 @@ namespace SpotiSharp
                     "Please try without sudo");
                 Environment.Exit(0);
             }
+
+            new ConfigurationHandler();
+
             // Print Help page when no arguments passed.
             if (args.Length != 1)
             {
@@ -31,41 +31,40 @@ namespace SpotiSharp
                 return;
             };
 
-            new VersionChecker().checkForUpdates();
+            VersionChecker.checkForUpdates();
 
 
             //Check if FFmpeg is installed.
             Console.WriteLine("Looking for FFmpeg.\n" +
                 "Please be patient.");
-            FFmpeg.SetExecutablesPath(Directory.GetCurrentDirectory(), "ffmpeg", "ffprobe");
-            // If it is skip, if is not then download.
-            await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official, new Progress<ProgressInfo>(progress =>
+            FFmpeg.SetExecutablesPath(Config.FFmpegPath, "ffmpeg", "ffprobe");
+            // Download latest version of ffmpeg to specified directory. Handle auto-updating
+            await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official, Config.FFmpegPath, new Progress<ProgressInfo>(progress =>
             {
                 // Blank spaces are necessary to earse everything.
-                Console.Write($"\rDownloaded Bytes: {progress.DownloadedBytes} of {progress.TotalBytes}  | Downloading Missing Files                    ");
+                Console.Write($"\rDownloaded Bytes: {progress.DownloadedBytes} of {progress.TotalBytes} | Downloading Latest FFmpeg                    ");
             }));
             Console.WriteLine();
-
             // Set execution permission for downloaded ffmpeg, ffprobe package.
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) 
-                Process.Start("chmod", "+x ffmpeg ffprobe");
+                Process.Start("chmod", $"+x {Path.Combine(Config.FFmpegPath, "ffmpeg")} {Path.Combine(Config.FFmpegPath, "ffprobe")}");
 
             string keyboardInput = args[0];
 
             if (IsValidUrl(keyboardInput))
             {
                 if (keyboardInput.Contains("track"))
-                    await SearchProvider.SearchSpotifyByLink(keyboardInput, configuration);
+                    await SearchProvider.SearchSpotifyByLink(keyboardInput);
                 else if (keyboardInput.Contains("playlist"))
-                    await SearchProvider.SearchSpotifyByPlaylist(keyboardInput, configuration);
+                    await SearchProvider.SearchSpotifyByPlaylist(keyboardInput);
                 else if (keyboardInput.Contains("album"))
-                    await SearchProvider.SearchSpotifyByAlbum(keyboardInput, configuration);
+                    await SearchProvider.SearchSpotifyByAlbum(keyboardInput);
                 else
                     Console.WriteLine("Sorry but this link format is not currently supported.\n" +
                             "You can always request a new feature on SpotiSharp Github Issue Tracker");
             }
             else
-                await SearchProvider.SearchSpotifyByText(keyboardInput, configuration);
+                await SearchProvider.SearchSpotifyByText(keyboardInput);
         }
         private bool IsValidUrl(string input)
         {

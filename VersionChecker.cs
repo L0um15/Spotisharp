@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SpotiSharp
 {
     class VersionChecker
     {
-        private string Version { get { return Assembly.GetExecutingAssembly().GetName().Version.ToString(); } }
-        public void checkForUpdates()
+        public static string Version { get { return Assembly.GetExecutingAssembly().GetName().Version.ToString(); } }
+        public static void checkForUpdates()
         {
             try
             {
