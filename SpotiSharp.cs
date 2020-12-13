@@ -23,6 +23,8 @@ namespace SpotiSharp
 
             new ConfigurationHandler();
 
+            VersionChecker.checkForUpdates();
+
             // Print Help page when no arguments passed.
             if (args.Length != 1)
             {
@@ -30,9 +32,6 @@ namespace SpotiSharp
                     "\tUsage: .\\SpotiSharp \"<Search/SpotifyURL>\"\n");
                 return;
             };
-
-            VersionChecker.checkForUpdates();
-
 
             //Check if FFmpeg is installed.
             Console.WriteLine("Looking for FFmpeg.\n" +
