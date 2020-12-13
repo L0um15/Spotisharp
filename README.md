@@ -1,5 +1,4 @@
 # SpotiSharp
-
 ![RELEASES](https://img.shields.io/github/v/release/L0um15/SpotiSharp?include_prereleases&style=flat-square)
 ![HEART](https://img.shields.io/static/v1?label=made+with&message=❤&color=red&style=flat-square)
 ![LICENSE](https://img.shields.io/github/license/L0um15/SpotiSharp?style=flat-square)
@@ -11,8 +10,9 @@
 
 ## Music Downloader using Spotify Web API
 
+SpotiSharp is a Open-Source CLI application made in .NET Core
+
 SpotiSharp applies metadata like `Artist` `Title` `Lyrics` `Genres` `Album` `AlbumArt` and more...<br />
-Also supports Spotify Url's
 
 Linux users: [README-LINUX](README-LINUX.md)
 
@@ -22,26 +22,27 @@ Linux users: [README-LINUX](README-LINUX.md)
 
 Create Application on [Spotify Developer Dashboard](https://developer.spotify.com/dashboard/) then provide these keys to config.json
 
-        - ClientID
-        - Client Secret
-
-Config.json will be generated on first run with empty fields.
+SpotiSharp will generate config.json on first run.</br>
+**All non-blank fields will be auto-completed by SpotiSharp**
 ```json
 {
-    "CLIENTID": "",
-    "SECRETID": "" 
+  "Settings": {
+    "ConfigVersion": "(SpotiSharp Version)",
+    "ClientID": "",
+    "ClientSecret": "",
+    "FFmpegPath": "(Application Directory)",
+    "DownloadPath": "(MyMusic Directory)"
+  }
 }
 ```
+**You can reset config.json to default settings. Delete desired line and reset ConfigVersion to "0", all missing lines will be replaced with default ones**
 
-FFmpeg is required, but SpotiSharp will download latest binary by itself to the application folder.
+SpotiSharp will download FFmpeg to application directory by default.</br>
+If FFmpegPath was changed it will overwrite existing FFmpeg and handle autoupdates by itself.
 
-SpotiSharp is very easy to use...
 ```sh
 .\SpotiSharp.exe "<Text Search/Spotify URL>"
 ```
-... and thats it. Without any complicated flags, prefixes etc.
-
-SpotiSharp will automatically download all tracks to C:\Users\YOU\MyMusic\SpotiSharp\
 
 ### Single Track
 

@@ -10,8 +10,9 @@
 
 ## Music Downloader using Spotify Web API
 
+SpotiSharp is a Open-Source CLI application made in .NET Core
+
 SpotiSharp applies metadata like `Artist` `Title` `Lyrics` `Genres` `Album` `AlbumArt` and more...<br />
-Also supports Spotify Url's
 
 Windows users: [README](README.md)
 
@@ -21,32 +22,35 @@ Windows users: [README](README.md)
 
 Create Application on [Spotify Developer Dashboard](https://developer.spotify.com/dashboard/) then provide these keys to config.json
 
-        - ClientID
-        - Client Secret
-
-Config.json will be generated on first run with empty fields.
+SpotiSharp will generate config.json on first run.</br>
+**All non-blank fields will be auto-completed by SpotiSharp**
 ```json
 {
-    "CLIENTID": "",
-    "SECRETID": "" 
+  "Settings": {
+    "ConfigVersion": "(SpotiSharp Version)",
+    "ClientID": "",
+    "ClientSecret": "",
+    "FFmpegPath": "(Application Directory)",
+    "DownloadPath": "(MyMusic Directory)"
+  }
 }
 ```
+**You can reset config.json to default settings. Delete desired line and reset ConfigVersion to "0", all missing lines will be replaced with default ones**
 
-FFmpeg is required, but SpotiSharp will download latest binary by itself to the application folder.
+SpotiSharp will download FFmpeg to application directory by default.</br>
+If FFmpegPath was changed it will overwrite existing FFmpeg and handle autoupdates by itself.
 
 **NEVER RUN SPOTISHARP AS ROOT**<br/>
-Let's assume you downloaded SpotiSharp and you have terminal opened in SpotiSharp folder.<br/>
-Pass this commands to get it working.
+Seriously don't. SpotiSharp will immediately close if it detects root permissions.
 
 ```sh
-~/Desktop/SpotiSharp$ chmod +x ./SpotiSharp # Gives permission to execute as program.
+chmod +x ./SpotiSharp # Gives permission to execute as program.
 
-~/Desktop/SpotiSharp$ ./SpotiSharp "<Text Search / Spotify URL>"
+./SpotiSharp "<Text Search / Spotify URL>"
 ```
-... and thats it.
 
-SpotiSharp will automatically download all tracks to <b>/</b>home<b>/</b>YOU<b>/</b>Music<b>/</b>SpotiSharp<br/>
-SpotiSharp will also scan <b>/</b>home<b>/</b>YOU<b>/</b>Music recursively in order to skip already downloaded tracks.
+SpotiSharp will attempt to grant execution rights to binaries in it's directory. (Using: `chmod +x ffmpeg ffprobe`)
+
 
 ### Single Track
 
