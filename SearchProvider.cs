@@ -92,6 +92,7 @@ namespace SpotiSharp
             var spotifyClient = new SpotifyClient(loginResponse.AccessToken);
             var spotifyAlbumID = Regex.Match(input, @"(?<=album\/)\w+");
             var album = await spotifyClient.Albums.Get(spotifyAlbumID.Value);
+            var albumName = Regex.Replace(album.Name, @"[\/\\\?\*\<\>\|\:\""]", " ");
             int i = 1;
             await foreach(var item in spotifyClient.Paginate(album.Tracks))
             {
@@ -106,7 +107,7 @@ namespace SpotiSharp
                 if (doesExist == false)
                 {
                     SearchMusixMatchByText(fullName);
-                    await DownloadHandler.DownloadTrack(SearchYoutubeByText(fullName), Config.DownloadPath);
+                    await DownloadHandler.DownloadTrack(SearchYoutubeByText(fullName), Path.Combine(Config.DownloadPath, albumName));
                 }
                 else
                 {
@@ -123,9 +124,10 @@ namespace SpotiSharp
             var loginResponse = await new OAuthClient().RequestToken(loginRequest);
             var spotifyClient = new SpotifyClient(loginResponse.AccessToken);
             var spotifyPlaylistID = Regex.Match(input, @"(?<=playlist\/)\w+");
-            var playlist = await spotifyClient.Playlists.GetItems(spotifyPlaylistID.Value);
+            var playlist = await spotifyClient.Playlists.Get(spotifyPlaylistID.Value);
+            var playlistName = Regex.Replace(playlist.Name, @"[\/\\\?\*\<\>\|\:\""]", " ");
             int i = 1;
-            await foreach (var item in spotifyClient.Paginate(playlist))
+            await foreach (var item in spotifyClient.Paginate(playlist.Tracks))
             {
                 if (item.Track is FullTrack track)
                 {
@@ -134,13 +136,13 @@ namespace SpotiSharp
                     SetMetaData(track, artist, album);
                     var fullName = $"{TrackInfo.Artist} - {TrackInfo.Title}";
                     Console.Clear();
-                    Console.WriteLine($"Downloading Track: {fullName} | {i}/{playlist.Total.Value}\nInformation:\n\n");
+                    Console.WriteLine($"Downloading Track: {fullName} | {i}/{playlist.Tracks.Total.Value}\nInformation:\n\n");
                     var doesExist = Directory.GetFiles(musicFolder, "*.mp3", SearchOption.AllDirectories)
                         .Any(x => x.Contains(fullName));
                     if (doesExist != true)
                     {
                         SearchMusixMatchByText(fullName);
-                        await DownloadHandler.DownloadTrack(SearchYoutubeByText(fullName), Config.DownloadPath);
+                        await DownloadHandler.DownloadTrack(SearchYoutubeByText(fullName), Path.Combine(Config.DownloadPath, playlistName));
                     }
                     else
                     {
