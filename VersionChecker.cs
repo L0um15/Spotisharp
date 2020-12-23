@@ -4,9 +4,10 @@ using System.Reflection;
 
 namespace SpotiSharp
 {
-    class VersionChecker
+    static class VersionChecker
     {
-        public static string Version { get { return Assembly.GetExecutingAssembly().GetName().Version.ToString(); } }
+        public static string Version 
+            => Assembly.GetExecutingAssembly().GetName().Version.ToString();
         public static void checkForUpdates()
         {
             try
@@ -16,8 +17,7 @@ namespace SpotiSharp
                 {
                     Console.WriteLine($"SpotiSharp is outdated.\n" +
                         $"Current Version: {Version}\n" +
-                        $"Latest Version: {versionFromUrl}");
-                    Console.WriteLine();
+                        $"Latest Version: {versionFromUrl}\n");
                 }
                 else
                 {

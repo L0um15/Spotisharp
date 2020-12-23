@@ -10,9 +10,9 @@ using Xabe.FFmpeg.Downloader;
 
 namespace SpotiSharp
 {
-    class SpotiSharp
+    static class SpotiSharp
     {
-        public async Task MainAsync(string[] args)
+        public static async Task MainAsync(string[] args)
         {
             if (IsRoot)
             {
@@ -21,7 +21,7 @@ namespace SpotiSharp
                 Environment.Exit(0);
             }
 
-            new ConfigurationHandler();
+            Config.Initialize(); // Initializes Configuration
 
             VersionChecker.checkForUpdates();
 
@@ -65,7 +65,7 @@ namespace SpotiSharp
             else
                 await SearchProvider.SearchSpotifyByText(keyboardInput);
         }
-        private bool IsValidUrl(string input)
+        private static bool IsValidUrl(string input)
         {
             if (Regex.IsMatch(input, @"([--:\w?@%&+~#=]*\.[a-z]{2,4}\/{0,2})((?:[?&](?:\w+)=(?:\w+))+|[--:\w?@%&+~#=]+)?"))
             {
@@ -75,7 +75,7 @@ namespace SpotiSharp
             return false;
         }
         // Sudo makes you run program as root, just simply check if sudo was issued by checking username.
-        private bool IsRoot
+        private static bool IsRoot
             => RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? Environment.UserName == "root" : false;
     }
 }

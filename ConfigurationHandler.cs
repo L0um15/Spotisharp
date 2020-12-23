@@ -4,8 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
-using System.Text;
 
 namespace SpotiSharp
 {
@@ -15,33 +13,33 @@ namespace SpotiSharp
         public static string ClientSecret { get; set; } = "";
         public static string FFmpegPath { get; set; } = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
         public static string DownloadPath { get; set; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyMusic), "SpotiSharp");
-    }
-    class ConfigurationHandler
-    {
-        string configfile = Path.Combine(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), "config.json");
-        public ConfigurationHandler()
+
+        static string configfile = Path.Combine(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), "config.json");
+
+
+        public static void Initialize() 
         {
             if (!File.Exists(configfile))
                 Setup();
             else
-                Initialize();
+                LoadConfiguration();
         }
-        private void Setup()
+        private static void Setup()
         {
             Console.WriteLine("Config.json was not found. Creating new one.");
             generateConfigurationFile();
             Console.WriteLine("Config.json was created. Fill missing fields. Exiting.");
             Environment.Exit(0);
         }
-        
-        
-        private void Initialize()
+
+
+        private static void LoadConfiguration()
         {
             var jsonstream = JObject.Parse(File.ReadAllText(configfile));
             assignProperties(jsonstream);
             string configversion = jsonstream["Settings"]["ConfigVersion"].Value<string>();
 
-            if(configversion != VersionChecker.Version)
+            if (configversion != VersionChecker.Version)
             {
                 Console.WriteLine("SpotiSharp was updated.\n" +
                     "Checking config compatiblility.\n" +
@@ -57,10 +55,10 @@ namespace SpotiSharp
             }
         }
 
-        private void generateConfigurationFile()
+        private static void generateConfigurationFile()
         {
             var configurationGroup = new Dictionary<string, Dictionary<string, object>>();
-            configurationGroup.Add("Settings",new Dictionary<string, object>() {
+            configurationGroup.Add("Settings", new Dictionary<string, object>() {
                 { "ConfigVersion", VersionChecker.Version },
                 { nameof(Config.ClientID), Config.ClientID},
                 { nameof(Config.ClientSecret), Config.ClientSecret },
@@ -71,11 +69,11 @@ namespace SpotiSharp
             {
                 JsonSerializer serializer = new JsonSerializer();
                 serializer.Formatting = Formatting.Indented;
-                serializer.Serialize(streamWriter, configurationGroup );
+                serializer.Serialize(streamWriter, configurationGroup);
             }
         }
 
-        private void assignProperties(JObject jsonstream)
+        private static void assignProperties(JObject jsonstream)
         {
             var properties = typeof(Config).GetProperties();
             foreach (var property in properties)
