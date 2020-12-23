@@ -7,7 +7,7 @@ using System.IO;
 
 namespace SpotiSharp
 {
-    class Config
+    static class Config
     {
         public static string ClientID { get; set; } = "";
         public static string ClientSecret { get; set; } = "";

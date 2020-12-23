@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace SpotiSharp
 {
 
-    class TrackInfo
+    static class TrackInfo
     {
         public static string Artist { get; set; }
         public static string Title { get; set; }
@@ -27,7 +27,7 @@ namespace SpotiSharp
         public static string Copyright { get; set; }
     }
 
-    class SearchProvider
+    static class SearchProvider
     {
         static string musicFolder = Path.Combine(Config.DownloadPath, @".."); // Move one folder up than specified. Then scan recursively.
         public static async Task SearchSpotifyByText(string input)
@@ -96,8 +96,24 @@ namespace SpotiSharp
             int i = 1;
             await foreach(var item in spotifyClient.Paginate(album.Tracks))
             {
-                var track = await spotifyClient.Tracks.Get(item.Id);
-                var artist = await spotifyClient.Artists.Get(item.Artists[0].Id);
+                FullTrack track;
+                FullArtist artist;
+
+                TryAgain:
+                try
+                {
+                    
+                    track = await spotifyClient.Tracks.Get(item.Id);
+                    artist = await spotifyClient.Artists.Get(item.Artists[0].Id);
+                }
+                catch (APITooManyRequestsException response)
+                {
+                    var delay = (int)response.RetryAfter.TotalMilliseconds + 500;
+                    Console.WriteLine($"Too many requests, stalling for {delay}ms");
+                    await Task.Delay(delay);
+                    goto TryAgain;
+                }
+
                 SetMetaData(track, artist, album);
                 var fullName = $"{TrackInfo.Artist} - {TrackInfo.Title}";
                 Console.Clear();
@@ -110,10 +126,8 @@ namespace SpotiSharp
                     await DownloadHandler.DownloadTrack(SearchYoutubeByText(fullName), Path.Combine(Config.DownloadPath, albumName));
                 }
                 else
-                {
                     Console.WriteLine("Track Found. Skipping");
-                    await Task.Delay(500);
-                }
+
                 i++;
             }
         }
@@ -130,9 +144,25 @@ namespace SpotiSharp
             await foreach (var item in spotifyClient.Paginate(playlist.Tracks))
             {
                 if (item.Track is FullTrack track)
-                {
-                    var artist = await spotifyClient.Artists.Get(track.Artists[0].Id);
-                    var album = await spotifyClient.Albums.Get(track.Album.Id);
+                {                 
+                    FullArtist artist;
+                    FullAlbum album;
+
+                TryAgain:
+                    try
+                    {
+
+                        artist = await spotifyClient.Artists.Get(track.Artists[0].Id);
+                        album = await spotifyClient.Albums.Get(track.Album.Id);
+                    }
+                    catch (APITooManyRequestsException response)
+                    {
+                        var delay = (int)response.RetryAfter.TotalMilliseconds + 500;
+                        Console.WriteLine($"Too many requests, stalling for {delay}ms");
+                        await Task.Delay(delay);
+                        goto TryAgain;
+                    }
+
                     SetMetaData(track, artist, album);
                     var fullName = $"{TrackInfo.Artist} - {TrackInfo.Title}";
                     Console.Clear();
@@ -144,11 +174,9 @@ namespace SpotiSharp
                         SearchMusixMatchByText(fullName);
                         await DownloadHandler.DownloadTrack(SearchYoutubeByText(fullName), Path.Combine(Config.DownloadPath, playlistName));
                     }
-                    else
-                    {
+                    else                    
                         Console.WriteLine("Track Found. Skipping");
-                        await Task.Delay(500);
-                    }
+
                     i++;
                 }
             }

@@ -8,7 +8,7 @@ using Xabe.FFmpeg;
 
 namespace SpotiSharp
 {
-    class DownloadHandler
+    static class DownloadHandler
     {
 
         private static string UNCONVERTEDFILEPATH { get; set; }
