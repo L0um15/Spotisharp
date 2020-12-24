@@ -108,7 +108,7 @@ namespace SpotiSharp
                 }
                 catch (APITooManyRequestsException response)
                 {
-                    var delay = (int)response.RetryAfter.TotalMilliseconds + 500;
+                    var delay = (int)response.RetryAfter.TotalMilliseconds + 1000;
                     Console.WriteLine($"Too many requests, stalling for {delay}ms");
                     await Task.Delay(delay);
                     goto TryAgain;
@@ -157,7 +157,7 @@ namespace SpotiSharp
                     }
                     catch (APITooManyRequestsException response)
                     {
-                        var delay = (int)response.RetryAfter.TotalMilliseconds + 500;
+                        var delay = (int)response.RetryAfter.TotalMilliseconds + 1000;
                         Console.WriteLine($"Too many requests, stalling for {delay}ms");
                         await Task.Delay(delay);
                         goto TryAgain;
