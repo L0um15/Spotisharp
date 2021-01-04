@@ -1,31 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <ApplicationIcon>icon.ico</ApplicationIcon>
-    <Version>1.2.0</Version>
-    <Authors>L0um15</Authors>
-    <Description>Music Downloader using SpotifyWebApi</Description>
-    <Copyright>Copyright (c) 2020 L0um15</Copyright>
-    <AssemblyVersion>1.2.0.0</AssemblyVersion>
-    <FileVersion>1.2.0.0</FileVersion>
   </PropertyGroup>
-
-  <!--Include SpotiSharp.pdb file inside executable-->
-  <PropertyGroup>
-	  <DebugSymbols>true</DebugSymbols>
-	  <DebugType>embedded</DebugType>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.28" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="SpotifyAPI.Web" Version="6.0.0" />
-    <PackageReference Include="taglib-sharp-netstandard2.0" Version="2.1.0" />
-    <PackageReference Include="VideoLibrary" Version="3.0.8" />
-    <PackageReference Include="Xabe.FFmpeg" Version="4.3.1" />
-    <PackageReference Include="Xabe.FFmpeg.Downloader" Version="4.3.1" />
-  </ItemGroup>
 
 </Project>
