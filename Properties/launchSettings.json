@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SpotiSharp": {
+      "commandName": "Project",
+      "commandLineArgs": "\"bury the light\""
+    }
+  }
+}
