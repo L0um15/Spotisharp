@@ -19,6 +19,12 @@ namespace SpotiSharp
         public string ClientSecret { get; set; } = "";
         public string FFmpegPath { get; private set ;} = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
         public string DownloadPath { get; set; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyMusic), "SpotiSharp");
+
+        public void EnsurePathsExist()
+        {
+            Directory.CreateDirectory(FFmpegPath);
+            Directory.CreateDirectory(DownloadPath);
+        }
     }
     public static class Config
     {
@@ -36,7 +42,7 @@ namespace SpotiSharp
                 if (deserialized.ConfigVersion != Utilities.ApplicationVersion)
                 {
                     deserialized.ConfigVersion = Utilities.ApplicationVersion;
-                    updateConfig(deserialized);                   
+                    updateConfig(deserialized);
                 }
 
                 Properties = deserialized;
@@ -47,8 +53,9 @@ namespace SpotiSharp
                 Properties.ConfigVersion = Utilities.ApplicationVersion;
                 updateConfig(Properties);
             }
-        }
 
+            Properties.EnsurePathsExist();
+        }
         private static void updateConfig(ConfigData data)
         {
             var serialized = JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });

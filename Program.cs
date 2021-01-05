@@ -20,7 +20,7 @@ namespace SpotiSharp
 
             Config.Initialize(); // Initialize configuration file
 
-            if (args.Length == 0)
+            /*if (args.Length == 0)
             {
                 //TODO: Show a Help Page
                 Console.WriteLine("No arguments passed, exiting...");
@@ -49,7 +49,7 @@ namespace SpotiSharp
             var ffmpegInput = ffmpeg.StandardInput.BaseStream;
 
             ffmpegInput.Write(bytes, 0, bytes.Length);
-            ffmpegInput.Flush();
+            ffmpegInput.Flush();*/
 
         }       
     }
