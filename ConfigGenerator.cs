@@ -12,39 +12,47 @@ namespace SpotiSharp
     //str clSecret
     //str ffmpeg
     //str download
-
+    public class ConfigData
+    {
+        public string ConfigVersion { get; set; }
+        public string ClientID { get; set; } = "";
+        public string ClientSecret { get; set; } = "";
+        public string FFmpegPath { get; private set ;} = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+        public string DownloadPath { get; set; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyMusic), "SpotiSharp");
+    }
     public static class Config
     {
-        public static string ClientID;
-        public static string ClientSecret;
-        public static string FFmpegPath = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
-        public static string DownloadPath = "";
+
+        public static ConfigData Properties;
 
         private static readonly string configFile = Path.Combine(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), "config.json");
-        
+
         public static void Initialize()
         {
             if (File.Exists(configFile))
-                loadConfig();
-        }
-
-        private static void loadConfig()
-        {
-            var deserialized = JsonSerializer.Deserialize<jsonProxy>(File.ReadAllText(configFile));
-            Console.WriteLine(deserialized);
-        }
-
-        private class jsonProxy
-        { 
-            public string ClientID;
-            public string ClientSecret;
-            public string FFmpegPath;
-            public string DownloadPath;
-
-            public override string ToString()
             {
-                return $"({ClientID}, {ClientSecret}, {FFmpegPath}, {DownloadPath})";
+                var deserialized = JsonSerializer.Deserialize<ConfigData>(File.ReadAllText(configFile));
+
+                if (deserialized.ConfigVersion != Utilities.ApplicationVersion)
+                {
+                    deserialized.ConfigVersion = Utilities.ApplicationVersion;
+                    updateConfig(deserialized);                   
+                }
+
+                Properties = deserialized;
+            }
+            else
+            {
+                Properties = new ConfigData();
+                Properties.ConfigVersion = Utilities.ApplicationVersion;
+                updateConfig(Properties);
             }
         }
+
+        private static void updateConfig(ConfigData data)
+        {
+            var serialized = JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(configFile, serialized);
+        }        
     }
 }

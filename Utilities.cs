@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 
@@ -22,5 +23,7 @@ namespace SpotiSharp
 
 
         public static readonly bool IsRoot = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? Environment.UserName == "root" : false;
+
+        public static readonly string ApplicationVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
     }
 }

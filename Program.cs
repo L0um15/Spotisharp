@@ -20,14 +20,14 @@ namespace SpotiSharp
 
             Config.Initialize(); // Initialize configuration file
 
-            if(args.Length == 0)
+            if (args.Length == 0)
             {
                 //TODO: Show a Help Page
                 Console.WriteLine("No arguments passed, exiting...");
                 Environment.Exit(1);
             }
 
-           string input = args[0];
+            string input = args[0];
 
             var youtube = YouTube.Default;
             var video = youtube.GetVideo("https://www.youtube.com/watch?v=rwnQs0wks4U"); //THE STORM THAT IS APPOACHING!!!!!!
