@@ -17,7 +17,7 @@ namespace SpotiSharp
         public string ConfigVersion { get; set; }
         public string ClientID { get; set; } = "";
         public string ClientSecret { get; set; } = "";
-        public string FFmpegPath { get; private set ;} = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+        public string FFmpegPath { get; set; } = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
         public string DownloadPath { get; set; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyMusic), "SpotiSharp");
 
         public void EnsurePathsExist()
