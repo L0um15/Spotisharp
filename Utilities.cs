@@ -26,6 +26,9 @@ namespace SpotiSharp
         public static readonly bool IsRoot = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? Environment.UserName == "root" : false;
 
         public static readonly string ApplicationVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+
+        public static string MakeSafe(string input) 
+            => Regex.Replace(input, @"[\/\\\?\*\<\>\|\:\""]", " ");
     }
 
     public enum UrlType
