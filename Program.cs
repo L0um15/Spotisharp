@@ -29,6 +29,31 @@ namespace SpotiSharp
 
             string input = args[0];
 
+            var client = SpotifyHelpers.ConnectToSpotify();
+            if (input.IsSpotifyUrl())
+            {
+                var (type, url) = input.GetSpotifyUrlId();
+
+                switch (type)
+                {
+                    case UrlType.Playlist:
+                        //GetSpotfiyPlaylist();
+                        break;
+                    case UrlType.Album:
+                        //GetSpotifyAlbum();
+                        break;
+                    case UrlType.Track:
+                        //GetSpotifyTrack();
+                        break;
+                }
+                
+            }
+            else
+            {
+                SpotifyHelpers.GetSpotifyTrackFromName(client, input);
+            }
+
+
             var youtube = YouTube.Default;
             var video = youtube.GetVideo("https://www.youtube.com/watch?v=rwnQs0wks4U"); //THE STORM THAT IS APPOACHING!!!!!!
             var bytes = video.GetBytes();
