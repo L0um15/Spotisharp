@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
@@ -15,9 +18,9 @@ namespace SpotiSharp
             var loginResponse = new OAuthClient().RequestToken(loginRequest).GetAwaiter().GetResult();
             return new SpotifyClient(loginResponse.AccessToken);
         }
-        public static TrackInfo GetSpotifyTrackFromName(this SpotifyClient client, string input)
+        public static async Task<TrackInfo> GetSpotifyTrackFromName(this SpotifyClient client, string input)
         {            
-            var searchResult = client.Search.Item(new SearchRequest(SearchRequest.Types.Track, input)).GetAwaiter().GetResult();
+            var searchResult = await client.Search.Item(new SearchRequest(SearchRequest.Types.Track, input));
             var tracks = searchResult.Tracks;
 
             if (tracks.Items.Count == 0)
@@ -26,42 +29,38 @@ namespace SpotiSharp
                 Environment.Exit(1);
             }
             var track = tracks.Items[0];
-
-            var artistTask = client.Artists.TryGet(track.Artists[0].Id);
-
-            var albumTask = client.Albums.TryGet(track.Album.Id);
-
-            artistTask.Start();
-            albumTask.Start();
-
-            var (artist, album) = (artistTask.Result, albumTask.Result);
-
+            var artist = await client.Artists.TryGet(track.Artists[0].Id);
+            var album = await client.Albums.TryGet(track.Album.Id);
             string safeArtistName = artist.Name.MakeSafe();
             string safeTitle = track.Name.MakeSafe();
             int safeDate = DateTime.TryParse(album.ReleaseDate, out var value) ? value.Year : int.Parse(album.ReleaseDate);
+            if (File.Exists(Path.Combine(Config.Properties.DownloadPath, $"{safeArtistName} - {safeTitle}.mp3")))
+            {
+                Console.WriteLine("Track found. Skipping.");
+                Environment.Exit(1);
+            }
             return new TrackInfo()
             {
                 Artist = safeArtistName,
                 Title = safeTitle,
                 Lyrics = GetLyricsFromWeb($"{safeArtistName} {safeTitle}"),
                 Album = album.Name,
-                Url = track.ExternalUrls["spotify"],
+                SpotifyUrl = track.ExternalUrls["spotify"],
+                YoutubeUrl = GetYoutubeUrl($"{safeArtistName} {safeTitle}".MakeUriSafe()),
                 Genres = album.Genres.FirstOrDefault() != null ? album.Genres[0] : "",
                 AlbumArt = album.Images[0].Url,
                 Copyright = album.Copyrights.FirstOrDefault() != null ? album.Copyrights[0].Text : $"©{safeDate} {safeArtistName}",
                 Year = safeDate,
                 DiscNumber = track.DiscNumber,
                 TrackNumber = track.TrackNumber
-
             };
         }
 
 
-        public static async Task<TrackInfo[]> GetSpotifyTracksFromPlaylist(this SpotifyClient client, string url)
+        public static async Task QueueSpotifyTracksFromPlaylist(this SpotifyClient client, string url, ConcurrentQueue<TrackInfo> queue)
         {
             var playlist = await client.Playlists.Get(url);
             TrackInfo[] trackInfos = new TrackInfo[playlist.Tracks.Total.GetValueOrDefault()];
-            int i = 0;
             await foreach(var item in client.Paginate(playlist.Tracks))
             {
                 if(item.Track is FullTrack track)
@@ -71,54 +70,58 @@ namespace SpotiSharp
                     string safeArtistName = artist.Name.MakeSafe();
                     string safeTitle = track.Name.MakeSafe();
                     int safeDate = DateTime.TryParse(album.ReleaseDate, out var value) ? value.Year : int.Parse(album.ReleaseDate);
-                    trackInfos[i] = new TrackInfo()
+                    if (File.Exists(Path.Combine(Config.Properties.DownloadPath, $"{safeArtistName} - {safeTitle}.mp3")))
                     {
+                        Console.WriteLine("Track found. Skipping.");
+                        continue;
+                    }
+                    queue.Enqueue(new TrackInfo(){
                         Artist = safeArtistName,
                         Title = safeTitle,
                         Lyrics = GetLyricsFromWeb($"{safeArtistName} {safeTitle}"),
                         Album = album.Name,
-                        Url = track.ExternalUrls["spotify"],
+                        SpotifyUrl = track.ExternalUrls["spotify"],
+                        YoutubeUrl = GetYoutubeUrl($"{safeArtistName} {safeTitle}".MakeUriSafe()),
                         Genres = album.Genres.FirstOrDefault() != null ? album.Genres[0] : "",
                         AlbumArt = album.Images[0].Url,
                         Copyright = album.Copyrights.FirstOrDefault() != null ? album.Copyrights[0].Text : $"©{safeDate} {safeArtistName}",
                         Year = safeDate,
                         DiscNumber = track.DiscNumber,
                         TrackNumber = track.TrackNumber
-                    };
+                    });
                 }
-                i++;
             }
-            return trackInfos;
         }
 
-        public static async Task<TrackInfo[]> GetSpotifyTrackFromAlbum(this SpotifyClient client, string url)
+        public static async Task QueueSpotifyTracksFromAlbum(this SpotifyClient client, string url, ConcurrentQueue<TrackInfo> queue)
         {
-            var album = await client.Albums.Get(url);
-            TrackInfo[] trackInfos = new TrackInfo[album.Tracks.Total.GetValueOrDefault()];
-            int i = 0;
+            var album = await client.Albums.TryGet(url);
+            var artist = await client.Artists.TryGet(album.Artists[0].Id);
             await foreach(var track in client.Paginate(album.Tracks))
             {
-                var artist = await client.Artists.TryGet(album.Artists[0].Id);
                 string safeArtistName = artist.Name.MakeSafe();
                 string safeTitle = track.Name.MakeSafe();
                 int safeDate = DateTime.TryParse(album.ReleaseDate, out var value) ? value.Year : int.Parse(album.ReleaseDate);
-                trackInfos[i] = new TrackInfo
+                if (File.Exists(Path.Combine(Config.Properties.DownloadPath, $"{safeArtistName} - {safeTitle}.mp3"))) {
+                    Console.WriteLine("Track found. Skipping.");
+                    continue;
+                }  
+                queue.Enqueue(new TrackInfo
                 {
                     Artist = safeArtistName,
                     Title = safeTitle,
                     Lyrics = GetLyricsFromWeb($"{safeArtistName} {safeTitle}"),
                     Album = album.Name,
-                    Url = track.ExternalUrls["spotify"],
+                    SpotifyUrl = track.ExternalUrls["spotify"],
+                    YoutubeUrl = GetYoutubeUrl($"{safeArtistName} {safeTitle}".MakeUriSafe()),
                     Genres = album.Genres.FirstOrDefault() != null ? album.Genres[0] : "",
                     AlbumArt = album.Images[0].Url,
                     Copyright = album.Copyrights.FirstOrDefault() != null ? album.Copyrights[0].Text : $"©{safeDate} {safeArtistName}",
                     Year = safeDate,
                     DiscNumber = track.DiscNumber,
                     TrackNumber = track.TrackNumber
-                };
-                i++;
+                });
             }
-            return trackInfos;
         }
 
 
@@ -157,6 +160,15 @@ namespace SpotiSharp
             return artist;
         }
 
+        private static string GetYoutubeUrl(string fullName)
+        {
+            var searchFor = "https://www.youtube.com/results?search_query=" + fullName;
+            var httpClient = new HttpClient();
+            var response = httpClient.GetStringAsync(searchFor).Result;
+            var firstOccurance = Regex.Match(response, @"v=[a-zA-Z0-9_-]{11}");
+            return "https://www.youtube.com/watch?" + firstOccurance.Value;
+        }
+
         private static string GetLyricsFromWeb(string fullName)
         {
             var searchFor = "https://www.musixmatch.com/search/" + fullName;
@@ -183,12 +195,18 @@ namespace SpotiSharp
         public string Title;
         public string Lyrics;
         public string Album;
-        public string Url;
+        public string SpotifyUrl;
+        public string YoutubeUrl;
         public string Genres;
         public string AlbumArt;
         public string Copyright;
         public int TrackNumber;
         public int DiscNumber;
         public int Year;
+
+        public override string ToString()
+        {
+            return $"{Artist} - {Title} from the album {Album}";
+        }
     }
 }

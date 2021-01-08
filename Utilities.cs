@@ -29,6 +29,8 @@ namespace SpotiSharp
 
         public static string MakeSafe(this string input) 
             => Regex.Replace(input, @"[\/\\\?\*\<\>\|\:\""]", " ");
+        public static string MakeUriSafe(this string input)
+            => Regex.Replace(input, @"[\s+\&]", "%20");
     }
 
     public enum UrlType
