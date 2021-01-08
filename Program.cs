@@ -30,11 +30,17 @@ namespace SpotiSharp
                 "▒ ▒▓▒ ▒ ░▒▓▒░ ░  ░░ ▒░▒░▒░   ▒ ░░   ░▓  ▒ ▒▓▒ ▒ ░ ▒ ░░▒░▒ ▒▒   ▓▒█░░ ▒▓ ░▒▓░▒▓▒░ ░  ░\n" +
                 "░ ░▒  ░ ░░▒ ░       ░ ▒ ▒░     ░     ▒ ░░ ░▒  ░ ░ ▒ ░▒░ ░  ▒   ▒▒ ░  ░▒ ░ ▒░░▒ ░     \n" +
                 "░  ░  ░  ░░       ░ ░ ░ ▒    ░       ▒ ░░  ░  ░   ░  ░░ ░  ░   ▒     ░░   ░ ░░       \n" +
-                "      ░               ░ ░            ░        ░   ░  ░  ░      ░  ░   ░              \n");
+                $"      ░               ░ ░            ░        ░   ░  ░  ░      ░  ░   ░       {Utilities.ApplicationVersion}\n");
+
+            var (isNewVersionAvailable, Version) = Utilities.CheckForLatestApplicationVersion();
+
+            if (isNewVersionAvailable)
+            {
+                Console.WriteLine($"Out of date!: {Version}\n");
+            }
 
             if (args.Length == 0)
             {
-                //TODO: Show a Help Page
                 Console.WriteLine("SpotiSharp is a Open-Source CLI application made in .NET Core\n" +
                     "Usage: .\\SpotiSharp.exe \"Text | PlaylistUrl | AlbumUrl\"\n" +
                     "No arguments passed...");

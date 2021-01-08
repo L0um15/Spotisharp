@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
@@ -27,6 +29,21 @@ namespace SpotiSharp
 
         public static readonly string ApplicationVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
+        public static (bool isAvailable, string Version) CheckForLatestApplicationVersion()
+        {
+            var httpClient = new HttpClient();
+            try
+            {
+                string latestVersion = httpClient.GetStringAsync("https://raw.githubusercontent.com/L0um15/SpotiSharp/main/version.txt").Result;
+                if (ApplicationVersion != latestVersion)
+                    return (true, latestVersion);
+            }
+            catch (WebException)
+            {
+                Console.WriteLine("Something went wrong");
+            }
+            return (false, null);
+        }
         public static string MakeSafe(this string input) 
             => Regex.Replace(input, @"[\/\\\?\*\<\>\|\:\""]", " ");
         public static string MakeUriSafe(this string input)

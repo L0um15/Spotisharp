@@ -19,10 +19,9 @@ namespace SpotiSharp
             return new SpotifyClient(loginResponse.AccessToken);
         }
         public static async Task<TrackInfo> GetSpotifyTrackFromName(this SpotifyClient client, string input)
-        {            
+        {      
             var searchResult = await client.Search.Item(new SearchRequest(SearchRequest.Types.Track, input));
             var tracks = searchResult.Tracks;
-
             if (tracks.Items.Count == 0)
             {
                 Console.WriteLine("Spotify returned no results matching criteria.");
