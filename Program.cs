@@ -46,11 +46,23 @@ namespace SpotiSharp
                         //GetSpotifyTrack();
                         break;
                 }
-                
+
             }
             else
             {
-                SpotifyHelpers.GetSpotifyTrackFromName(client, input);
+                // SpotifyHelpers.GetSpotifyTrackFromName(client, input);
+                var track = SpotifyHelpers.GetSpotifyTrackFromName(client, input);
+                Console.WriteLine($"Artist: {track.Artist}\n" +
+                    $"Title: {track.Title}\n" +
+                    $"DiscNumber: {track.DiscNumber}\n" +
+                    $"TrackNumber: {track.TrackNumber}\n" +
+                    $"AlbumArtURL: {track.AlbumArt}\n" +
+                    $"Copyright: {track.Copyright}\n" +
+                    $"Genres: {track.Genres}\n" +
+                    $"Url: {track.Url}\n" +
+                    $"Year: {track.Year}\n" +
+                    $"Album: {track.Album}\n" +
+                    $"Lyrics: \n{track.Lyrics}\n\n");
             }
 
 

@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using HtmlAgilityPack;
 using SpotifyAPI.Web;
 
 namespace SpotiSharp
@@ -42,7 +43,7 @@ namespace SpotiSharp
             {
                 Artist = safeArtistName,
                 Title = safeTitle,
-                Lyrics = null,
+                Lyrics = GetLyricsFromWeb($"{safeArtistName} {safeTitle}"),
                 Album = album.Name,
                 Url = track.ExternalUrls["spotify"],
                 Genres = album.Genres.FirstOrDefault() != null ? album.Genres[0] : "",
@@ -74,7 +75,7 @@ namespace SpotiSharp
                     {
                         Artist = safeArtistName,
                         Title = safeTitle,
-                        Lyrics = null,
+                        Lyrics = GetLyricsFromWeb($"{safeArtistName} {safeTitle}"),
                         Album = album.Name,
                         Url = track.ExternalUrls["spotify"],
                         Genres = album.Genres.FirstOrDefault() != null ? album.Genres[0] : "",
@@ -105,7 +106,7 @@ namespace SpotiSharp
                 {
                     Artist = safeArtistName,
                     Title = safeTitle,
-                    Lyrics = null,
+                    Lyrics = GetLyricsFromWeb($"{safeArtistName} {safeTitle}"),
                     Album = album.Name,
                     Url = track.ExternalUrls["spotify"],
                     Genres = album.Genres.FirstOrDefault() != null ? album.Genres[0] : "",
@@ -154,6 +155,25 @@ namespace SpotiSharp
             }
 
             return artist;
+        }
+
+        private static string GetLyricsFromWeb(string fullName)
+        {
+            var searchFor = "https://www.musixmatch.com/search/" + fullName;
+            var htmlWeb = new HtmlWeb();
+            var htmlDocument = htmlWeb.Load(searchFor);
+            var Node = htmlDocument.DocumentNode.SelectSingleNode("//ul[contains(@class, 'tracks') and contains(@class, 'list')]");
+            if (Node == null) return null;
+            var card = Node.SelectSingleNode("//a[@class='title'][1]"); // Return first occurance
+            if (card == null) return null;
+            string fullUrl = "https://www.musixmatch.com" + card.Attributes["href"].Value;
+            htmlDocument = htmlWeb.Load(fullUrl);
+            var lyrics = htmlDocument.DocumentNode.SelectSingleNode("//div[@class='mxm-lyrics']/span"); // Approved Lyrics
+            if (lyrics == null)
+                lyrics = htmlDocument.DocumentNode.SelectSingleNode("//span[@class='lyrics__content__ok']"); // Correct Lyrics waiting for approval
+            if (lyrics == null)
+                lyrics = htmlDocument.DocumentNode.SelectSingleNode("//span[@class='lyrics__content__warning']"); // Incorrect Lyrics waiting for review.
+            return lyrics != null ? lyrics.InnerText : null;
         }
     }
 
