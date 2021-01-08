@@ -157,7 +157,6 @@ namespace SpotiSharp
         }
     }
 
-
     public class TrackInfo
     {
         public string Artist;

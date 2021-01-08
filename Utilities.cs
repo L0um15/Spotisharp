@@ -27,7 +27,7 @@ namespace SpotiSharp
 
         public static readonly string ApplicationVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
-        public static string MakeSafe(string input) 
+        public static string MakeSafe(this string input) 
             => Regex.Replace(input, @"[\/\\\?\*\<\>\|\:\""]", " ");
     }
 
