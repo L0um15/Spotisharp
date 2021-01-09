@@ -14,14 +14,6 @@ namespace SpotiSharp
         public static void Main(string[] args)
         {
 
-            if (Utilities.IsRoot)
-            {
-                Console.WriteLine("SpotiSharp won't run with root permissions, exiting...");
-                Environment.Exit(1);
-            }
-
-            Config.Initialize(); // Initialize configuration file
-
             Console.WriteLine("  ██████  ██▓███   ▒█████  ▄▄▄█████▓ ██▓  ██████  ██░ ██  ▄▄▄       ██▀███   ██▓███  \n" +
                 "▒██    ▒ ▓██░  ██▒▒██▒  ██▒▓  ██▒ ▓▒▓██▒▒██    ▒ ▓██░ ██▒▒████▄    ▓██ ▒ ██▒▓██░  ██▒\n" +
                 "░ ▓██▄   ▓██░ ██▓▒▒██░  ██▒▒ ▓██░ ▒░▒██▒░ ▓██▄   ▒██▀▀██░▒██  ▀█▄  ▓██ ░▄█ ▒▓██░ ██▓▒\n" +
@@ -31,6 +23,14 @@ namespace SpotiSharp
                 "░ ░▒  ░ ░░▒ ░       ░ ▒ ▒░     ░     ▒ ░░ ░▒  ░ ░ ▒ ░▒░ ░  ▒   ▒▒ ░  ░▒ ░ ▒░░▒ ░     \n" +
                 "░  ░  ░  ░░       ░ ░ ░ ▒    ░       ▒ ░░  ░  ░   ░  ░░ ░  ░   ▒     ░░   ░ ░░       \n" +
                 $"      ░               ░ ░            ░        ░   ░  ░  ░      ░  ░   ░       {Utilities.ApplicationVersion}\n");
+
+            if (Utilities.IsRoot)
+            {
+                Console.WriteLine("SpotiSharp won't run with root permissions, exiting...");
+                Environment.Exit(1);
+            }
+
+            Config.Initialize(); // Initialize configuration file
 
             var (isNewVersionAvailable, Version) = Utilities.CheckForLatestApplicationVersion();
 

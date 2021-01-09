@@ -44,7 +44,11 @@ namespace SpotiSharp
                     deserialized.ConfigVersion = Utilities.ApplicationVersion;
                     updateConfig(deserialized);
                 }
-
+                if(deserialized.ClientID == "" && deserialized.ClientSecret == "")
+                {
+                    Console.WriteLine("Please fill missing information in the configuration file");
+                    Environment.Exit(1);
+                }
                 Properties = deserialized;
             }
             else
