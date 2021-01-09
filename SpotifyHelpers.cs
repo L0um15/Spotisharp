@@ -18,16 +18,24 @@ namespace SpotiSharp
             var loginResponse = new OAuthClient().RequestToken(loginRequest).GetAwaiter().GetResult();
             return new SpotifyClient(loginResponse.AccessToken);
         }
-        public static async Task<TrackInfo> GetSpotifyTrackFromName(this SpotifyClient client, string input)
-        {      
-            var searchResult = await client.Search.Item(new SearchRequest(SearchRequest.Types.Track, input));
-            var tracks = searchResult.Tracks;
-            if (tracks.Items.Count == 0)
+        public static async Task<TrackInfo> GetSpotifyTrack(this SpotifyClient client, string input)
+        {
+            FullTrack track;
+            if (!input.IsSpotifyUrl())
             {
-                Console.WriteLine("Spotify returned no results matching criteria.");
-                Environment.Exit(1);
+                var searchResult = await client.Search.Item(new SearchRequest(SearchRequest.Types.Track, input));
+                var tracks = searchResult.Tracks;
+                if (tracks.Items.Count == 0)
+                {
+                    Console.WriteLine("Spotify returned no results matching criteria.");
+                    return null;
+                }
+                track = tracks.Items[0];
             }
-            var track = tracks.Items[0];
+            else
+            {
+                track = await client.Tracks.Get(input);
+            }
             var artist = await client.Artists.TryGet(track.Artists[0].Id);
             var album = await client.Albums.TryGet(track.Album.Id);
             string safeArtistName = artist.Name.MakeSafe();
@@ -36,7 +44,7 @@ namespace SpotiSharp
             if (File.Exists(Path.Combine(Config.Properties.DownloadPath, $"{safeArtistName} - {safeTitle}.mp3")))
             {
                 Console.WriteLine("Track found. Skipping.");
-                Environment.Exit(1);
+                return null;
             }
             return new TrackInfo()
             {

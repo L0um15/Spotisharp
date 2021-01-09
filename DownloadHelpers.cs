@@ -12,7 +12,7 @@ namespace SpotiSharp
         public static void DownloadAndConvertTrack(this YouTube youtube, TrackInfo trackInfo) {
             var trackPath = Path.Combine(Config.Properties.DownloadPath, $"{trackInfo.Artist} - {trackInfo.Title}.mp3");
             var video = youtube.GetVideo(trackInfo.YoutubeUrl);
-            byte[] bytes = video.GetBytes();
+            var stream = video.Stream();
             var ffmpeg = new Process()
             { 
                 StartInfo = {
@@ -26,7 +26,8 @@ namespace SpotiSharp
             };
             ffmpeg.Start();
             var ffmpegInput = ffmpeg.StandardInput.BaseStream;
-            ffmpegInput.Write(bytes, 0, bytes.Length);
+            stream.CopyTo(ffmpegInput);
+            stream.Close();
             ffmpegInput.Close();
             ffmpeg.WaitForExit();
             WriteMetadata(trackInfo, trackPath);

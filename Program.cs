@@ -48,16 +48,16 @@ namespace SpotiSharp
 
             if (isNewVersionAvailable)
                 Console.WriteLine($"Out of date!: {Version}\n");
-
+            string input;
             if (args.Length == 0)
             {
                 Console.WriteLine("SpotiSharp is a Open-Source CLI application made in .NET Core\n" +
                     "Usage: .\\SpotiSharp.exe \"Text | PlaylistUrl | AlbumUrl\"\n" +
                     "No arguments passed...");
-                Environment.Exit(1);
-            }
+                input = Console.ReadLine();
+            }else
+                input = args[0];
 
-            string input = args[0];
 
             var client = SpotifyHelpers.ConnectToSpotify();
             var trackQueue = new ConcurrentQueue<TrackInfo>();

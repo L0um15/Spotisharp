@@ -1,8 +1,7 @@
 {
   "profiles": {
     "SpotiSharp": {
-      "commandName": "Project",
-      "commandLineArgs": "https://open.spotify.com/album/7j7iPq5rokadGr1ZdJRGgE?si=o6YWytVpSSmDpNWDMexONw"
+      "commandName": "Project"
     }
   }
 }
