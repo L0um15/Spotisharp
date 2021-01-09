@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Buffers;
 using System.Diagnostics;
 using System.IO;
-using System.Threading.Tasks;
+using System.Net;
 using VideoLibrary;
 
 namespace SpotiSharp
@@ -31,14 +32,16 @@ namespace SpotiSharp
             WriteMetadata(trackInfo, trackPath);
             Console.WriteLine($"Done ::::: {trackInfo.Artist} - {trackInfo.Title}");
         }
+
         private static void WriteMetadata(TrackInfo trackInfo, string filepath)
         {
+            var artist = new string[] { trackInfo.Artist };
             TagLib.Id3v2.Tag.DefaultVersion = 3;
             TagLib.Id3v2.Tag.ForceDefaultVersion = true;
             TagLib.File file = TagLib.File.Create(filepath);
-            file.Tag.AlbumArtists = new string[] { trackInfo.Artist };
-            file.Tag.Performers = new string[] { trackInfo.Artist };
-            file.Tag.Composers = new string[] { trackInfo.Artist };
+            file.Tag.AlbumArtists = artist;
+            file.Tag.Performers = artist;
+            file.Tag.Composers = artist;
             file.Tag.Copyright = trackInfo.Copyright;
             file.Tag.Lyrics = trackInfo.Lyrics;
             file.Tag.Title = trackInfo.Title;
@@ -48,7 +51,7 @@ namespace SpotiSharp
             file.Tag.Year = Convert.ToUInt32(trackInfo.Year);
             file.Tag.Comment = trackInfo.SpotifyUrl;
             file.Tag.Genres = new string[] { trackInfo.Genres };
-            //file.Tag.Pictures = null;
+            file.Tag.Pictures = new TagLib.IPicture[] { new TagLib.Picture(trackInfo.AlbumArt) };
             file.Save();
         }
     }

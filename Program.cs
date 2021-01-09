@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using VideoLibrary;
 
@@ -32,12 +33,21 @@ namespace SpotiSharp
 
             Config.Initialize(); // Initialize configuration file
 
+            if (!DependencyHelpers.IsFFmpegPresent())
+            {
+                string ffmpegZipPath = Path.Combine(Config.Properties.FFmpegPath, "ffmpeg.zip");
+                new WebClient().DownloadFile(
+                    DependencyHelpers.getFFmpegDownloadUrl(),
+                    ffmpegZipPath
+                );
+                Utilities.UnZip(ffmpegZipPath, Config.Properties.FFmpegPath, true);
+                File.Delete(ffmpegZipPath);
+            }
+
             var (isNewVersionAvailable, Version) = Utilities.CheckForLatestApplicationVersion();
 
             if (isNewVersionAvailable)
-            {
                 Console.WriteLine($"Out of date!: {Version}\n");
-            }
 
             if (args.Length == 0)
             {
@@ -52,6 +62,8 @@ namespace SpotiSharp
             var client = SpotifyHelpers.ConnectToSpotify();
             var trackQueue = new ConcurrentQueue<TrackInfo>();
             var youTube = YouTube.Default;
+
+            
             if (input.IsSpotifyUrl())
             {
                 var (type, url) = input.GetSpotifyUrlId();
@@ -94,7 +106,6 @@ namespace SpotiSharp
             }
             else
             {
-                // SpotifyHelpers.GetSpotifyTrackFromName(client, input);
                 var track = SpotifyHelpers.GetSpotifyTrackFromName(client, input).GetAwaiter().GetResult();
                 DownloadHelpers.DownloadAndConvertTrack(youTube, track);
             }

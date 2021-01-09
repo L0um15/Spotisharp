@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO.Compression;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
@@ -11,7 +12,6 @@ namespace SpotiSharp
     {
         public static bool IsSpotifyUrl(this string input)
             => Regex.IsMatch(input, @"[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)") && input.Contains("open.spotify.com");
-        
 
         public static (UrlType Type, string Url) GetSpotifyUrlId(this string input)
         {
@@ -25,22 +25,27 @@ namespace SpotiSharp
                 throw new ArgumentException($"The input does not contain a valid Spotify URL");
         }
 
-        public static readonly bool IsRoot = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? Environment.UserName == "root" : false;
+        public static readonly bool IsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+
+        public static readonly bool IsRoot = IsLinux ? Environment.UserName == "root" : false;
 
         public static readonly string ApplicationVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+
+        public static void UnZip(string path, string destination, bool overwrite) 
+            => ZipFile.ExtractToDirectory(path, destination, overwrite);
 
         public static (bool isAvailable, string Version) CheckForLatestApplicationVersion()
         {
             var httpClient = new HttpClient();
             try
             {
-                string latestVersion = httpClient.GetStringAsync("https://raw.githubusercontent.com/L0um15/SpotiSharp/main/version.txt").Result;
+                string latestVersion = new WebClient().DownloadString("https://raw.githubusercontent.com/L0um15/SpotiSharp/main/version.txt");
                 if (ApplicationVersion != latestVersion)
                     return (true, latestVersion);
             }
             catch (WebException)
             {
-                Console.WriteLine("Something went wrong");
+                Console.WriteLine("Something went wrong with Github");
             }
             return (false, null);
         }

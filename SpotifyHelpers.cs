@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
+using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
@@ -47,7 +47,7 @@ namespace SpotiSharp
                 SpotifyUrl = track.ExternalUrls["spotify"],
                 YoutubeUrl = GetYoutubeUrl($"{safeArtistName} {safeTitle}".MakeUriSafe()),
                 Genres = album.Genres.FirstOrDefault() != null ? album.Genres[0] : "",
-                AlbumArt = album.Images[0].Url,
+                AlbumArt = GetFileFromUrl(album.Images[0].Url),
                 Copyright = album.Copyrights.FirstOrDefault() != null ? album.Copyrights[0].Text : $"©{safeDate} {safeArtistName}",
                 Year = safeDate,
                 DiscNumber = track.DiscNumber,
@@ -82,7 +82,7 @@ namespace SpotiSharp
                         SpotifyUrl = track.ExternalUrls["spotify"],
                         YoutubeUrl = GetYoutubeUrl($"{safeArtistName} {safeTitle}".MakeUriSafe()),
                         Genres = album.Genres.FirstOrDefault() != null ? album.Genres[0] : "",
-                        AlbumArt = album.Images[0].Url,
+                        AlbumArt = GetFileFromUrl(album.Images[0].Url),
                         Copyright = album.Copyrights.FirstOrDefault() != null ? album.Copyrights[0].Text : $"©{safeDate} {safeArtistName}",
                         Year = safeDate,
                         DiscNumber = track.DiscNumber,
@@ -98,6 +98,7 @@ namespace SpotiSharp
             var artist = await client.Artists.TryGet(album.Artists[0].Id);
             await foreach(var track in client.Paginate(album.Tracks))
             {
+                
                 string safeArtistName = artist.Name.MakeSafe();
                 string safeTitle = track.Name.MakeSafe();
                 int safeDate = DateTime.TryParse(album.ReleaseDate, out var value) ? value.Year : int.Parse(album.ReleaseDate);
@@ -114,7 +115,7 @@ namespace SpotiSharp
                     SpotifyUrl = track.ExternalUrls["spotify"],
                     YoutubeUrl = GetYoutubeUrl($"{safeArtistName} {safeTitle}".MakeUriSafe()),
                     Genres = album.Genres.FirstOrDefault() != null ? album.Genres[0] : "",
-                    AlbumArt = album.Images[0].Url,
+                    AlbumArt = GetFileFromUrl(album.Images[0].Url),
                     Copyright = album.Copyrights.FirstOrDefault() != null ? album.Copyrights[0].Text : $"©{safeDate} {safeArtistName}",
                     Year = safeDate,
                     DiscNumber = track.DiscNumber,
@@ -159,12 +160,16 @@ namespace SpotiSharp
             return artist;
         }
 
+        private static byte[] GetFileFromUrl(string url)
+        {
+            return new WebClient().DownloadData(url);
+        }
+
         private static string GetYoutubeUrl(string fullName)
         {
             var searchFor = "https://www.youtube.com/results?search_query=" + fullName;
-            var httpClient = new HttpClient();
-            var response = httpClient.GetStringAsync(searchFor).Result;
-            var firstOccurance = Regex.Match(response, @"v=[a-zA-Z0-9_-]{11}");
+            var result = new WebClient().DownloadString(searchFor);
+            var firstOccurance = Regex.Match(result, @"v=[a-zA-Z0-9_-]{11}");
             return "https://www.youtube.com/watch?" + firstOccurance.Value;
         }
 
@@ -184,6 +189,7 @@ namespace SpotiSharp
                 lyrics = htmlDocument.DocumentNode.SelectSingleNode("//span[@class='lyrics__content__ok']"); // Correct Lyrics waiting for approval
             if (lyrics == null)
                 lyrics = htmlDocument.DocumentNode.SelectSingleNode("//span[@class='lyrics__content__warning']"); // Incorrect Lyrics waiting for review.
+            
             return lyrics != null ? lyrics.InnerText : null;
         }
     }
@@ -197,7 +203,7 @@ namespace SpotiSharp
         public string SpotifyUrl;
         public string YoutubeUrl;
         public string Genres;
-        public string AlbumArt;
+        public byte[] AlbumArt;
         public string Copyright;
         public int TrackNumber;
         public int DiscNumber;
