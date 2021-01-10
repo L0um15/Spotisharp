@@ -20,6 +20,13 @@ namespace SpotiSharp
         public string FFmpegPath { get; set; } = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
         public string DownloadPath { get; set; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyMusic), "SpotiSharp");
 
+        public bool IsMissingRequiredFields()
+        {
+            if (ClientID == string.Empty && ClientSecret == string.Empty)
+                return true;
+            return false;
+        }
+
         public void EnsurePathsExist()
         {
             Directory.CreateDirectory(FFmpegPath);
@@ -44,7 +51,7 @@ namespace SpotiSharp
                     deserialized.ConfigVersion = Utilities.ApplicationVersion;
                     updateConfig(deserialized);
                 }
-                if(deserialized.ClientID == "" && deserialized.ClientSecret == "")
+                if (deserialized.IsMissingRequiredFields())
                 {
                     Console.WriteLine("Please fill missing information in the configuration file");
                     Environment.Exit(1);
@@ -56,6 +63,11 @@ namespace SpotiSharp
                 Properties = new ConfigData();
                 Properties.ConfigVersion = Utilities.ApplicationVersion;
                 updateConfig(Properties);
+                if (Properties.IsMissingRequiredFields())
+                {
+                    Console.WriteLine("Please fill missing information in the configuration file");
+                    Environment.Exit(1);
+                }
             }
 
             Properties.EnsurePathsExist();

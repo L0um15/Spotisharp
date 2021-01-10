@@ -15,6 +15,12 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
+  <!--Include SpotiSharp.pdb file inside executable-->
+  <PropertyGroup>
+	<DebugSymbols>true</DebugSymbols>
+	<DebugType>embedded</DebugType>
+  </PropertyGroup>
+	
   <ItemGroup>
     <None Remove="NewFile1.txt" />
   </ItemGroup>

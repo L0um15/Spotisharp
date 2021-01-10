@@ -34,14 +34,14 @@ namespace SpotiSharp
             }
             else
             {
-                track = await client.Tracks.Get(input);
+                track = await client.Tracks.Get(input.GetSpotifyUrlId().Url);
             }
             var artist = await client.Artists.TryGet(track.Artists[0].Id);
             var album = await client.Albums.TryGet(track.Album.Id);
             string safeArtistName = artist.Name.MakeSafe();
             string safeTitle = track.Name.MakeSafe();
             int safeDate = DateTime.TryParse(album.ReleaseDate, out var value) ? value.Year : int.Parse(album.ReleaseDate);
-            if (File.Exists(Path.Combine(Config.Properties.DownloadPath, $"{safeArtistName} - {safeTitle}.mp3")))
+            if (WasDownloadedBefore(safeArtistName, safeTitle))
             {
                 Console.WriteLine("Track found. Skipping.");
                 return null;
@@ -51,6 +51,7 @@ namespace SpotiSharp
                 Artist = safeArtistName,
                 Title = safeTitle,
                 Lyrics = GetLyricsFromWeb($"{safeArtistName} {safeTitle}"),
+                Playlist = string.Empty,
                 Album = album.Name,
                 SpotifyUrl = track.ExternalUrls["spotify"],
                 YoutubeUrl = GetYoutubeUrl($"{safeArtistName} {safeTitle}".MakeUriSafe()),
@@ -67,7 +68,6 @@ namespace SpotiSharp
         public static async Task QueueSpotifyTracksFromPlaylist(this SpotifyClient client, string url, ConcurrentQueue<TrackInfo> queue)
         {
             var playlist = await client.Playlists.Get(url);
-            TrackInfo[] trackInfos = new TrackInfo[playlist.Tracks.Total.GetValueOrDefault()];
             await foreach(var item in client.Paginate(playlist.Tracks))
             {
                 if(item.Track is FullTrack track)
@@ -77,15 +77,16 @@ namespace SpotiSharp
                     string safeArtistName = artist.Name.MakeSafe();
                     string safeTitle = track.Name.MakeSafe();
                     int safeDate = DateTime.TryParse(album.ReleaseDate, out var value) ? value.Year : int.Parse(album.ReleaseDate);
-                    if (File.Exists(Path.Combine(Config.Properties.DownloadPath, $"{safeArtistName} - {safeTitle}.mp3")))
+                    if (WasDownloadedBefore(safeArtistName, safeTitle))
                     {
                         Console.WriteLine("Track found. Skipping.");
                         continue;
                     }
-                    queue.Enqueue(new TrackInfo(){
+                    queue.Enqueue(new TrackInfo() {
                         Artist = safeArtistName,
                         Title = safeTitle,
                         Lyrics = GetLyricsFromWeb($"{safeArtistName} {safeTitle}"),
+                        Playlist = playlist.Name.MakeSafe(),
                         Album = album.Name,
                         SpotifyUrl = track.ExternalUrls["spotify"],
                         YoutubeUrl = GetYoutubeUrl($"{safeArtistName} {safeTitle}".MakeUriSafe()),
@@ -110,15 +111,17 @@ namespace SpotiSharp
                 string safeArtistName = artist.Name.MakeSafe();
                 string safeTitle = track.Name.MakeSafe();
                 int safeDate = DateTime.TryParse(album.ReleaseDate, out var value) ? value.Year : int.Parse(album.ReleaseDate);
-                if (File.Exists(Path.Combine(Config.Properties.DownloadPath, $"{safeArtistName} - {safeTitle}.mp3"))) {
+                if (WasDownloadedBefore(safeArtistName, safeTitle))
+                {
                     Console.WriteLine("Track found. Skipping.");
                     continue;
-                }  
+                }
                 queue.Enqueue(new TrackInfo
                 {
                     Artist = safeArtistName,
                     Title = safeTitle,
                     Lyrics = GetLyricsFromWeb($"{safeArtistName} {safeTitle}"),
+                    Playlist = album.Name.MakeSafe(),
                     Album = album.Name,
                     SpotifyUrl = track.ExternalUrls["spotify"],
                     YoutubeUrl = GetYoutubeUrl($"{safeArtistName} {safeTitle}".MakeUriSafe()),
@@ -198,15 +201,22 @@ namespace SpotiSharp
             if (lyrics == null)
                 lyrics = htmlDocument.DocumentNode.SelectSingleNode("//span[@class='lyrics__content__warning']"); // Incorrect Lyrics waiting for review.
             
-            return lyrics != null ? lyrics.InnerText : null;
+            return lyrics?.InnerText;
+        }
+
+        private static bool WasDownloadedBefore(string safeArtistName, string safeTitle)
+        {
+            var doesExist = Directory.GetFiles(Config.Properties.DownloadPath, "*.mp3", SearchOption.AllDirectories)
+                .Any(x => x.Contains($"{safeArtistName} - {safeTitle}"));
+            return doesExist;
         }
     }
-
     public class TrackInfo
     {
         public string Artist;
         public string Title;
         public string Lyrics;
+        public string Playlist;
         public string Album;
         public string SpotifyUrl;
         public string YoutubeUrl;

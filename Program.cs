@@ -35,6 +35,7 @@ namespace SpotiSharp
 
             if (!DependencyHelpers.IsFFmpegPresent())
             {
+                Console.WriteLine("FFmpeg not found. Downloading...");
                 string ffmpegZipPath = Path.Combine(Config.Properties.FFmpegPath, "ffmpeg.zip");
                 new WebClient().DownloadFile(
                     DependencyHelpers.getFFmpegDownloadUrl(),
@@ -48,66 +49,84 @@ namespace SpotiSharp
 
             if (isNewVersionAvailable)
                 Console.WriteLine($"Out of date!: {Version}\n");
-            string input;
+
             if (args.Length == 0)
             {
                 Console.WriteLine("SpotiSharp is a Open-Source CLI application made in .NET Core\n" +
                     "Usage: .\\SpotiSharp.exe \"Text | PlaylistUrl | AlbumUrl\"\n" +
                     "No arguments passed...");
-                input = Console.ReadLine();
-            }else
-                input = args[0];
+                Environment.Exit(1);
+            }
 
+            string input = args[0];
 
+            Console.WriteLine("Connecting To Spotify...");
             var client = SpotifyHelpers.ConnectToSpotify();
             var trackQueue = new ConcurrentQueue<TrackInfo>();
             var youTube = YouTube.Default;
 
-            
+            Console.WriteLine("Making requests to Spotify...");
             if (input.IsSpotifyUrl())
             {
                 var (type, url) = input.GetSpotifyUrlId();
                 switch (type)
                 {
                     case UrlType.Playlist:
-                        var taskPlaylist = SpotifyHelpers.QueueSpotifyTracksFromPlaylist(client, url, trackQueue);
+                        var taskPlaylist = client.QueueSpotifyTracksFromPlaylist(url, trackQueue);
                         while (!taskPlaylist.IsCompleted)
                         {
                             while (trackQueue.TryDequeue(out var info))
                             {
-                                DownloadHelpers.DownloadAndConvertTrack(youTube, info);
+                                Console.WriteLine($"Downloading ::::: {info.Artist} - {info.Title} | Queue: {trackQueue.Count}");
+                                youTube.DownloadAndConvertTrack(info);
+                                Console.WriteLine($"Done        ::::: {info.Artist} - {info.Title}");
                             }
                             Thread.Sleep(200);
                         }
                         while (trackQueue.TryDequeue(out var info))
                         {
-                            DownloadHelpers.DownloadAndConvertTrack(youTube, info);
+                            Console.WriteLine($"Downloading ::::: {info.Artist} - {info.Title} | Queue: {trackQueue.Count}");
+                            youTube.DownloadAndConvertTrack(info);
+                            Console.WriteLine($"Done        ::::: {info.Artist} - {info.Title}");
                         }
                         break;
                     case UrlType.Album:
-                        var taskAlbum = SpotifyHelpers.QueueSpotifyTracksFromAlbum(client, url, trackQueue);
+                        var taskAlbum = client.QueueSpotifyTracksFromAlbum(url, trackQueue);
                         while (!taskAlbum.IsCompleted)
                         {
                             while (trackQueue.TryDequeue(out var info))
                             {
-                                DownloadHelpers.DownloadAndConvertTrack(youTube, info);
+                                Console.WriteLine($"Downloading ::::: {info.Artist} - {info.Title} | Queue: {trackQueue.Count}");
+                                youTube.DownloadAndConvertTrack(info);
+                                Console.WriteLine($"Done        ::::: {info.Artist} - {info.Title}");
                             }
                             Thread.Sleep(200);
                         }
                         while (trackQueue.TryDequeue(out var info))
                         {
-                            DownloadHelpers.DownloadAndConvertTrack(youTube, info);
+                            Console.WriteLine($"Downloading ::::: {info.Artist} - {info.Title} | Queue: {trackQueue.Count}");
+                            youTube.DownloadAndConvertTrack(info);
+                            Console.WriteLine($"Done        ::::: {info.Artist} - {info.Title}");
                         }
                         break;
                     case UrlType.Track:
-                        //GetSpotifyTrack();
+                        var track = client.GetSpotifyTrack(input).GetAwaiter().GetResult();
+                        if (track == null)
+                            Environment.Exit(1);
+                        Console.WriteLine($"Downloading ::::: {track.Artist} - {track.Title}");
+                        youTube.DownloadAndConvertTrack(track);
+                        Console.WriteLine($"Done        ::::: {track.Artist} - {track.Title}");
                         break;
                 }
             }
             else
             {
-                var track = SpotifyHelpers.GetSpotifyTrackFromName(client, input).GetAwaiter().GetResult();
-                DownloadHelpers.DownloadAndConvertTrack(youTube, track);
+                var track = client.GetSpotifyTrack(input).GetAwaiter().GetResult();
+                if (track == null)
+                    Environment.Exit(1);
+                Console.WriteLine($"Downloading ::::: {track.Artist} - {track.Title}");
+                youTube.DownloadAndConvertTrack(track);
+                Console.WriteLine($"Done        ::::: {track.Artist} - {track.Title}");
             }
         }    
     }

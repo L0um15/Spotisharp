@@ -10,19 +10,21 @@ namespace SpotiSharp
     public static class DownloadHelpers
     {
         public static void DownloadAndConvertTrack(this YouTube youtube, TrackInfo trackInfo) {
-            var trackPath = Path.Combine(Config.Properties.DownloadPath, $"{trackInfo.Artist} - {trackInfo.Title}.mp3");
+            var trackDirectory = Path.Combine(Config.Properties.DownloadPath, trackInfo.Playlist);
+            Directory.CreateDirectory(trackDirectory);
+            var trackPath = Path.Combine(trackDirectory,$"{trackInfo.Artist} - {trackInfo.Title}.mp3");
             var video = youtube.GetVideo(trackInfo.YoutubeUrl);
             var stream = video.Stream();
             var ffmpeg = new Process()
-            { 
+            {
                 StartInfo = {
                     FileName = Path.Combine(Config.Properties.FFmpegPath, "ffmpeg"),
                     Arguments = $"-i - \"{trackPath}\"",
                     UseShellExecute = false,
                     CreateNoWindow = true,
-                    RedirectStandardInput = true
+                    RedirectStandardInput = true,
+                    RedirectStandardError = true
                 }
-
             };
             ffmpeg.Start();
             var ffmpegInput = ffmpeg.StandardInput.BaseStream;
@@ -31,7 +33,6 @@ namespace SpotiSharp
             ffmpegInput.Close();
             ffmpeg.WaitForExit();
             WriteMetadata(trackInfo, trackPath);
-            Console.WriteLine($"Done ::::: {trackInfo.Artist} - {trackInfo.Title}");
         }
 
         private static void WriteMetadata(TrackInfo trackInfo, string filepath)
@@ -54,6 +55,6 @@ namespace SpotiSharp
             file.Tag.Genres = new string[] { trackInfo.Genres };
             file.Tag.Pictures = new TagLib.IPicture[] { new TagLib.Picture(trackInfo.AlbumArt) };
             file.Save();
-        }
+        }  
     }
 }
