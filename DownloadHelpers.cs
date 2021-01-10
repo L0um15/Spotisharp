@@ -19,11 +19,10 @@ namespace SpotiSharp
             {
                 StartInfo = {
                     FileName = Path.Combine(Config.Properties.FFmpegPath, "ffmpeg"),
-                    Arguments = $"-i - \"{trackPath}\"",
+                    Arguments = $"-hide_banner -loglevel quiet -i - -q:a 0 \"{trackPath}\"",
                     UseShellExecute = false,
                     CreateNoWindow = true,
-                    RedirectStandardInput = true,
-                    RedirectStandardError = true
+                    RedirectStandardInput = true
                 }
             };
             ffmpeg.Start();

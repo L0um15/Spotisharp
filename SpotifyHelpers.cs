@@ -43,7 +43,7 @@ namespace SpotiSharp
             int safeDate = DateTime.TryParse(album.ReleaseDate, out var value) ? value.Year : int.Parse(album.ReleaseDate);
             if (WasDownloadedBefore(safeArtistName, safeTitle))
             {
-                Console.WriteLine("Track found. Skipping.");
+                Console.WriteLine($"Skipping    ::::: {safeArtistName} - {safeTitle}");
                 return null;
             }
             return new TrackInfo()
@@ -55,7 +55,7 @@ namespace SpotiSharp
                 Album = album.Name,
                 SpotifyUrl = track.ExternalUrls["spotify"],
                 YoutubeUrl = GetYoutubeUrl($"{safeArtistName} {safeTitle}".MakeUriSafe()),
-                Genres = album.Genres.FirstOrDefault() != null ? album.Genres[0] : "",
+                Genres = artist.Genres.FirstOrDefault() != null ? artist.Genres[0] : "",
                 AlbumArt = GetFileFromUrl(album.Images[0].Url),
                 Copyright = album.Copyrights.FirstOrDefault() != null ? album.Copyrights[0].Text : $"©{safeDate} {safeArtistName}",
                 Year = safeDate,
@@ -79,7 +79,7 @@ namespace SpotiSharp
                     int safeDate = DateTime.TryParse(album.ReleaseDate, out var value) ? value.Year : int.Parse(album.ReleaseDate);
                     if (WasDownloadedBefore(safeArtistName, safeTitle))
                     {
-                        Console.WriteLine("Track found. Skipping.");
+                        Console.WriteLine($"Skipping    ::::: {safeArtistName} - {safeTitle}");
                         continue;
                     }
                     queue.Enqueue(new TrackInfo() {
@@ -90,7 +90,7 @@ namespace SpotiSharp
                         Album = album.Name,
                         SpotifyUrl = track.ExternalUrls["spotify"],
                         YoutubeUrl = GetYoutubeUrl($"{safeArtistName} {safeTitle}".MakeUriSafe()),
-                        Genres = album.Genres.FirstOrDefault() != null ? album.Genres[0] : "",
+                        Genres = artist.Genres.FirstOrDefault() != null ? artist.Genres[0] : string.Empty,
                         AlbumArt = GetFileFromUrl(album.Images[0].Url),
                         Copyright = album.Copyrights.FirstOrDefault() != null ? album.Copyrights[0].Text : $"©{safeDate} {safeArtistName}",
                         Year = safeDate,
@@ -113,7 +113,7 @@ namespace SpotiSharp
                 int safeDate = DateTime.TryParse(album.ReleaseDate, out var value) ? value.Year : int.Parse(album.ReleaseDate);
                 if (WasDownloadedBefore(safeArtistName, safeTitle))
                 {
-                    Console.WriteLine("Track found. Skipping.");
+                    Console.WriteLine($"Skipping    ::::: {safeArtistName} - {safeTitle}");
                     continue;
                 }
                 queue.Enqueue(new TrackInfo
@@ -125,7 +125,7 @@ namespace SpotiSharp
                     Album = album.Name,
                     SpotifyUrl = track.ExternalUrls["spotify"],
                     YoutubeUrl = GetYoutubeUrl($"{safeArtistName} {safeTitle}".MakeUriSafe()),
-                    Genres = album.Genres.FirstOrDefault() != null ? album.Genres[0] : "",
+                    Genres = artist.Genres.FirstOrDefault() != null ? artist.Genres[0] : string.Empty,
                     AlbumArt = GetFileFromUrl(album.Images[0].Url),
                     Copyright = album.Copyrights.FirstOrDefault() != null ? album.Copyrights[0].Text : $"©{safeDate} {safeArtistName}",
                     Year = safeDate,

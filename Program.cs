@@ -43,6 +43,12 @@ namespace SpotiSharp
                 );
                 Utilities.UnZip(ffmpegZipPath, Config.Properties.FFmpegPath, true);
                 File.Delete(ffmpegZipPath);
+                if (Utilities.IsLinux) {
+                    Console.WriteLine("This message is visible for linux users after downloading FFmpeg.\n" +
+                        "Make sure you granted execution permissions for ffmpeg before running SpotiSharp again.\n" +
+                        "SpotiSharp will now close.");
+                    Environment.Exit(1);
+                }
             }
 
             var (isNewVersionAvailable, Version) = Utilities.CheckForLatestApplicationVersion();
