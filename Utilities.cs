@@ -33,7 +33,6 @@ namespace SpotiSharp
 
         public static void UnZip(string path, string destination, bool overwrite) 
             => ZipFile.ExtractToDirectory(path, destination, overwrite);
-
         public static (bool isAvailable, string Version) CheckForLatestApplicationVersion()
         {
             var httpClient = new HttpClient();

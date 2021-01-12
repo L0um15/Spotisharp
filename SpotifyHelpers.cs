@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -12,6 +13,7 @@ namespace SpotiSharp
 {
     public static class SpotifyHelpers
     {
+        static List<string> duplicates = new List<string>();
         public static SpotifyClient ConnectToSpotify()
         {
             var loginRequest = new ClientCredentialsRequest(Config.Properties.ClientID, Config.Properties.ClientSecret);
@@ -77,7 +79,7 @@ namespace SpotiSharp
                     string safeArtistName = artist.Name.MakeSafe();
                     string safeTitle = track.Name.MakeSafe();
                     int safeDate = DateTime.TryParse(album.ReleaseDate, out var value) ? value.Year : int.Parse(album.ReleaseDate);
-                    if (WasDownloadedBefore(safeArtistName, safeTitle))
+                    if (IsDuplicated(safeArtistName, safeTitle) || WasDownloadedBefore(safeArtistName, safeTitle))
                     {
                         Console.WriteLine($"Skipping    ::::: {safeArtistName} - {safeTitle}");
                         continue;
@@ -107,11 +109,10 @@ namespace SpotiSharp
             var artist = await client.Artists.TryGet(album.Artists[0].Id);
             await foreach(var track in client.Paginate(album.Tracks))
             {
-                
                 string safeArtistName = artist.Name.MakeSafe();
                 string safeTitle = track.Name.MakeSafe();
                 int safeDate = DateTime.TryParse(album.ReleaseDate, out var value) ? value.Year : int.Parse(album.ReleaseDate);
-                if (WasDownloadedBefore(safeArtistName, safeTitle))
+                if (IsDuplicated(safeArtistName, safeTitle) || WasDownloadedBefore(safeArtistName, safeTitle))
                 {
                     Console.WriteLine($"Skipping    ::::: {safeArtistName} - {safeTitle}");
                     continue;
@@ -202,6 +203,17 @@ namespace SpotiSharp
                 lyrics = htmlDocument.DocumentNode.SelectSingleNode("//span[@class='lyrics__content__warning']"); // Incorrect Lyrics waiting for review.
             
             return lyrics?.InnerText;
+        }
+
+        private static bool IsDuplicated(string safeArtistName, string safeTitle)
+        {
+            if (duplicates.Contains($"{safeArtistName} - {safeTitle}"))
+                return true;
+            else
+            {
+                duplicates.Add($"{safeArtistName} - {safeTitle}");
+                return false;
+            }
         }
 
         private static bool WasDownloadedBefore(string safeArtistName, string safeTitle)

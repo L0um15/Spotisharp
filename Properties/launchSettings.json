@@ -2,7 +2,7 @@
   "profiles": {
     "SpotiSharp": {
       "commandName": "Project",
-      "commandLineArgs": "https://open.spotify.com/playlist/79HEzvgAjHH9MrlLkT8Csx?si=XzHnNorlRreQGTrbvckc1g"
+      "commandLineArgs": "https://open.spotify.com/playlist/6SkZfhIM1mvFjdGrlkHO7d?si=EgCrSh6BT1-h_w3iiDzqrQ"
     }
   }
 }
