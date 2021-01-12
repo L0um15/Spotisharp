@@ -26,43 +26,28 @@ SpotiSharp will generate config.json on first run.</br>
 **All non-blank fields will be auto-completed by SpotiSharp**
 ```json
 {
-  "Settings": {
-    "ConfigVersion": "(SpotiSharp Version)",
-    "ClientID": "",
-    "ClientSecret": "",
-    "FFmpegPath": "(Application Directory)",
-    "DownloadPath": "(MyMusic Directory)"
-  }
+  "ConfigVersion": "(SpotiSharp Version)",
+  "ClientID": "",
+  "ClientSecret": "",
+  "FFmpegPath": "(Application Directory)",
+  "DownloadPath": "(MyMusic Directory)"
 }
 ```
 **You can reset config.json to default settings. Delete desired line and reset ConfigVersion to "0", all missing lines will be replaced with default ones**
 
-SpotiSharp will download FFmpeg to application directory by default.</br>
-If FFmpegPath was changed it will overwrite existing FFmpeg and handle autoupdates by itself.
+SpotiSharp will download FFmpeg to application directory by default if it is not detected.</br>
+*Note. FFmpeg executable will require execution permissions, otherwise SpotiSharp will throw Win32Exception: Permission Denied.*<br>
+*SpotiSharp will warn you after downloading FFmpeg for the first time.*
 
 **NEVER RUN SPOTISHARP AS ROOT**<br/>
 Seriously don't. SpotiSharp will immediately close if it detects root permissions.
 
 ```sh
-chmod +x ./SpotiSharp # Gives permission to execute as program.
-
-./SpotiSharp "<Text Search / Spotify URL>"
+chmod +x ./SpotiSharp # Gives permission to execute SpotiSharp as program.
+./SpotiSharp # Prints help.
+./SpotiSharp "bury the light" # Downloads song by text search
+./SpotiSharp https://open.spotify.com/track/5Gcb49reXLKujOV3J7wZ7W # Parses url to search for track, album, playlist
 ```
 
-SpotiSharp will attempt to grant execution rights to binaries in it's directory. (Using: `chmod +x ffmpeg ffprobe`)
-
-
-### Single Track
-
-<img src=".github/images/preview-linux.png"/><br />
-
-### Playlist
-
-<img src=".github/images/preview-linux2.png"/><br />
-
-### Result
-
-<img src=".github/images/result.png" />
-
-Screenshot was taken from my [Clair Musicplayer](https://github.com/L0um15/Clair-Musicplayer)
+<img src=".github/images/preview-linux.png" />
 

@@ -26,35 +26,22 @@ SpotiSharp will generate config.json on first run.</br>
 **All non-blank fields will be auto-completed by SpotiSharp**
 ```json
 {
-  "Settings": {
-    "ConfigVersion": "(SpotiSharp Version)",
-    "ClientID": "",
-    "ClientSecret": "",
-    "FFmpegPath": "(Application Directory)",
-    "DownloadPath": "(MyMusic Directory)"
-  }
+  "ConfigVersion": "(SpotiSharp Version)",
+  "ClientID": "",
+  "ClientSecret": "",
+  "FFmpegPath": "(Application Directory)",
+  "DownloadPath": "(MyMusic Directory)"
 }
 ```
 **You can reset config.json to default settings. Delete desired line and reset ConfigVersion to "0", all missing lines will be replaced with default ones**
 
-SpotiSharp will download FFmpeg to application directory by default.</br>
-If FFmpegPath was changed it will overwrite existing FFmpeg and handle autoupdates by itself.
+SpotiSharp will download FFmpeg to application directory by default if it is not detected.</br>
 
 ```sh
-.\SpotiSharp.exe "<Text Search/Spotify URL>"
+.\SpotiSharp # Prints help.
+.\SpotiSharp "bury the light" # Downloads song by text search
+.\SpotiSharp https://open.spotify.com/track/5Gcb49reXLKujOV3J7wZ7W # Parses url to search for track, album, playlist
 ```
 
-### Single Track
-
-<img src=".github/images/preview.png"/><br />
-
-### Playlist
-
-<img src=".github/images/preview2.png"/><br />
-
-### Result
-
-<img src=".github/images/result.png" />
-
-Screenshot was taken from my [Clair Musicplayer](https://github.com/L0um15/Clair-Musicplayer)
+<img src=".github/images/preview.png" />
 
