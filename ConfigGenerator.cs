@@ -8,10 +8,6 @@ using System.Text.Json;
 
 namespace SpotiSharp
 {
-    //str clId
-    //str clSecret
-    //str ffmpeg
-    //str download
     public class ConfigData
     {
         public string ConfigVersion { get; set; }

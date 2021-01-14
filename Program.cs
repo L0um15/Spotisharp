@@ -83,17 +83,19 @@ namespace SpotiSharp
                         {
                             while (trackQueue.TryDequeue(out var info))
                             {
-                                Console.WriteLine($"Downloading ::::: {info.Artist} - {info.Title} | Queue: {trackQueue.Count}");
+                                Console.Write($"Downloading ::::: {info.Artist} - {info.Title}".Truncate());
+                                Console.Write($"[Queue: {trackQueue.Count}]".MoveToRight());
                                 youTube.DownloadAndConvertTrack(info);
-                                Console.WriteLine($"Done        ::::: {info.Artist} - {info.Title}");
+                                Console.WriteLine($"Done        ::::: {info.Artist} - {info.Title}".Truncate());
                             }
                             Thread.Sleep(200);
                         }
                         while (trackQueue.TryDequeue(out var info))
                         {
-                            Console.WriteLine($"Downloading ::::: {info.Artist} - {info.Title} | Queue: {trackQueue.Count}");
+                            Console.Write($"Downloading ::::: {info.Artist} - {info.Title}".Truncate());
+                            Console.Write($"[Queue: {trackQueue.Count}]".MoveToRight());
                             youTube.DownloadAndConvertTrack(info);
-                            Console.WriteLine($"Done        ::::: {info.Artist} - {info.Title}");
+                            Console.WriteLine($"Done        ::::: {info.Artist} - {info.Title}".Truncate());
                         }
                         break;
                     case UrlType.Album:
@@ -102,26 +104,28 @@ namespace SpotiSharp
                         {
                             while (trackQueue.TryDequeue(out var info))
                             {
-                                Console.WriteLine($"Downloading ::::: {info.Artist} - {info.Title} | Queue: {trackQueue.Count}");
+                                Console.Write($"Downloading ::::: {info.Artist} - {info.Title}".Truncate());
+                                Console.Write($"[Queue: {trackQueue.Count}]".MoveToRight());
                                 youTube.DownloadAndConvertTrack(info);
-                                Console.WriteLine($"Done        ::::: {info.Artist} - {info.Title}");
+                                Console.WriteLine($"Done        ::::: {info.Artist} - {info.Title}".Truncate());
                             }
                             Thread.Sleep(200);
                         }
                         while (trackQueue.TryDequeue(out var info))
                         {
-                            Console.WriteLine($"Downloading ::::: {info.Artist} - {info.Title} | Queue: {trackQueue.Count}");
+                            Console.Write($"Downloading ::::: {info.Artist} - {info.Title}".Truncate());
+                            Console.Write($"[Queue: {trackQueue.Count}]".MoveToRight());
                             youTube.DownloadAndConvertTrack(info);
-                            Console.WriteLine($"Done        ::::: {info.Artist} - {info.Title}");
+                            Console.WriteLine($"Done        ::::: {info.Artist} - {info.Title}".Truncate());
                         }
                         break;
                     case UrlType.Track:
                         var track = client.GetSpotifyTrack(input).GetAwaiter().GetResult();
                         if (track == null)
                             Environment.Exit(1);
-                        Console.WriteLine($"Downloading ::::: {track.Artist} - {track.Title}");
+                        Console.WriteLine($"Downloading ::::: {track.Artist} - {track.Title}".Truncate());
                         youTube.DownloadAndConvertTrack(track);
-                        Console.WriteLine($"Done        ::::: {track.Artist} - {track.Title}");
+                        Console.WriteLine($"Done        ::::: {track.Artist} - {track.Title}".Truncate());
                         break;
                 }
             }
@@ -130,9 +134,9 @@ namespace SpotiSharp
                 var track = client.GetSpotifyTrack(input).GetAwaiter().GetResult();
                 if (track == null)
                     Environment.Exit(1);
-                Console.WriteLine($"Downloading ::::: {track.Artist} - {track.Title}");
+                Console.WriteLine($"Downloading ::::: {track.Artist} - {track.Title}".Truncate());
                 youTube.DownloadAndConvertTrack(track);
-                Console.WriteLine($"Done        ::::: {track.Artist} - {track.Title}");
+                Console.WriteLine($"Done        ::::: {track.Artist} - {track.Title}".Truncate());
             }
         }    
     }

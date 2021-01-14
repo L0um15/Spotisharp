@@ -45,7 +45,7 @@ namespace SpotiSharp
             int safeDate = DateTime.TryParse(album.ReleaseDate, out var value) ? value.Year : int.Parse(album.ReleaseDate);
             if (WasDownloadedBefore(safeArtistName, safeTitle))
             {
-                Console.WriteLine($"Skipping    ::::: {safeArtistName} - {safeTitle}");
+                Console.WriteLine($"Skipping    ::::: {safeArtistName} - {safeTitle}".Truncate());
                 return null;
             }
             return new TrackInfo()
@@ -81,7 +81,7 @@ namespace SpotiSharp
                     int safeDate = DateTime.TryParse(album.ReleaseDate, out var value) ? value.Year : int.Parse(album.ReleaseDate);
                     if (IsDuplicated(safeArtistName, safeTitle) || WasDownloadedBefore(safeArtistName, safeTitle))
                     {
-                        Console.WriteLine($"Skipping    ::::: {safeArtistName} - {safeTitle}");
+                        Console.WriteLine($"Skipping    ::::: {safeArtistName} - {safeTitle}".Truncate());
                         continue;
                     }
                     queue.Enqueue(new TrackInfo() {
@@ -114,7 +114,7 @@ namespace SpotiSharp
                 int safeDate = DateTime.TryParse(album.ReleaseDate, out var value) ? value.Year : int.Parse(album.ReleaseDate);
                 if (IsDuplicated(safeArtistName, safeTitle) || WasDownloadedBefore(safeArtistName, safeTitle))
                 {
-                    Console.WriteLine($"Skipping    ::::: {safeArtistName} - {safeTitle}");
+                    Console.WriteLine($"Skipping    ::::: {safeArtistName} - {safeTitle}".Truncate());
                     continue;
                 }
                 queue.Enqueue(new TrackInfo
