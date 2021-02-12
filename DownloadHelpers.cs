@@ -3,6 +3,7 @@ using System.Buffers;
 using System.Diagnostics;
 using System.IO;
 using VideoLibrary;
+using VideoLibrary.Exceptions;
 
 namespace SpotiSharp
 {
@@ -12,7 +13,27 @@ namespace SpotiSharp
             var trackDirectory = Path.Combine(Config.Properties.DownloadPath, trackInfo.Playlist);
             Directory.CreateDirectory(trackDirectory);
             var trackPath = Path.Combine(trackDirectory,$"{trackInfo.Artist} - {trackInfo.Title}.mp3");
-            var video = youtube.GetVideo(trackInfo.YoutubeUrl);
+            YouTubeVideo video = null;
+            for(int i = 0; i < Math.Min(3, trackInfo.YoutubeUrls.Length); i++) // 3 best matches
+            {
+                try
+                {
+                    video = youtube.GetVideo(trackInfo.YoutubeUrls[i]);
+                    break;
+                }
+                catch (UnavailableStreamException)
+                {
+                    // Oops... I hope next url will be not restricted.
+                }
+            }
+
+            if(video == null)
+            {
+                // This should be never displayed. Otherwise you are unlucky.
+                Console.WriteLine($"Failed      ::::: {trackInfo.Artist} - {trackInfo.Title}: source is restricted".Truncate());
+                return;
+            }
+
             var stream = video.Stream();
             var ffmpeg = new Process()
             {
