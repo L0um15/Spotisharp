@@ -15,11 +15,11 @@ namespace SpotiSharp
             Directory.CreateDirectory(trackDirectory);
             var trackPath = Path.Combine(trackDirectory,$"{trackInfo.Artist} - {trackInfo.Title}.mp3");
             StreamManifest manifest = null;
-            for(int i = 0; i < Math.Min(3, trackInfo.YoutubeUrls.Length); i++) // 3 best matches
+            for(int i = 0; i < Math.Min(3, trackInfo.YoutubeIds.Length); i++) // 3 best matches
             {
                 try
                 {
-                    manifest = youtube.Videos.Streams.GetManifestAsync(trackInfo.YoutubeUrls[i]).GetAwaiter().GetResult();
+                    manifest = youtube.Videos.Streams.GetManifestAsync(trackInfo.YoutubeIds[i]).GetAwaiter().GetResult();
                     break;
                 }
                 catch (VideoUnplayableException)

@@ -56,7 +56,7 @@ namespace SpotiSharp
                 Playlist = string.Empty,
                 Album = album.Name,
                 SpotifyUrl = track.ExternalUrls["spotify"],
-                YoutubeUrls = GetYoutubeIds($"{safeArtistName} {safeTitle}".MakeUriSafe()),
+                YoutubeIds = GetYoutubeIds($"{safeArtistName} {safeTitle}".MakeUriSafe()),
                 Genres = artist.Genres.FirstOrDefault() != null ? artist.Genres[0] : "",
                 AlbumArt = GetFileFromUrl(album.Images[0].Url),
                 Copyright = album.Copyrights.FirstOrDefault() != null ? album.Copyrights[0].Text : $"©{safeDate} {safeArtistName}",
@@ -91,7 +91,7 @@ namespace SpotiSharp
                         Playlist = playlist.Name.MakeSafe(),
                         Album = album.Name,
                         SpotifyUrl = track.ExternalUrls["spotify"],
-                        YoutubeUrls = GetYoutubeIds($"{safeArtistName} {safeTitle}".MakeUriSafe()),
+                        YoutubeIds = GetYoutubeIds($"{safeArtistName} {safeTitle}".MakeUriSafe()),
                         Genres = artist.Genres.FirstOrDefault() != null ? artist.Genres[0] : string.Empty,
                         AlbumArt = GetFileFromUrl(album.Images[0].Url),
                         Copyright = album.Copyrights.FirstOrDefault() != null ? album.Copyrights[0].Text : $"©{safeDate} {safeArtistName}",
@@ -125,7 +125,7 @@ namespace SpotiSharp
                     Playlist = album.Name.MakeSafe(),
                     Album = album.Name,
                     SpotifyUrl = track.ExternalUrls["spotify"],
-                    YoutubeUrls = GetYoutubeIds($"{safeArtistName} {safeTitle}".MakeUriSafe()),
+                    YoutubeIds = GetYoutubeIds($"{safeArtistName} {safeTitle}".MakeUriSafe()),
                     Genres = artist.Genres.FirstOrDefault() != null ? artist.Genres[0] : string.Empty,
                     AlbumArt = GetFileFromUrl(album.Images[0].Url),
                     Copyright = album.Copyrights.FirstOrDefault() != null ? album.Copyrights[0].Text : $"©{safeDate} {safeArtistName}",
@@ -236,7 +236,7 @@ namespace SpotiSharp
         public string Playlist;
         public string Album;
         public string SpotifyUrl;
-        public string[] YoutubeUrls;
+        public string[] YoutubeIds;
         public string Genres;
         public byte[] AlbumArt;
         public string Copyright;
