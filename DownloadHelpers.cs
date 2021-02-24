@@ -2,39 +2,41 @@
 using System.Buffers;
 using System.Diagnostics;
 using System.IO;
-using VideoLibrary;
-using VideoLibrary.Exceptions;
+using YoutubeExplode;
+using YoutubeExplode.Exceptions;
+using YoutubeExplode.Videos.Streams;
 
 namespace SpotiSharp
 {
     public static class DownloadHelpers
     {
-        public static void DownloadAndConvertTrack(this YouTube youtube, TrackInfo trackInfo) {
+        public static void DownloadAndConvertTrack(this YoutubeClient youtube, TrackInfo trackInfo) {
             var trackDirectory = Path.Combine(Config.Properties.DownloadPath, trackInfo.Playlist);
             Directory.CreateDirectory(trackDirectory);
             var trackPath = Path.Combine(trackDirectory,$"{trackInfo.Artist} - {trackInfo.Title}.mp3");
-            YouTubeVideo video = null;
+            StreamManifest manifest = null;
             for(int i = 0; i < Math.Min(3, trackInfo.YoutubeUrls.Length); i++) // 3 best matches
             {
                 try
                 {
-                    video = youtube.GetVideo(trackInfo.YoutubeUrls[i]);
+                    manifest = youtube.Videos.Streams.GetManifestAsync(trackInfo.YoutubeUrls[i]).GetAwaiter().GetResult();
                     break;
                 }
-                catch (UnavailableStreamException)
+                catch (VideoUnplayableException)
                 {
                     // Oops... I hope next url will be not restricted.
                 }
             }
 
-            if(video == null)
+            if(manifest == null)
             {
                 // This should be never displayed. Otherwise you are unlucky.
                 Console.WriteLine($"Failed      ::::: {trackInfo.Artist} - {trackInfo.Title}: source is restricted".Truncate());
                 return;
             }
 
-            var stream = video.Stream();
+            IStreamInfo streamInfo = manifest.GetAudioOnly().WithHighestBitrate();
+
             var ffmpeg = new Process()
             {
                 StartInfo = {
@@ -47,8 +49,7 @@ namespace SpotiSharp
             };
             ffmpeg.Start();
             var ffmpegInput = ffmpeg.StandardInput.BaseStream;
-            stream.CopyTo(ffmpegInput);
-            stream.Close();
+            youtube.Videos.Streams.CopyToAsync(streamInfo, ffmpegInput).GetAwaiter().GetResult();
             ffmpegInput.Close();
             ffmpeg.WaitForExit();
             WriteMetadata(trackInfo, trackPath);

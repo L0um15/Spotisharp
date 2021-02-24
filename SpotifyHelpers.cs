@@ -56,7 +56,7 @@ namespace SpotiSharp
                 Playlist = string.Empty,
                 Album = album.Name,
                 SpotifyUrl = track.ExternalUrls["spotify"],
-                YoutubeUrls = GetYoutubeUrls($"{safeArtistName} {safeTitle}".MakeUriSafe()),
+                YoutubeUrls = GetYoutubeIds($"{safeArtistName} {safeTitle}".MakeUriSafe()),
                 Genres = artist.Genres.FirstOrDefault() != null ? artist.Genres[0] : "",
                 AlbumArt = GetFileFromUrl(album.Images[0].Url),
                 Copyright = album.Copyrights.FirstOrDefault() != null ? album.Copyrights[0].Text : $"©{safeDate} {safeArtistName}",
@@ -91,7 +91,7 @@ namespace SpotiSharp
                         Playlist = playlist.Name.MakeSafe(),
                         Album = album.Name,
                         SpotifyUrl = track.ExternalUrls["spotify"],
-                        YoutubeUrls = GetYoutubeUrls($"{safeArtistName} {safeTitle}".MakeUriSafe()),
+                        YoutubeUrls = GetYoutubeIds($"{safeArtistName} {safeTitle}".MakeUriSafe()),
                         Genres = artist.Genres.FirstOrDefault() != null ? artist.Genres[0] : string.Empty,
                         AlbumArt = GetFileFromUrl(album.Images[0].Url),
                         Copyright = album.Copyrights.FirstOrDefault() != null ? album.Copyrights[0].Text : $"©{safeDate} {safeArtistName}",
@@ -125,7 +125,7 @@ namespace SpotiSharp
                     Playlist = album.Name.MakeSafe(),
                     Album = album.Name,
                     SpotifyUrl = track.ExternalUrls["spotify"],
-                    YoutubeUrls = GetYoutubeUrls($"{safeArtistName} {safeTitle}".MakeUriSafe()),
+                    YoutubeUrls = GetYoutubeIds($"{safeArtistName} {safeTitle}".MakeUriSafe()),
                     Genres = artist.Genres.FirstOrDefault() != null ? artist.Genres[0] : string.Empty,
                     AlbumArt = GetFileFromUrl(album.Images[0].Url),
                     Copyright = album.Copyrights.FirstOrDefault() != null ? album.Copyrights[0].Text : $"©{safeDate} {safeArtistName}",
@@ -177,17 +177,17 @@ namespace SpotiSharp
             return new WebClient().DownloadData(url);
         }
 
-        private static string[] GetYoutubeUrls(string fullName)
+        private static string[] GetYoutubeIds(string fullName)
         {
             var searchFor = "https://www.youtube.com/results?search_query=" + fullName;
             var result = new WebClient().DownloadString(searchFor);
-            var matches = Regex.Matches(result, @"v=[a-zA-Z0-9_-]{11}");
-            string[] urls = new string[matches.Count];
+            var matches = Regex.Matches(result, @"v=([a-zA-Z0-9-_]{11})");
+            string[] ids = new string[matches.Count];
+
             for(int i = 0; i < matches.Count; i++)
-            {
-                urls[i] = "https://www.youtube.com/watch?" + matches[i].Value;
-            }
-            return urls;
+                ids[i] = matches[i].Groups[1].Value;
+
+            return ids;
         }
 
         private static string GetLyricsFromWeb(string fullName)

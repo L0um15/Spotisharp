@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading;
-using VideoLibrary;
+using YoutubeExplode;
 
 namespace SpotiSharp
 {
@@ -69,7 +69,7 @@ namespace SpotiSharp
             Console.WriteLine("Connecting To Spotify...");
             var client = SpotifyHelpers.ConnectToSpotify();
             var trackQueue = new ConcurrentQueue<TrackInfo>();
-            var youTube = YouTube.Default;
+            var youTube = new YoutubeClient();
 
             Console.WriteLine("Making requests to Spotify...");
             if (input.IsSpotifyUrl())
