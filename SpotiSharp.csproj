@@ -31,6 +31,6 @@
     <PackageReference Include="HtmlAgilityPack" Version="1.11.29" />
     <PackageReference Include="SpotifyAPI.Web" Version="6.0.0" />
     <PackageReference Include="taglib-sharp-netstandard2.0" Version="2.1.0" />
-    <PackageReference Include="VideoLibrary" Version="3.0.9" />
+    <PackageReference Include="YoutubeExplode" Version="5.1.9" />
   </ItemGroup>
 </Project>
