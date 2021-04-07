@@ -19,13 +19,9 @@
   <PropertyGroup>
 	<DebugSymbols>true</DebugSymbols>
 	<DebugType>embedded</DebugType>
-	<AssemblyVersion>2.1.0.0</AssemblyVersion>
-	<Version>2.1.0</Version>
+	<AssemblyVersion>2.1.1.0</AssemblyVersion>
+	<Version>2.1.1</Version>
   </PropertyGroup>
-	
-  <ItemGroup>
-    <None Remove="NewFile1.txt" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="HtmlAgilityPack" Version="1.11.32" />
