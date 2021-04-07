@@ -51,10 +51,10 @@ namespace SpotiSharp
                 }
             }
 
-            var (isNewVersionAvailable, Version) = Utilities.CheckForLatestApplicationVersion();
+            string version = Utilities.CheckForLatestApplicationVersion();
 
-            if (isNewVersionAvailable)
-                Console.WriteLine($"Out of date!: {Version}\n");
+            if (version != null)
+                Console.WriteLine($"Out of date!: {version}\n");
 
             if (args.Length == 0)
             {

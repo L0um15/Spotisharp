@@ -33,20 +33,19 @@ namespace SpotiSharp
 
         public static void UnZip(string path, string destination, bool overwrite) 
             => ZipFile.ExtractToDirectory(path, destination, overwrite);
-        public static (bool isAvailable, string Version) CheckForLatestApplicationVersion()
+        public static string CheckForLatestApplicationVersion()
         {
-            var httpClient = new HttpClient();
             try
             {
                 string latestVersion = new WebClient().DownloadString("https://raw.githubusercontent.com/L0um15/SpotiSharp/main/version.txt");
                 if (ApplicationVersion != latestVersion)
-                    return (true, latestVersion);
+                    return latestVersion;
             }
             catch (WebException)
             {
                 Console.WriteLine("Something went wrong with Github");
             }
-            return (false, null);
+            return null;
         }
         public static string MakeSafe(this string input) 
             => Regex.Replace(input, @"[\/\\\?\*\<\>\|\:\""]", " ");
