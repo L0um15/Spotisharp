@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Threading;
 using YoutubeExplode;
 
@@ -69,7 +70,14 @@ namespace SpotiSharp
             Console.WriteLine("Connecting To Spotify...");
             var client = SpotifyHelpers.ConnectToSpotify();
             var trackQueue = new ConcurrentQueue<TrackInfo>();
-            var youTube = new YoutubeClient();
+
+            HttpClientHandler httpClientHandler = new HttpClientHandler();
+
+            httpClientHandler.CookieContainer.Add(new Cookie("CONSENT", "YES+cb", "/", ".youtube.com"));
+
+            HttpClient httpClient = new HttpClient(httpClientHandler);
+
+            var youTube = new YoutubeClient(httpClient);
 
             Console.WriteLine("Making requests to Spotify...");
             if (input.IsSpotifyUrl())
