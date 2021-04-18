@@ -15,7 +15,7 @@ namespace SpotiSharp
             Directory.CreateDirectory(trackDirectory);
             var trackPath = Path.Combine(trackDirectory,$"{trackInfo.Artist} - {trackInfo.Title}.mp3");
             StreamManifest manifest = null;
-            for(int i = 0; i < Math.Min(3, trackInfo.YoutubeIds.Length); i++) // 3 best matches
+            for(int i = 0; i < 3; i++) // 3 best matches
             {
                 try
                 {
