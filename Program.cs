@@ -76,11 +76,11 @@ namespace SpotiSharp
             Console.WriteLine("Making requests to Spotify...");
             if (input.IsSpotifyUrl())
             {
-                var (type, url) = input.GetSpotifyId();
+                var (type, spotifyId) = input.GetSpotifyId();
                 switch (type)
                 {
                     case UrlType.Playlist:
-                        var taskPlaylist = client.QueueSpotifyTracksFromPlaylist(url, trackQueue);
+                        var taskPlaylist = client.QueueSpotifyTracksFromPlaylist(spotifyId, trackQueue);
                         while (!taskPlaylist.IsCompleted)
                         {
                             while (trackQueue.TryDequeue(out var info))
@@ -101,7 +101,7 @@ namespace SpotiSharp
                         }
                         break;
                     case UrlType.Album:
-                        var taskAlbum = client.QueueSpotifyTracksFromAlbum(url, trackQueue);
+                        var taskAlbum = client.QueueSpotifyTracksFromAlbum(spotifyId, trackQueue);
                         while (!taskAlbum.IsCompleted)
                         {
                             while (trackQueue.TryDequeue(out var info))
