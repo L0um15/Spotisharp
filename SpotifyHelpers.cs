@@ -36,7 +36,7 @@ namespace SpotiSharp
             }
             else
             {
-                track = await client.Tracks.Get(input.GetSpotifyUrlId().Url);
+                track = await client.Tracks.Get(input.GetSpotifyId().Url);
             }
             var artist = await client.Artists.TryGet(track.Artists[0].Id);
             var album = await client.Albums.TryGet(track.Album.Id);

@@ -76,7 +76,7 @@ namespace SpotiSharp
             Console.WriteLine("Making requests to Spotify...");
             if (input.IsSpotifyUrl())
             {
-                var (type, url) = input.GetSpotifyUrlId();
+                var (type, url) = input.GetSpotifyId();
                 switch (type)
                 {
                     case UrlType.Playlist:

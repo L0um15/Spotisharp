@@ -11,18 +11,24 @@ namespace SpotiSharp
     public static class Utilities
     {
         public static bool IsSpotifyUrl(this string input)
-            => Regex.IsMatch(input, @"[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)") && input.Contains("open.spotify.com");
+            => Regex.IsMatch(input, @"http(s)?\:\/\/open\.spotify\.com\/(track|playlist|album)\/.+$");
 
-        public static (UrlType Type, string Url) GetSpotifyUrlId(this string input)
+        public static (UrlType Type, string Id) GetSpotifyId(this string input)
         {
             if (input.Contains("playlist"))
-                return (UrlType.Playlist, Regex.Match(input, @"(?<=playlist\/)\w+").Value);
+                return (UrlType.Playlist, ExtractSpotifyId(input));
             else if (input.Contains("track"))
-                return (UrlType.Track, Regex.Match(input, @"(?<=track\/)\w+").Value);
+                return (UrlType.Track, ExtractSpotifyId(input));
             else if (input.Contains("album"))
-                return (UrlType.Album, Regex.Match(input, @"(?<=album\/)\w+").Value);
+                return (UrlType.Album, ExtractSpotifyId(input));
             else
                 throw new ArgumentException($"The input does not contain a valid Spotify URL");
+        }
+
+        private static string ExtractSpotifyId(string input)
+        {
+            int startIndex = input.LastIndexOf('/') + 1;
+            return input.Substring(startIndex,22);
         }
 
         public static readonly bool IsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
@@ -47,10 +53,39 @@ namespace SpotiSharp
             }
             return null;
         }
-        public static string MakeSafe(this string input) 
+
+        public static string MakeSafe(this string input)
+        {
+            return string.Create(input.Length, input, (chars, buffer)=> 
+            {
+                for(int i = 0; i < buffer.Length; i++)
+                {
+                    switch (buffer[i])
+                    {
+                        // Fall trough
+                        case '/':
+                        case '\\':
+                        case '*':
+                        case ':':
+                        case '?':
+                        case '<':
+                        case '>':
+                        case '\"':
+                        case '|':
+                            chars[i] = ' ';
+                            break;
+                        default:
+                            chars[i] = buffer[i];
+                            break;
+                    }
+                }
+            });
+        }
+
+        /*public static string MakeSafe(this string input) 
             => Regex.Replace(input, @"[\/\\\?\*\<\>\|\:\""]", " ");
         public static string MakeUriSafe(this string input)
-            => Regex.Replace(input, @"[\s+\&]", "%20");
+            => Regex.Replace(input, @"[\s+\&]", "%20");*/
     }
 
     public enum UrlType
