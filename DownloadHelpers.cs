@@ -35,7 +35,7 @@ namespace SpotiSharp
                 return;
             }
 
-            IStreamInfo streamInfo = manifest.GetAudioOnly().WithHighestBitrate();
+            IStreamInfo streamInfo = manifest.GetAudioOnlyStreams().GetWithHighestBitrate();
 
             var ffmpeg = new Process()
             {

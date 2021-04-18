@@ -71,11 +71,7 @@ namespace SpotiSharp
             var client = SpotifyHelpers.ConnectToSpotify();
             var trackQueue = new ConcurrentQueue<TrackInfo>();
 
-            // Already included in Youtube-Explode 6.0.0-alpha2, waiting for stable release...
-            HttpClientHandler httpClientHandler = new HttpClientHandler();
-            httpClientHandler.CookieContainer.Add(new Cookie("CONSENT", "YES+cb", "/", ".youtube.com"));
-            HttpClient httpClient = new HttpClient(httpClientHandler);
-            var youTube = new YoutubeClient(httpClient);
+            var youTube = new YoutubeClient();
 
             Console.WriteLine("Making requests to Spotify...");
             if (input.IsSpotifyUrl())
