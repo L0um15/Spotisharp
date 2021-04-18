@@ -13,7 +13,7 @@ namespace SpotiSharp
             var files = Directory.GetFiles(Config.Properties.FFmpegPath, "*", SearchOption.TopDirectoryOnly);
             foreach (var file in files)
             {
-                if (Path.GetFileNameWithoutExtension(file.ToLower()) == "ffmpeg")
+                if (Path.GetFileNameWithoutExtension(file).Equals("ffmpeg", StringComparison.InvariantCultureIgnoreCase))
                     return true;
             }
             return false;
