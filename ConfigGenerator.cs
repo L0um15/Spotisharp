@@ -18,9 +18,7 @@ namespace SpotiSharp
 
         public bool IsMissingRequiredFields()
         {
-            if (ClientID == string.Empty && ClientSecret == string.Empty)
-                return true;
-            return false;
+            return ClientID == string.Empty && ClientSecret == string.Empty;
         }
 
         public void EnsurePathsExist()
