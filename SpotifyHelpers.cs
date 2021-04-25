@@ -182,12 +182,12 @@ namespace SpotiSharp
             var searchFor = "https://www.youtube.com/results?search_query=" + fullName;
             var result = new WebClient().DownloadString(searchFor);
             var matches = Regex.Matches(result, @"v=([a-zA-Z0-9-_]{11})");
-            string[] ids = new string[matches.Count];
+            string[] youtubeIds = new string[3];
 
-            for(int i = 0; i < matches.Count; i++)
-                ids[i] = matches[i].Groups[1].Value;
+            for(int i = 0; i < youtubeIds.Length; i++)
+                youtubeIds[i] = matches[i].Groups[1].Value;
 
-            return ids;
+            return youtubeIds;
         }
 
         private static string GetLyricsFromWeb(string fullName)
@@ -223,9 +223,8 @@ namespace SpotiSharp
 
         private static bool WasDownloadedBefore(string safeArtistName, string safeTitle)
         {
-            var doesExist = Directory.GetFiles(Config.Properties.DownloadPath, "*.mp3", SearchOption.AllDirectories)
-                .Any(x => x.Contains($"{safeArtistName} - {safeTitle}"));
-            return doesExist;
+            return Directory.GetFiles(Config.Properties.DownloadPath, "*.mp3", SearchOption.AllDirectories)
+                .Any(x => x.Contains($"{safeArtistName} - {safeTitle}")); ;
         }
     }
     public class TrackInfo
