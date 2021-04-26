@@ -19,13 +19,16 @@
   <PropertyGroup>
 	<DebugSymbols>true</DebugSymbols>
 	<DebugType>embedded</DebugType>
-	<AssemblyVersion>2.1.1.0</AssemblyVersion>
-	<Version>2.1.1</Version>
+	<AssemblyVersion>2.1.2.0</AssemblyVersion>
+	<Version>2.1.2</Version>
+	<RepositoryUrl>https://github.com/L0um15/Spotisharp</RepositoryUrl>
+	<PackageProjectUrl>https://github.com/L0um15/Spotisharp</PackageProjectUrl>
+	<Authors>L0um15</Authors>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.32" />
-    <PackageReference Include="SpotifyAPI.Web" Version="6.1.0" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.33" />
+    <PackageReference Include="SpotifyAPI.Web" Version="6.2.0" />
     <PackageReference Include="taglib-sharp-netstandard2.0" Version="2.1.0" />
     <PackageReference Include="YoutubeExplode" Version="6.0.0" />
   </ItemGroup>
