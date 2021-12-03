@@ -2,7 +2,7 @@
 
 public enum SpotifyUriType
 {
-    Track = 0,
-    Playlist = 1,
-    Album = 2
+    None = 0,
+    Url = 1,
+    Urn = 2
 }

@@ -1,23 +1,17 @@
 ﻿using SpotifyAPI.Web;
 using Spotisharp.Client;
+using Spotisharp.Client.Enums;
 using Spotisharp.Client.Resolvers;
 
-SpotifyClient? client = await SpotifyAuthentication.CreateSpotifyClient();
+string uri = "https://open.spotify.com/track/5nyef8bHyXaglyArVUNlre?si=906a2ae6cd2842c70";
 
-if (client == null)
+var uriType = SpotifyUriResolver.GetUriType(uri);
+
+if (uriType == SpotifyUriType.None)
 {
-    Console.WriteLine("Client timed out");
     return;
 }
 
-var searchResponse = await client.Search.Item(new SearchRequest(SearchRequest.Types.Track, "Enemy Imagine dragons"));
+var id = SpotifyUriResolver.GetID(uri, uriType);
 
-if (searchResponse == null)
-{
-    Console.WriteLine("Unable to search for track");
-    return;
-}
-
-Console.WriteLine("\n\n"+searchResponse.Tracks.Items[0].ExternalUrls["spotify"]);
-
-Console.WriteLine(SpotifyUriResolver.GetID("https://open.spotify.com/track/5nyef8bHyXaglyArVUNlre?si=906a2ae6cd2842c7"));
+Console.WriteLine(id);
