@@ -33,7 +33,7 @@ public static class SpotifyAuthentication
                     deserializedJson.RefreshToken = newResponse.RefreshToken;
                     string serializedJson = JsonSerializer.Serialize(deserializedJson);
                     File.WriteAllText(_tokenConfigFile, serializedJson);
-                    return new SpotifyClient(deserializedJson.RefreshToken);
+                    return new SpotifyClient(newResponse.AccessToken);
                 }
             }
         }
