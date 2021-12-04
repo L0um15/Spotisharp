@@ -1,13 +1,43 @@
 ﻿using SpotifyAPI.Web;
 using SpotifyAPI.Web.Auth;
-
-namespace Spotisharp.Client;
+using Spotisharp.Client.Models;
+using System.Text.Json;
 
 public static class SpotifyAuthentication
 {
+
+    private static PKCETokenModel _pkceTokenModel = new PKCETokenModel();
+    
+    private static string _tokenConfigDir =
+        Path.Join
+        (
+            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+            ".config",
+            "spotisharp"
+        );
+    private static string _tokenConfigFile = Path.Join(_tokenConfigDir, "auth.json");
+
     public static async Task<SpotifyClient?> CreateSpotifyClient()
     {
         string clientId = "b1d70eb4c56440f5b56537e96e079c7d";
+
+        if (File.Exists(_tokenConfigFile))
+        {
+            string tokenConfigContent = File.ReadAllText(_tokenConfigFile);
+            var deserializedJson = JsonSerializer.Deserialize<PKCETokenModel>(tokenConfigContent);
+            if(deserializedJson != null)
+            {
+                var newResponse = await TryGetPKCERefreshTokenResponse(clientId,deserializedJson.RefreshToken);
+                if(newResponse != null)
+                {
+                    deserializedJson.RefreshToken = newResponse.RefreshToken;
+                    string serializedJson = JsonSerializer.Serialize(deserializedJson);
+                    File.WriteAllText(_tokenConfigFile, serializedJson);
+                    return new SpotifyClient(deserializedJson.RefreshToken);
+                }
+            }
+        }
+
         var (verifier, challenge) = PKCEUtil.GenerateCodes(120);
 
         Uri serverUri = new Uri("http://localhost:5000/auth");
@@ -34,6 +64,11 @@ public static class SpotifyAuthentication
                             verifier
                         )
                 );
+
+            _pkceTokenModel.RefreshToken = newResponse.RefreshToken;
+            string serializedJson = JsonSerializer.Serialize(_pkceTokenModel);
+            File.WriteAllText(_tokenConfigFile, serializedJson);
+
             return new SpotifyClient(newResponse.AccessToken);
         }
         else
@@ -58,5 +93,17 @@ public static class SpotifyAuthentication
         }
 
         return authorizationCode;
+    }
+
+    private static async Task<PKCETokenResponse?> TryGetPKCERefreshTokenResponse(string clientId, string refreshToken)
+    {
+        try
+        {
+            return await new OAuthClient().RequestToken(new PKCETokenRefreshRequest(clientId, refreshToken));
+        }
+        catch (APIException)
+        {
+            return null;
+        }
     }
 }
