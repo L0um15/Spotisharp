@@ -1,5 +1,6 @@
 ﻿using SpotifyAPI.Web;
 using Spotisharp.Client.Resolvers;
+using Spotisharp.Client.Services;
 
 if (ConfigManager.Init())
 {
@@ -12,5 +13,3 @@ if(client == null)
 {
     return;
 }
-
-string url = "https://www.youtube.com/watch?v=FYR2PjVJXUM";
