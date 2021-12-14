@@ -42,7 +42,7 @@ public static class MusixmatchService
             if (lyrics == null)
                 lyrics = htmlDoc.DocumentNode.SelectSingleNode("//span[@class='lyrics__content__warning']"); // Incorrect Lyrics waiting for review.
 
-            return lyrics.InnerText ?? string.Empty;
+            return lyrics?.InnerText ?? string.Empty;
         }
     }
 }
