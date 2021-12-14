@@ -42,10 +42,10 @@ if (SpotifyUriResolver.IsUriValid(input))
         await SpotifyService.PackAlbumTracks(client, queryID, bag);
     }
 
-    var pOptions = new ParallelOptions { MaxDegreeOfParallelism = 4 };
+    /*var pOptions = new ParallelOptions { MaxDegreeOfParallelism = 4 };
     await Parallel.ForEachAsync(bag, pOptions, async (track, cancellationToken) =>
     {
         // Do something here
-    });
+    });*/
 
 }
