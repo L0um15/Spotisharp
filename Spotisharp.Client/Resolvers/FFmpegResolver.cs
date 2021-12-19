@@ -14,7 +14,6 @@ public static class FFmpegResolver
                 ffmpegProc.StartInfo.UseShellExecute = false;
                 ffmpegProc.StartInfo.CreateNoWindow = true;
                 ffmpegProc.Start();
-                ffmpegProc.WaitForExit();
             };
             return true;
         }
