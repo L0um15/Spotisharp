@@ -6,53 +6,39 @@ using Spotisharp.Client.Services;
 using System.Collections.Concurrent;
 using System.Reflection;
 
-Console.WriteLine(@"
-               ▓        ▓
-               ▓        ▓      ▄▄
-         ▄▄▄▓▓▓▓███▓▓▓▓▓▓▄▄▓▓▀▀▀
-        ████████████████▓█████▄▄
-            ▄▄▄▓▀▀▀     ▓ ▀▀█████
-       ▄▓▓████████████▓▓▓▄▄
-         ▀█▀▀▀▀▓▀▀▀▀▀▀▀██████▄
-             ▄▄▓▄▄▄▄▄   ▓  ▀▀█▀
-          █████▓█▀██████▓▓▄
-               ▓        ▓▀██
-               ▓        ▓
-               ▓        ▓
-               ▀        ▀                     
-    ");
+DrawApplicationLogo();
 
-Console.WriteLine("Spotisharp v" + Assembly.GetExecutingAssembly().GetName().Version.ToString() + 
-    "\n\tCopyright \u00a92021 Damian Ziolo\n");
+Logger.Note("Spotisharp v" + Assembly.GetExecutingAssembly().GetName().Version.ToString());
+Logger.Note("\tCopyright \u00a92021 Damian Ziolo");
 
 if (!FFmpegResolver.IsFFmpegInstalled())
 {
-    Console.WriteLine("Error: FFmpeg is missing.");
+    Logger.Error("FFmpeg is missing.");
     return;
 }
 
 if (!ConfigManager.Init())
 {
-    Console.WriteLine("Error: Couldn't load or create configuration file.");
+    Logger.Error("Couldn't load or create configuration file.");
     return;
 }
 
 if (ConfigManager.Properties.IsFirstTime)
 {
-    Console.WriteLine("Hi!, Thank you for using Spotisharp!\n" +
-        "This message will be displayed only once\n" +
-        "Spotisharp v3 is now using PKCETokenAuthentication which is linked to your personal Spotify account\n" +
-        "For safety reasons please make sure you obtained this software from original repository\n" +
-        "Spotisharp is free and opensource. So go ahead and read its source code\n" +
-        "If you have any questions, go ahead and ask me on github\n" +
-        "Github: https://github.com/L0um15/Spotisharp \n");
+    Logger.Note("Hey!, this is your first time eh? Lemme tell ya somethin important");
+    Logger.Warn("Spotisharp is free and opensource software and it always will be");
+    Logger.Warn("I'm treating this project as a hobby not as a duty");
+    Logger.Warn("Stuff might get broken, some things might not work at all");
+    Logger.Warn("Also make sure you're using official software");
+    Logger.Note("Any collaboration will be appreciated. This includes features, bugfixes etc.");
+    Logger.Note("Okay enough for now, lets get to work");
     ConfigManager.Properties.IsFirstTime = false;
     ConfigManager.WriteChanges();
 }
 
 if (args.Length == 0)
 {
-    Console.WriteLine("No arguments provided. Exiting.");
+    Logger.Error("No arguments provided. Exiting.");
     return;
 }
 
@@ -97,3 +83,42 @@ await Parallel.ForEachAsync(bag, pOptions, async (track, cancellationToken) =>
 {
     // Do something here
 });*/
+
+void DrawApplicationLogo()
+{
+    string[] logo =
+    {
+        "        ▓        ▓",
+        "        ▓        ▓      ▄▄",
+        "  ▄▄▄███▓████████▓▄▄▓▓▀▀▀",
+        " ████████████████▓█████▄▄",
+        "     ▄▄▄▓▀▀▀     ▓ ▀▀█████",
+        "▄████████████████▓▄▄",
+        "  ▀█▀▀▀▀▓▀▀▀▀▀▀▀██████▄",
+        "      ▄▄▓▄▄▄▄▄   ▓  ▀▀█▀",
+        "   █████▓█▀██████▓█▄",
+        "        ▓        ▓▀██",
+        "        ▓        ▓",
+        "        ▓        ▓",
+        "        ▀        ▀"
+    };
+
+    for (int i = 0; i < logo.Length; i++)
+    {
+        int rowCharsCount = logo[i].Length;
+        string[] ansiColoredChars = new string[rowCharsCount];
+        for (int j = 0; j < rowCharsCount; j++)
+        {
+            char c = logo[i][j];
+            if (c == '▓' || c == '▀' || c == '▄')
+            {
+                ansiColoredChars[j] = "\u001b[38;2;99;96;97m" + c + "\u001b[0m";
+            }
+            else
+            {
+                ansiColoredChars[j] = "\u001b[38;2;155;11;7m" + c + "\u001b[0m";
+            }
+        }
+        Logger.Note(string.Join("", ansiColoredChars));
+    }
+}
