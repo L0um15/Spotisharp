@@ -7,88 +7,82 @@ namespace Spotisharp.Client.Services;
 
 public static class YoutubeService
 {
+    private static HttpClient _httpClient = new HttpClient();
+
     public static async Task<string[]> SearchByText(string input, int limit)
     {
         string[] urls = new string[limit];
         string searchQuery = "https://www.youtube.com/results?search_query=" + input;
-        using(HttpClient client = new HttpClient())
+        string response = await _httpClient.GetStringAsync(searchQuery);
+
+        Match match = Regex.Match(response, @"(http(s)?\:\/\/)?(www\.)?youtube\.com\/watch\?v=[A-Za-z0-9-_]{11}");
+
+        int i = 0;
+        while (match.Success)
         {
-            string response = await client.GetStringAsync(searchQuery);
-
-            Match match = Regex.Match(response, @"(http(s)?\:\/\/)?(www\.)?youtube\.com\/watch\?v=[A-Za-z0-9-_]{11}");
-
-            int i = 0;
-            while (match.Success)
+            if (i >= limit)
             {
-                if (i >= limit)
-                {
-                    break;
-                }
-                urls[i] = match.Value;
-                i++;
-                match = match.NextMatch();
+                break;
             }
+            urls[i] = match.Value;
+            i++;
+            match = match.NextMatch();
         }
         return urls;
     }
 
-    public static async Task DownloadAsync(string url, string filePath, IProgress<Tuple<long,long>>? progress = null)
+    public static async Task<Stream> GetStreamAsync(string uri, IProgress<Tuple<long, long>>? progress = null)
     {
+        long fileSize = await GetSize(uri);
         long totalBytesCopied = 0;
-        int bytesCopied = 0;
-        long fileSize = await GetSize(url);
-        long chunkSize = 65536;
-        HttpClient httpClient = new HttpClient();
-        
-        if(fileSize > 0)
+        long chunkSize = 65535; // 64KB
+        Stream output = new MemoryStream();
+
+        if (fileSize > 0)
         {
-            using (FileStream outFile = File.OpenWrite(filePath))
+            int segmentCount = (int)Math.Ceiling(1.0 * fileSize / chunkSize);
+            for (int i = 0; i < segmentCount; i++)
             {
-                int segmentCount = (int)Math.Ceiling((decimal)fileSize / chunkSize);
+                long from = i * chunkSize;
+                long to = (i + 1) * chunkSize - 1;
 
-                for(int i = 0; i < segmentCount; i++)
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, uri);
+                request.Headers.Range = new RangeHeaderValue(from, to);
+                using (request)
                 {
-                    long chunkStart = i * chunkSize;
-                    long chunkEnd = (i + 1) * chunkSize - 1;
-                    
-                    HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url);
-                    request.Headers.Range = new RangeHeaderValue(chunkStart, chunkEnd);
-
                     HttpResponseMessage response =
-                        await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
-
-                    if (!response.IsSuccessStatusCode) return;
-
+                        await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
                     Stream stream = await response.Content.ReadAsStreamAsync();
-
-                    byte[] buffer = new byte[1024];
-
-                    do
+                    using (stream)
                     {
-                        bytesCopied = await stream.ReadAsync(buffer, 0, buffer.Length); 
-                        outFile.Write(buffer, 0, bytesCopied);
-                        totalBytesCopied += bytesCopied;
-                        if(progress != null)
+                        byte[] buffer = new byte[80 * 1024];
+                        int bytesCopied = 0;
+                        do
                         {
-                            progress.Report(new Tuple<long, long>(totalBytesCopied, fileSize));
-                        }
-                    } while (bytesCopied > 0);
 
+                            bytesCopied = await stream.ReadAsync(buffer, 0, buffer.Length);
+                            output.Write(buffer, 0, bytesCopied);
+                            if (progress != null)
+                            {
+                                progress.Report(Tuple.Create(totalBytesCopied, fileSize));
+                            }
+                            totalBytesCopied += bytesCopied;
+
+                        } while (bytesCopied > 0);
+                    }
                 }
             }
         }
+        return output;
     }
 
     public static async Task<long> GetSize(string url)
     {
         using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url))
         {
-            using (HttpClient httpClient = new HttpClient())
-            {
-                HttpResponseMessage response
-                    = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
-                return response.Content.Headers.ContentLength ?? 0;
-            }
+            HttpResponseMessage response
+                = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+            return response.Content.Headers.ContentLength ?? 0;
         }
     }
 }
