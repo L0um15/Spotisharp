@@ -1,6 +1,7 @@
-﻿using System.Runtime.InteropServices;
+﻿using Spotisharp.Client.Enums;
+using System.Runtime.InteropServices;
 
-public static class Logger
+public static class CConsole
 {
 
     #region DLLs
@@ -14,7 +15,9 @@ public static class Logger
     private static extern IntPtr GetStdHandle(int nStdHandle);
     #endregion
 
-    static Logger()
+    private static object _locker = new object();
+
+    static CConsole()
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
@@ -31,35 +34,69 @@ public static class Logger
     {
         string coloredSpacing = "\u001b[48;2;63;212;147m" + " " + "\u001b[0m";
         string coloredMessage = "\u001b[38;2;24;224;166m" + message + "\u001b[0m";
+
         Console.WriteLine(coloredSpacing + ' ' + coloredMessage);
     }
 
-    public static void Warn(object message)
+    public static void Warn(object message, bool appendLine = true)
     {
         string coloredSpacing = "\u001b[48;2;227;164;26m" + " " + "\u001b[0m";
         string coloredMessage = "\u001b[38;2;227;164;26m" + message + "\u001b[0m";
+
         Console.WriteLine(coloredSpacing + ' ' + coloredMessage);
     }
 
-    public static void Error(object message)
+    public static void Error(object message, bool appendLine = true)
     {
         string coloredSpacing = "\u001b[48;2;230;0;103m" + " " + "\u001b[0m";
         string coloredMessage = "\u001b[38;2;230;0;103m" + message + "\u001b[0m";
+
         Console.WriteLine(coloredSpacing + ' ' + coloredMessage);
     }
 
-    public static void Debug(object message)
+    public static void Debug(object message, bool appendLine = true)
     {
         string coloredSpacing = "\u001b[48;2;255;171;238m" + " " + "\u001b[0m";
         string coloredMessage = "\u001b[38;2;255;171;238m" + message + "\u001b[0m";
+
         Console.WriteLine(coloredSpacing + ' ' + coloredMessage);
     }
 
-    public static void Note(object message)
+    public static void Note(object message, bool appendLine = true)
     {
         string coloredSpacing = "\u001b[48;2;16;171;240m" + " " + "\u001b[0m";
         string coloredMessage = "\u001b[38;2;16;171;240m" + message + "\u001b[0m";
+
         Console.WriteLine(coloredSpacing + ' ' + coloredMessage);
+    }
+
+    public static void Overwrite(object message, int positionY, CConsoleType cType = CConsoleType.Info)
+    {
+        string msg = message.ToString();
+        string emptySpace = new string(' ', Console.BufferWidth - msg.Length - 2);
+
+        lock (_locker)
+        {
+            Console.SetCursorPosition(0, positionY);
+            switch (cType)
+            {
+                case CConsoleType.Info:
+                    CConsole.Info(msg + emptySpace);
+                    break;
+                case CConsoleType.Warn:
+                    CConsole.Warn(msg + emptySpace);
+                    break;
+                case CConsoleType.Error:
+                    CConsole.Error(msg + emptySpace);
+                    break;
+                case CConsoleType.Debug:
+                    CConsole.Debug(msg + emptySpace);
+                    break;
+                case CConsoleType.Note:
+                    CConsole.Note(msg + emptySpace);
+                    break;
+            }
+        }
     }
 
 }
