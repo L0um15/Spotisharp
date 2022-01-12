@@ -38,7 +38,7 @@ public static class CConsole
         Console.WriteLine(coloredSpacing + ' ' + coloredMessage);
     }
 
-    public static void Warn(object message, bool appendLine = true)
+    public static void Warn(object message)
     {
         string coloredSpacing = "\u001b[48;2;227;164;26m" + " " + "\u001b[0m";
         string coloredMessage = "\u001b[38;2;227;164;26m" + message + "\u001b[0m";
@@ -46,7 +46,7 @@ public static class CConsole
         Console.WriteLine(coloredSpacing + ' ' + coloredMessage);
     }
 
-    public static void Error(object message, bool appendLine = true)
+    public static void Error(object message)
     {
         string coloredSpacing = "\u001b[48;2;230;0;103m" + " " + "\u001b[0m";
         string coloredMessage = "\u001b[38;2;230;0;103m" + message + "\u001b[0m";
@@ -54,7 +54,7 @@ public static class CConsole
         Console.WriteLine(coloredSpacing + ' ' + coloredMessage);
     }
 
-    public static void Debug(object message, bool appendLine = true)
+    public static void Debug(object message)
     {
         string coloredSpacing = "\u001b[48;2;255;171;238m" + " " + "\u001b[0m";
         string coloredMessage = "\u001b[38;2;255;171;238m" + message + "\u001b[0m";
@@ -62,12 +62,21 @@ public static class CConsole
         Console.WriteLine(coloredSpacing + ' ' + coloredMessage);
     }
 
-    public static void Note(object message, bool appendLine = true)
+    public static void Note(object message)
     {
         string coloredSpacing = "\u001b[48;2;16;171;240m" + " " + "\u001b[0m";
         string coloredMessage = "\u001b[38;2;16;171;240m" + message + "\u001b[0m";
 
         Console.WriteLine(coloredSpacing + ' ' + coloredMessage);
+    }
+
+    public static string ReadInput()
+    {
+        string coloredSpacing = "\u001b[48;2;255;203;165m" + " " + "\u001b[0m";
+        Console.Write(coloredSpacing + ' ' + "\u001b[38;2;255;203;165m");
+        string? input = Console.ReadLine();
+        Console.Write("\u001b[0m");
+        return input ?? string.Empty;
     }
 
     public static void Overwrite(object message, int positionY, CConsoleType cType = CConsoleType.Info)

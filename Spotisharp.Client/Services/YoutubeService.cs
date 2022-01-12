@@ -1,7 +1,10 @@
 ﻿using SpotifyAPI.Web.Http;
+using Spotisharp.Client.Resolvers;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
+using VideoLibrary;
+using VideoLibrary.Exceptions;
 
 namespace Spotisharp.Client.Services;
 
@@ -12,10 +15,13 @@ public static class YoutubeService
     public static async Task<string[]> SearchByText(string input, int limit)
     {
         string[] urls = new string[limit];
-        string searchQuery = "https://www.youtube.com/results?search_query=" + input;
-        string response = await _httpClient.GetStringAsync(searchQuery);
 
-        Match match = Regex.Match(response, @"(http(s)?\:\/\/)?(www\.)?youtube\.com\/watch\?v=[A-Za-z0-9-_]{11}");
+        string safeSearchQuery = "https://www.youtube.com/results?search_query=" + 
+            FileSystemResolver.ReplaceForbiddenChars(input);
+
+        string response = await _httpClient.GetStringAsync(safeSearchQuery);
+
+        Match match = Regex.Match(response, @"\/watch\?v=[A-Za-z0-9-_]{11}");
 
         int i = 0;
         while (match.Success)
@@ -24,16 +30,38 @@ public static class YoutubeService
             {
                 break;
             }
-            urls[i] = match.Value;
+            urls[i] = "https://www.youtube.com" + match.Value;
             i++;
             match = match.NextMatch();
         }
         return urls;
     }
 
-    public static async Task<Stream> GetStreamAsync(string uri, IProgress<Tuple<long, long>>? progress = null)
+    public static async Task<YouTubeVideo?> GetAudioOnly(string url)
     {
-        long fileSize = await GetSize(uri);
+        try
+        {
+            YouTube youtubeEngine = YouTube.Default;
+            IEnumerable<YouTubeVideo> videos = await youtubeEngine.GetAllVideosAsync(url);
+            YouTubeVideo audioTrack = videos.First(v =>
+                v.AdaptiveKind == AdaptiveKind.Audio
+            );
+
+            return audioTrack;
+        }
+        catch (UnavailableStreamException)
+        {
+            return null;
+        }
+        catch (InvalidOperationException)
+        {
+            return null;
+        }
+    }
+
+    public static async Task<Stream> GetStreamAsync(string url, IProgress<Tuple<long, long>>? progress = null)
+    {
+        long fileSize = await GetSize(url);
         long totalBytesCopied = 0;
         long chunkSize = 65535; // 64KB
         Stream output = new MemoryStream();
@@ -46,7 +74,7 @@ public static class YoutubeService
                 long from = i * chunkSize;
                 long to = (i + 1) * chunkSize - 1;
 
-                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, uri);
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url);
                 request.Headers.Range = new RangeHeaderValue(from, to);
                 using (request)
                 {

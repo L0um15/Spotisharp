@@ -4,9 +4,13 @@ public static class FileSystemResolver
 {
     public static string ReplaceForbiddenChars(string input)
     {
-        char[] forbiddenChars = { '<', '>', ':',
+        char[] forbiddenChars = 
+        {   '<', '>', ':',
             '"', '/', '\\', 
-            '|', '?', '*' 
+            '|', '?', '*',
+            '&', '+', ',',
+            ';', '@', '?',
+            '$', '%', '#'
         };
 
         return string.Create(input.Length, input, (chars, buffer) =>

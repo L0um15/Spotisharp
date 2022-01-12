@@ -41,6 +41,7 @@ public static class SpotifyService
                 Artist = track.Artists[0].Name,
                 Title = track.Name,
                 Url = track.ExternalUrls["spotify"],
+                Playlist = "Unknown",
                 DiscNumber = track.DiscNumber,
                 TrackNumber = track.TrackNumber,
                 Album = album.Name,
@@ -55,6 +56,7 @@ public static class SpotifyService
 
     public static async Task PackPlaylistTracks(SpotifyClient client, string input, ConcurrentBag<TrackInfoModel> bag)
     {
+        int topCursorPosition = Console.CursorTop;
         FullPlaylist playlist = await client.Playlists.Get(input);
         if (playlist.Tracks != null)
         {
@@ -63,12 +65,12 @@ public static class SpotifyService
                 if (item.Track is FullTrack track)
                 {
                     FullAlbum album = await client.Albums.TryGet(track.Album.Id);
-                    Console.Write($"\rQueued: {bag.Count}");
                     bag.Add(new TrackInfoModel()
                     {
                         Artist = track.Artists[0].Name,
                         Title = track.Name,
                         Url = track.ExternalUrls["spotify"],
+                        Playlist = playlist.Name ?? string.Empty,
                         DiscNumber = track.DiscNumber,
                         TrackNumber = track.TrackNumber,
                         Album = album.Name,
@@ -77,6 +79,7 @@ public static class SpotifyService
                         Genres = album.Genres.FirstOrDefault() ?? string.Empty,
                         Date = album.ReleaseDate
                     });
+                    CConsole.Overwrite("Queued: " + bag.Count.ToString("D3"), topCursorPosition, CConsoleType.Info);
                 }
             }
         }
@@ -84,8 +87,8 @@ public static class SpotifyService
 
     public static async Task PackAlbumTracks(SpotifyClient client, string input, ConcurrentBag<TrackInfoModel> bag)
     {
+        int topCursorPosition = Console.CursorTop;
         FullAlbum album = await client.Albums.Get(input);
-
         await foreach (SimpleTrack track in client.Paginate(album.Tracks))
         {
             bag.Add(new TrackInfoModel()
@@ -93,14 +96,16 @@ public static class SpotifyService
                 Artist = track.Artists[0].Name,
                 Title = track.Name,
                 Url = track.ExternalUrls["spotify"],
+                Playlist = album.Name ?? string.Empty,
                 DiscNumber = track.DiscNumber,
                 TrackNumber = track.TrackNumber,
-                Album = album.Name,
+                Album = album.Name ?? String.Empty,
                 AlbumPicture = album.Images[0].Url,
                 Copyright = album.Copyrights.FirstOrDefault()?.Text ?? string.Empty,
                 Genres = album.Genres.FirstOrDefault() ?? string.Empty,
                 Date = album.ReleaseDate
             });
+            CConsole.Overwrite("Queued: " + bag.Count.ToString("D3"), topCursorPosition, CConsoleType.Info);
         }
     }
 
