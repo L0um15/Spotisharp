@@ -23,19 +23,23 @@ public static class SpotifyAuthentication
 
         if (File.Exists(_tokenConfigFile))
         {
+            CConsole.Debug("Authentication data already exists. Loading");
             string tokenConfigContent = File.ReadAllText(_tokenConfigFile);
             var deserializedJson = JsonSerializer.Deserialize<PKCETokenModel>(tokenConfigContent);
             if(deserializedJson != null)
             {
+                CConsole.Debug("Authentication data has been loaded successfully. Requesting new access token");
                 var newResponse = await TryGetPKCERefreshTokenResponse(clientId,deserializedJson.RefreshToken);
                 if(newResponse != null)
                 {
+                    CConsole.Debug("Access token has been received. Saving data");
                     deserializedJson.RefreshToken = newResponse.RefreshToken;
                     string serializedJson = JsonSerializer.Serialize(deserializedJson);
                     File.WriteAllText(_tokenConfigFile, serializedJson);
                     return new SpotifyClient(newResponse.AccessToken);
                 }
             }
+            CConsole.Debug("Failed to deserialize authentication data. Generating new access token");
         }
 
         var (verifier, challenge) = PKCEUtil.GenerateCodes(120);
@@ -46,13 +50,14 @@ public static class SpotifyAuthentication
             CodeChallenge = challenge,
             CodeChallengeMethod = "S256"
         };
-        
+
         BrowserUtil.Open(loginRequest.ToUri());
 
         var getCallbackTask = GetCallbackFromServer(serverUri, clientId);
 
         if (getCallbackTask.Wait(20000))
         {
+            CConsole.Debug("User has granted access for application. Requesting new access token");
             string authorizationCode = await getCallbackTask;
             var newResponse = await new OAuthClient().RequestToken
                 (
@@ -65,14 +70,15 @@ public static class SpotifyAuthentication
                         )
                 );
 
+            CConsole.Debug("Saving refresh token");
             _pkceTokenModel.RefreshToken = newResponse.RefreshToken;
             string serializedJson = JsonSerializer.Serialize(_pkceTokenModel);
             File.WriteAllText(_tokenConfigFile, serializedJson);
-
             return new SpotifyClient(newResponse.AccessToken);
         }
         else
         {
+            CConsole.Debug("Timed out");
             return null;
         }
     }

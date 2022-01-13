@@ -18,15 +18,6 @@ public class TrackInfoModel
 
     public override string ToString()
     {
-        return $"Track Information: \n" +
-            $"\t{Artist}\n" +
-            $"\t{Title}\n" +
-            $"\t{Album}\n" +
-            $"\t{Copyright}\n" +
-            $"\t{Genres}\n" +
-            $"\t{Url}\n" +
-            $"\t{Date}\n" +
-            $"\t{DiscNumber}\n" +
-            $"\t{TrackNumber}\n";    
+        return $"{Artist} - {Title} | {Url}";   
     }
 }

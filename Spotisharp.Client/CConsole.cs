@@ -16,6 +16,7 @@ public static class CConsole
     #endregion
 
     private static object _locker = new object();
+    private static readonly StreamWriter _writer;
 
     static CConsole()
     {
@@ -28,14 +29,38 @@ public static class CConsole
             var enable = GetConsoleMode(iStdOut, out var outConsoleMode)
                          && SetConsoleMode(iStdOut, outConsoleMode | 0x0004);
         }
+
+        // Enable file logging
+        Directory.CreateDirectory("./logs");
+        _writer = new StreamWriter(File.OpenWrite($"./logs/log-{DateTime.Now.ToString("yyyyMMddHHmmss")}.txt"));
+
+        // Write all exceptions to log file
+        AppDomain.CurrentDomain.UnhandledException += (sender, ex) =>
+        {
+            Exception exception = (Exception) ex.ExceptionObject;
+            CConsole.Error(exception);
+        };
     }
 
-    public static void Info(object message)
+    public static void Info(object message, bool writeToFile = true)
     {
         string coloredSpacing = "\u001b[48;2;63;212;147m" + " " + "\u001b[0m";
         string coloredMessage = "\u001b[38;2;24;224;166m" + message + "\u001b[0m";
 
         Console.WriteLine(coloredSpacing + ' ' + coloredMessage);
+        if (writeToFile)
+        {
+            _writer.WriteLine
+            (
+                string.Format
+                (
+                    "[{0}][INFO]: {1}",
+                    DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"),
+                    message
+                )
+            );
+            _writer.Flush();
+        }
     }
 
     public static void Warn(object message)
@@ -44,6 +69,16 @@ public static class CConsole
         string coloredMessage = "\u001b[38;2;227;164;26m" + message + "\u001b[0m";
 
         Console.WriteLine(coloredSpacing + ' ' + coloredMessage);
+        _writer.WriteLine
+        (
+            string.Format
+            (
+                "[{0}][INFO]: {1}",
+                DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"),
+                message
+            )
+        );
+        _writer.Flush();
     }
 
     public static void Error(object message)
@@ -52,20 +87,36 @@ public static class CConsole
         string coloredMessage = "\u001b[38;2;230;0;103m" + message + "\u001b[0m";
 
         Console.WriteLine(coloredSpacing + ' ' + coloredMessage);
+        _writer.WriteLine
+        (
+            string.Format
+            (
+                "[{0}][INFO]: {1}",
+                DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"),
+                message
+            )
+        );
+        _writer.Flush();
     }
 
     public static void Debug(object message)
     {
-        string coloredSpacing = "\u001b[48;2;255;171;238m" + " " + "\u001b[0m";
-        string coloredMessage = "\u001b[38;2;255;171;238m" + message + "\u001b[0m";
-
-        Console.WriteLine(coloredSpacing + ' ' + coloredMessage);
+        _writer.WriteLine
+        (
+            string.Format
+            (
+                "[{0}][DEBUG]: {1}",
+                DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"),
+                message
+            )
+        );
+        _writer.Flush();
     }
 
     public static void Note(object message)
     {
-        string coloredSpacing = "\u001b[48;2;16;171;240m" + " " + "\u001b[0m";
-        string coloredMessage = "\u001b[38;2;16;171;240m" + message + "\u001b[0m";
+        string coloredSpacing = "\u001b[48;2;255;171;238m" + " " + "\u001b[0m";
+        string coloredMessage = "\u001b[38;2;255;171;238m" + message + "\u001b[0m";
 
         Console.WriteLine(coloredSpacing + ' ' + coloredMessage);
     }
@@ -79,31 +130,38 @@ public static class CConsole
         return input ?? string.Empty;
     }
 
-    public static void Overwrite(object message, int positionY, CConsoleType cType = CConsoleType.Info)
+    public static void Overwrite
+    (
+        object message, 
+        int positionY, 
+        CConsoleType cType = CConsoleType.Info, 
+        bool writeToFile = true
+    )
     {
-        string msg = message.ToString();
-        string emptySpace = new string(' ', Console.BufferWidth - msg.Length - 2);
-
-        lock (_locker)
+        string? msg = message.ToString();
+        if(msg != null)
         {
-            Console.SetCursorPosition(0, positionY);
-            switch (cType)
+            string emptySpace = new string(' ', Console.BufferWidth - msg.Length - 2);
+            lock (_locker)
             {
-                case CConsoleType.Info:
-                    CConsole.Info(msg + emptySpace);
-                    break;
-                case CConsoleType.Warn:
-                    CConsole.Warn(msg + emptySpace);
-                    break;
-                case CConsoleType.Error:
-                    CConsole.Error(msg + emptySpace);
-                    break;
-                case CConsoleType.Debug:
-                    CConsole.Debug(msg + emptySpace);
-                    break;
-                case CConsoleType.Note:
-                    CConsole.Note(msg + emptySpace);
-                    break;
+                Console.SetCursorPosition(0, positionY);
+                switch (cType)
+                {
+                    case CConsoleType.Info:
+                        CConsole.Info(msg + emptySpace, writeToFile);
+                        break;
+                    case CConsoleType.Warn:
+                        CConsole.Warn(msg + emptySpace);
+                        break;
+                    case CConsoleType.Error:
+                        CConsole.Error(msg + emptySpace);
+                        break;
+                    case CConsoleType.Note:
+                        CConsole.Note(msg + emptySpace);
+                        break;
+                    default:
+                        break;
+                }
             }
         }
     }

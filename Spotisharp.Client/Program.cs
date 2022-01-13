@@ -13,12 +13,6 @@ DrawApplicationLogo();
 CConsole.Note("Spotisharp v" + Assembly.GetExecutingAssembly()?.GetName()?.Version?.ToString());
 CConsole.Note("\tCopyright \u00a92021 Damian Ziolo");
 
-if (!FFmpegResolver.IsFFmpegInstalled())
-{
-    CConsole.Error("FFmpeg is missing");
-    return;
-}
-
 if (!ConfigManager.Init())
 {
     CConsole.Error("Couldn't load or create configuration file");
@@ -27,17 +21,10 @@ if (!ConfigManager.Init())
 
 ConfigManager.Properties.EnsureDirsExist();
 
-if (ConfigManager.Properties.IsFirstTime)
+if (!FFmpegResolver.IsFFmpegInstalled())
 {
-    CConsole.Note("Hey!, this is your first time eh? Lemme tell ya somethin important");
-    CConsole.Warn("Spotisharp is free and opensource software and it always will be");
-    CConsole.Warn("I'm treating this project as a hobby not as a duty");
-    CConsole.Warn("Stuff might get broken, some things might not work at all");
-    CConsole.Warn("Also make sure you're using official software");
-    CConsole.Note("Any collaboration will be appreciated. This includes features, bugfixes etc.");
-    CConsole.Note("Okay enough for now, lets get to work");
-    ConfigManager.Properties.IsFirstTime = false;
-    ConfigManager.WriteChanges();
+    CConsole.Error("FFmpeg is missing");
+    return;
 }
 
 string input = string.Empty;
@@ -54,8 +41,11 @@ else
 
 if(input == string.Empty)
 {
+    CConsole.Error("Input has to contain something");
     return;
 }
+
+CConsole.Debug("Input: " + input);
 
 CConsole.Info("Logging to Spotify");
 SpotifyClient? client = await SpotifyAuthentication.CreateSpotifyClient();
@@ -65,9 +55,8 @@ if (client == null)
     CConsole.Error("Couldn't sign in to Spotify. Exiting");
     return;
 };
-CConsole.Info("Logged in successfully");
 
-if(input == null) return;
+CConsole.Info("Logged in successfully");
 
 SpotifyUriType uriType = SpotifyUriResolver.GetUriType(input);
 SpotifyBrowseCategory category = SpotifyUriResolver.GetBrowseCategory(input);
@@ -96,21 +85,35 @@ switch (category)
 
     case SpotifyBrowseCategory.Playlist:
         CConsole.Info("User request type: Playlist");
-        CConsole.Info("Queueing tracks...");
+        CConsole.Info("Queueing tracks... (It might take some time)");
         await SpotifyService.PackPlaylistTracks(client, input, trackInfoBag);
         break;
 
     case SpotifyBrowseCategory.Album:
         CConsole.Info("User request type: Album");
-        CConsole.Info("Queueing tracks...");
+        CConsole.Info("Queueing tracks... (It might take some time)");
         await SpotifyService.PackAlbumTracks(client, input, trackInfoBag);
         break;
 }
 
 ConcurrentBag<YouTubeVideo> audioStreams = new ConcurrentBag<YouTubeVideo>();
 
-int topCursorPosition = Console.CursorTop;
-int workersCount = 4;
+int workersCount = ConfigManager.Properties.WorkersCount;
+
+if(workersCount < 1 || workersCount > 6)
+{
+    CConsole.Warn("WorkersCount has to be set in range of 1-6. Changing to 4");
+    workersCount = 4;
+}
+
+for (int i = 0; i < workersCount; i++)
+{
+    CConsole.Note("Waiting for task...");
+}
+
+int topCursorPosition = Console.CursorTop - workersCount;
+
+CConsole.Note("Press CTRL-C to abort");
 
 await Task.WhenAll(Enumerable.Range(0, workersCount).Select(async workerId =>
 {
@@ -126,13 +129,15 @@ await Task.WhenAll(Enumerable.Range(0, workersCount).Select(async workerId =>
                     Path.Combine
                     (
                         ConfigManager.Properties.MusicDirectory,
-                        trackInfo.Playlist
+                        FileSystemResolver.ReplaceForbiddenChars(trackInfo.Playlist)
                     )
                 );
 
+        CConsole.Debug($"Worker #{workerId} ::: Searching lyrics ::: {fullName}");
         //Task<string> lyricsTask = 
             //MusixmatchService.SearchLyricsFromText(fullName);
 
+        CConsole.Debug($"Worker #{workerId} ::: Searching Youtube ::: {fullName}");
         string[] results = await YoutubeService.SearchByText(fullName, 3);
 
         YouTubeVideo? audioTrack = null;
@@ -164,6 +169,8 @@ await Task.WhenAll(Enumerable.Range(0, workersCount).Select(async workerId =>
             continue;
         }
 
+        CConsole.Debug($"Worker #{workerId} ::: Downloading ::: {fullName}");
+
         Stream audioStream = await YoutubeService.GetStreamAsync(audioTrack.Uri,
             new Progress<Tuple<long, long>>(pValues =>
             {
@@ -173,7 +180,7 @@ await Task.WhenAll(Enumerable.Range(0, workersCount).Select(async workerId =>
                 (
                     string.Format
                     (
-                        "Worker #{0} ::: |{1}{2}| {3}% Q:{4} ::: {5}",
+                        "Worker #{0} ::: {1}{2} {3}% Q:{4} ::: {5}",
                         workerId,
                         new string('█', (int)(percentage / 5)),
                         new string('▓', 20 - (int)(percentage / 5)),
@@ -182,10 +189,11 @@ await Task.WhenAll(Enumerable.Range(0, workersCount).Select(async workerId =>
                         fullName
                     ),
                     positionY,
-                    CConsoleType.Info
+                    CConsoleType.Info,
+                    false
                 );
             }));
-
+        CConsole.Debug($"Worker #{workerId} ::: Converting ::: {fullName}");
         using (audioStream)
         {
             using (Process ffProcess = new Process())
@@ -201,13 +209,16 @@ await Task.WhenAll(Enumerable.Range(0, workersCount).Select(async workerId =>
                 audioStream.Seek(0, SeekOrigin.Begin);
                 audioStream.CopyTo(ffInputStream);
                 ffInputStream.Close();
-                ffProcess.WaitForExit();
+                //ffProcess.WaitForExit();
             }
         }
+        CConsole.Debug($"Worker #{workerId} ::: Finished ::: {fullName}");
     }
+    CConsole.Overwrite($"Worker #{workerId} ::: Finished all tasks", positionY, CConsoleType.Info);
 }));
 
 Console.SetCursorPosition(0, topCursorPosition + workersCount + 1);
+
 
 void DrawApplicationLogo()
 {

@@ -3,8 +3,8 @@
 namespace Spotisharp.Client.Models;
 
 public class ConfigModel
-{ 
-    public bool IsFirstTime { get; set; } = true;
+{
+    public int WorkersCount { get; set; } = 4;
 
     public string VersionControl { get; set; } = 
         Assembly.GetExecutingAssembly().GetName().Version.ToString();

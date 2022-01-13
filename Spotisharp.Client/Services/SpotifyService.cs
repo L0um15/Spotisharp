@@ -56,16 +56,16 @@ public static class SpotifyService
 
     public static async Task PackPlaylistTracks(SpotifyClient client, string input, ConcurrentBag<TrackInfoModel> bag)
     {
-        int topCursorPosition = Console.CursorTop;
         FullPlaylist playlist = await client.Playlists.Get(input);
         if (playlist.Tracks != null)
         {
+            int i = 1;
             await foreach(var item in client.Paginate(playlist.Tracks))
             {
                 if (item.Track is FullTrack track)
                 {
                     FullAlbum album = await client.Albums.TryGet(track.Album.Id);
-                    bag.Add(new TrackInfoModel()
+                    TrackInfoModel trackInfo = new TrackInfoModel()
                     {
                         Artist = track.Artists[0].Name,
                         Title = track.Name,
@@ -78,8 +78,9 @@ public static class SpotifyService
                         Copyright = album.Copyrights.FirstOrDefault()?.Text ?? string.Empty,
                         Genres = album.Genres.FirstOrDefault() ?? string.Empty,
                         Date = album.ReleaseDate
-                    });
-                    CConsole.Overwrite("Queued: " + bag.Count.ToString("D3"), topCursorPosition, CConsoleType.Info);
+                    };
+                    bag.Add(trackInfo);
+                    CConsole.Debug($"Q: {i++.ToString("D3")} | Added: {trackInfo}");
                 }
             }
         }
@@ -89,9 +90,10 @@ public static class SpotifyService
     {
         int topCursorPosition = Console.CursorTop;
         FullAlbum album = await client.Albums.Get(input);
+        int i = 1;
         await foreach (SimpleTrack track in client.Paginate(album.Tracks))
         {
-            bag.Add(new TrackInfoModel()
+            TrackInfoModel trackInfo = new TrackInfoModel()
             {
                 Artist = track.Artists[0].Name,
                 Title = track.Name,
@@ -99,13 +101,14 @@ public static class SpotifyService
                 Playlist = album.Name ?? string.Empty,
                 DiscNumber = track.DiscNumber,
                 TrackNumber = track.TrackNumber,
-                Album = album.Name ?? String.Empty,
+                Album = album.Name ?? string.Empty,
                 AlbumPicture = album.Images[0].Url,
                 Copyright = album.Copyrights.FirstOrDefault()?.Text ?? string.Empty,
                 Genres = album.Genres.FirstOrDefault() ?? string.Empty,
                 Date = album.ReleaseDate
-            });
-            CConsole.Overwrite("Queued: " + bag.Count.ToString("D3"), topCursorPosition, CConsoleType.Info);
+            };
+            bag.Add(trackInfo);
+            CConsole.Debug($"Q: {i++.ToString("D3")} | Added: {trackInfo}");
         }
     }
 
