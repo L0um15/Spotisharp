@@ -4,7 +4,7 @@ using System.Text.Json;
 
 public static class ConfigManager
 {
-    private static string _appVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+    private static string _appVersion = Assembly.GetExecutingAssembly().GetName().Version!.ToString();
     
     private static ConfigModel _properties = new ConfigModel();
     public static ConfigModel Properties { get { return _properties; } set { _properties = value; } }

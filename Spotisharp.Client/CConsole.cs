@@ -141,7 +141,15 @@ public static class CConsole
         string? msg = message.ToString();
         if(msg != null)
         {
-            string emptySpace = new string(' ', Console.BufferWidth - msg.Length - 2);
+            string emptySpace = string.Empty;
+
+            int clearLineLength = Console.BufferWidth - msg.Length - 2;
+
+            if (clearLineLength > 0)
+            {
+                emptySpace = new string(' ', clearLineLength);
+            }
+
             lock (_locker)
             {
                 Console.SetCursorPosition(0, positionY);

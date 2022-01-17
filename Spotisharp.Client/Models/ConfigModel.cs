@@ -7,7 +7,7 @@ public class ConfigModel
     public int WorkersCount { get; set; } = 4;
 
     public string VersionControl { get; set; } = 
-        Assembly.GetExecutingAssembly().GetName().Version.ToString();
+        Assembly.GetExecutingAssembly().GetName().Version!.ToString();
 
     public string MusicDirectory { get; set; } =
         Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.MyMusic), "Spotisharp");

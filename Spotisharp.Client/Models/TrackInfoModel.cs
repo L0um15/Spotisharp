@@ -4,15 +4,15 @@ namespace Spotisharp.Client.Models;
 
 public class TrackInfoModel
 {
-    public string Artist { get; set; }
-    public string Title { get; set; }
-    public string Album { get; set; }
-    public string AlbumPicture { get; set; }
-    public string Copyright { get; set; }
-    public string Genres { get; set; }
-    public string Playlist { get; set; }
-    public string Url { get; set; }
-    public string Date { get; set; }
+    public string Artist { get; set; } = string.Empty;
+    public string Title { get; set; } = string.Empty;
+    public string Album { get; set; } = string.Empty;
+    public string AlbumPicture { get; set; } = string.Empty;
+    public string Copyright { get; set; } = string.Empty;
+    public string Genres { get; set; } = string.Empty; 
+    public string Playlist { get; set; } = string.Empty; 
+    public string Url { get; set; } = string.Empty; 
+    public int Year { get; set; }
     public int DiscNumber { get; set; }
     public int TrackNumber { get; set; }
 

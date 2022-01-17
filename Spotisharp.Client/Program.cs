@@ -74,13 +74,7 @@ switch (category)
     case SpotifyBrowseCategory.Track:
         CConsole.Info("User request type: SingleTrack");
         CConsole.Info("Queueing track...");
-        TrackInfoModel? trackInfo = await SpotifyService.GetSingleTrack(client, input, uriType);
-        if (trackInfo == null) 
-        {
-            CConsole.Error("Spotify returned 0 matches. Exiting.");
-            return;
-        };
-        trackInfoBag.Add(trackInfo);
+        await SpotifyService.PackSingleTrack(client, input, trackInfoBag, uriType);
         break;
 
     case SpotifyBrowseCategory.Playlist:
@@ -95,8 +89,6 @@ switch (category)
         await SpotifyService.PackAlbumTracks(client, input, trackInfoBag);
         break;
 }
-
-ConcurrentBag<YouTubeVideo> audioStreams = new ConcurrentBag<YouTubeVideo>();
 
 int workersCount = ConfigManager.Properties.WorkersCount;
 
@@ -118,7 +110,7 @@ CConsole.Note("Press CTRL-C to abort");
 await Task.WhenAll(Enumerable.Range(0, workersCount).Select(async workerId =>
 {
     int positionY = topCursorPosition + workerId;
-    while (trackInfoBag.TryTake(out TrackInfoModel trackInfo))
+    while (trackInfoBag.TryTake(out TrackInfoModel? trackInfo))
     {
         string safeArtistName = FileSystemResolver.ReplaceForbiddenChars(trackInfo.Artist);
         string safeTitle = FileSystemResolver.ReplaceForbiddenChars(trackInfo.Title);
@@ -133,9 +125,18 @@ await Task.WhenAll(Enumerable.Range(0, workersCount).Select(async workerId =>
                     )
                 );
 
+        string convertedFilePath = Path.Combine(trackDir.FullName, fullName) + ".mp3";
+
+        if (File.Exists(convertedFilePath))
+        {
+            CConsole.Overwrite($"Worker #{workerId} ::: Skipping: {fullName}", positionY,CConsoleType.Info);
+            await Task.Delay(250);
+            continue;
+        }
+
         CConsole.Debug($"Worker #{workerId} ::: Searching lyrics ::: {fullName}");
-        //Task<string> lyricsTask = 
-            //MusixmatchService.SearchLyricsFromText(fullName);
+        Task<string> lyricsTask = 
+            MusixmatchService.SearchLyricsFromText(fullName);
 
         CConsole.Debug($"Worker #{workerId} ::: Searching Youtube ::: {fullName}");
         string[] results = await YoutubeService.SearchByText(fullName, 3);
@@ -171,6 +172,14 @@ await Task.WhenAll(Enumerable.Range(0, workersCount).Select(async workerId =>
 
         CConsole.Debug($"Worker #{workerId} ::: Downloading ::: {fullName}");
 
+        Task<byte[]> albumPictureTask = Task.Run(async () =>
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                return await client.GetByteArrayAsync(trackInfo.AlbumPicture);
+            }
+        });
+
         Stream audioStream = await YoutubeService.GetStreamAsync(audioTrack.Uri,
             new Progress<Tuple<long, long>>(pValues =>
             {
@@ -193,13 +202,15 @@ await Task.WhenAll(Enumerable.Range(0, workersCount).Select(async workerId =>
                     false
                 );
             }));
+        
         CConsole.Debug($"Worker #{workerId} ::: Converting ::: {fullName}");
+
         using (audioStream)
         {
             using (Process ffProcess = new Process())
             {
                 ffProcess.StartInfo.FileName = "ffmpeg";
-                ffProcess.StartInfo.Arguments = $"-i - -q:a 0 \"{Path.Combine(trackDir.FullName, fullName)}.mp3\"";
+                ffProcess.StartInfo.Arguments = $"-i - -q:a 0 \"{convertedFilePath}\"";
                 ffProcess.StartInfo.UseShellExecute = false;
                 ffProcess.StartInfo.CreateNoWindow = true;
                 ffProcess.StartInfo.RedirectStandardError = false;
@@ -209,10 +220,36 @@ await Task.WhenAll(Enumerable.Range(0, workersCount).Select(async workerId =>
                 audioStream.Seek(0, SeekOrigin.Begin);
                 audioStream.CopyTo(ffInputStream);
                 ffInputStream.Close();
-                //ffProcess.WaitForExit();
+                ffProcess.WaitForExit();
             }
         }
-        CConsole.Debug($"Worker #{workerId} ::: Finished ::: {fullName}");
+
+        CConsole.Debug($"Worker #{workerId} ::: Writing Metadata ::: {fullName}");
+
+        using (TagLib.File file = TagLib.File.Create(convertedFilePath))
+        {
+            TagLib.Id3v2.Tag.DefaultVersion = 3;
+            TagLib.Id3v2.Tag.ForceDefaultVersion = true;
+            file.Tag.Performers = new string[] { trackInfo.Artist };
+            file.Tag.AlbumArtists = new string[] { trackInfo.Artist };
+            file.Tag.Composers = new string[] { trackInfo.Artist };
+            file.Tag.Copyright = trackInfo.Copyright;
+            file.Tag.Lyrics = await lyricsTask;
+            file.Tag.Title = trackInfo.Title;
+            file.Tag.Album = trackInfo.Album;
+            file.Tag.Track = Convert.ToUInt32(trackInfo.TrackNumber);
+            file.Tag.Disc = Convert.ToUInt32(trackInfo.DiscNumber);
+            file.Tag.Year = Convert.ToUInt32(trackInfo.Year);
+            file.Tag.Comment = trackInfo.Url;
+            file.Tag.Genres = new string[] { trackInfo.Genres };
+            file.Tag.Pictures = new TagLib.Picture[]
+            {
+                new TagLib.Picture(await albumPictureTask)
+            };
+            file.Save();
+        }
+
+        CConsole.Debug($"Worker #{workerId} ::: Finished writing metadata ::: {fullName}");
     }
     CConsole.Overwrite($"Worker #{workerId} ::: Finished all tasks", positionY, CConsoleType.Info);
 }));
