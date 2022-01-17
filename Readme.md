@@ -1,6 +1,9 @@
-<center><img src=".github/images/icon_pixelated.png"/></center>
-<center><h1>Spotisharp</h1></center>
-<center><h3>Intuitive, reliable, Made with love and passion</h3></center>
+<p align=center>
+    <img src=".github/images/icon_pixelated.png"/>
+</p>
+
+<h1 align=center>Spotisharp</h1>
+<h3 align=center>Intuitive, reliable, Made with love and passion</h3>
 
 <img src=".github/images/spotisharp.png"/>
 
