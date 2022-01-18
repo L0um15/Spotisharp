@@ -93,7 +93,6 @@ public static class SpotifyService
         FullPlaylist playlist = await client.Playlists.Get(input);
         if (playlist.Tracks != null)
         {
-            int i = 1;
             await foreach(var item in client.Paginate(playlist.Tracks))
             {
                 if (item.Track is FullTrack track)
@@ -116,7 +115,7 @@ public static class SpotifyService
                     bag.Add(trackInfo);
                     CConsole.Overwrite
                     (
-                        $"I: {i++} Q: {bag.Count} A: {playlist.Tracks.Total} | Added: {trackInfo}",
+                        $"Q: {bag.Count} A: {playlist.Tracks.Total} | Added: {trackInfo}",
                         topCursorPosition,
                         CConsoleType.Info
                     );
@@ -133,7 +132,6 @@ public static class SpotifyService
     {
         int topCursorPosition = Console.CursorTop;
         FullAlbum album = await client.Albums.Get(input);
-        int i = 1;
         await foreach (SimpleTrack track in client.Paginate(album.Tracks))
         {
             TrackInfoModel trackInfo = new TrackInfoModel()
@@ -153,7 +151,7 @@ public static class SpotifyService
             bag.Add(trackInfo);
             CConsole.Overwrite
             (
-                $"I: {i++} Q: {bag.Count} A: {album.Tracks.Total} | Added: {trackInfo}",
+                $"Q: {bag.Count} A: {album.Tracks.Total} | Added: {trackInfo}",
                 topCursorPosition,
                 CConsoleType.Info
             );
