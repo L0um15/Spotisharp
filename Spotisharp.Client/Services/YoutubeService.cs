@@ -1,6 +1,4 @@
-﻿using SpotifyAPI.Web.Http;
-using Spotisharp.Client.Resolvers;
-using System.Net;
+﻿using Spotisharp.Client.Resolvers;
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
 using VideoLibrary;

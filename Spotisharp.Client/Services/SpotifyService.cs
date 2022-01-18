@@ -2,7 +2,6 @@
 using Spotisharp.Client.Enums;
 using Spotisharp.Client.Models;
 using System.Collections.Concurrent;
-using System.Diagnostics;
 
 namespace Spotisharp.Client.Services;
 
@@ -22,22 +21,26 @@ public static class SpotifyService
 
         if(spotifyUriType == SpotifyUriType.None)
         {
-            SearchResponse searchResponse = await client.Search.Item
+            try
+            {
+                SearchResponse searchResponse = await client.Search.Item
                 (
                     new SearchRequest
-                        (
-                            SearchRequest.Types.Track,
-                            input
-                        )
+                    (
+                        SearchRequest.Types.Track,
+                        input
+                    )
                 );
 
-            if(searchResponse.Tracks.Items != null)
-            {
-                if(searchResponse.Tracks.Items.Count > 0)
+                if (searchResponse.Tracks.Items != null)
                 {
-                    track = searchResponse.Tracks.Items[0];
+                    if (searchResponse.Tracks.Items.Count > 0)
+                    {
+                        track = searchResponse.Tracks.Items[0];
+                    }
                 }
             }
+            catch (APIException) { };
         }
         else
         {

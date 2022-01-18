@@ -1,7 +1,6 @@
 ﻿using SpotifyAPI.Web;
 using SpotifyAPI.Web.Auth;
 using Spotisharp.Client.Models;
-using System.ComponentModel;
 using System.Text.Json;
 
 public static class SpotifyAuthentication
