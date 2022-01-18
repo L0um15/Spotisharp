@@ -1,6 +1,7 @@
 ﻿using SpotifyAPI.Web;
 using SpotifyAPI.Web.Auth;
 using Spotisharp.Client.Models;
+using System.ComponentModel;
 using System.Text.Json;
 
 public static class SpotifyAuthentication
@@ -52,13 +53,16 @@ public static class SpotifyAuthentication
         };
 
         BrowserUtil.Open(loginRequest.ToUri());
+        CConsole.Warn("Web browser should open by itself, if it didnt then please visit link below");
+        CConsole.Warn(loginRequest.ToUri());
+
 
         var getCallbackTask = GetCallbackFromServer(serverUri, clientId);
 
-        if (getCallbackTask.Wait(20000))
+        if (getCallbackTask.Wait(40000))
         {
-            CConsole.Debug("User has granted access for application. Requesting new access token");
             string authorizationCode = await getCallbackTask;
+            CConsole.Debug("User has granted access for application. Requesting new access token");
             var newResponse = await new OAuthClient().RequestToken
                 (
                     new PKCETokenRequest
@@ -87,6 +91,7 @@ public static class SpotifyAuthentication
         var embededAuthServer = new EmbedIOAuthServer(redirectUri, 5000);
         await embededAuthServer.Start();
         string authorizationCode = string.Empty;
+
         embededAuthServer.AuthorizationCodeReceived += async (sender, response) =>
         {
             await embededAuthServer.Stop();
@@ -97,7 +102,6 @@ public static class SpotifyAuthentication
         {
             await Task.Delay(1000);
         }
-
         return authorizationCode;
     }
 

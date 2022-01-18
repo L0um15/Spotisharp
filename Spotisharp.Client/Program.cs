@@ -254,8 +254,6 @@ await Task.WhenAll(Enumerable.Range(0, workersCount).Select(async workerId =>
     CConsole.Overwrite($"Worker #{workerId} ::: Finished all tasks", positionY, CConsoleType.Info);
 }));
 
-Console.SetCursorPosition(0, topCursorPosition + workersCount + 1);
-
 
 void DrawApplicationLogo()
 {
