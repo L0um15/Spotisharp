@@ -45,7 +45,7 @@ public static class FFmpegWrapper
         }
         Stream ffInput = ffmpegProcess.StandardInput.BaseStream;
         inputStream.Seek(0, SeekOrigin.Begin);
-        inputStream.CopyTo(ffInput);
+        await inputStream.CopyToAsync(ffInput);
         ffInput.Close();
         ffmpegProcess.WaitForExit();
         ffmpegProcess.Close();
