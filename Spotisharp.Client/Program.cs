@@ -4,14 +4,13 @@ using Spotisharp.Client.Models;
 using Spotisharp.Client.Resolvers;
 using Spotisharp.Client.Services;
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.Reflection;
 using VideoLibrary;
 
 DrawApplicationLogo();
 
-CConsole.Note("Spotisharp v" + Assembly.GetExecutingAssembly()?.GetName()?.Version?.ToString());
-CConsole.Note("\tCopyright \u00a92021 Damian Ziolo");
+CConsole.Note("Spotisharp v" + Assembly.GetExecutingAssembly().GetName().Version!.ToString());
+CConsole.Note($"\tCopyright \u00a92021-2022 Damian Ziolo");
 
 if (!ConfigManager.Init())
 {
@@ -21,7 +20,7 @@ if (!ConfigManager.Init())
 
 ConfigManager.Properties.EnsureDirsExist();
 
-if (!FFmpegResolver.IsFFmpegInstalled())
+if (!FFmpegWrapper.IsFFmpegInstalled())
 {
     CConsole.Error("FFmpeg is missing");
     return;
@@ -189,7 +188,7 @@ await Task.WhenAll(Enumerable.Range(0, workersCount).Select(async workerId =>
                 (
                     string.Format
                     (
-                        "Worker #{0} ::: {1}{2} {3}% Q:{4} ::: {5}",
+                        "Worker #{0} ::: {1}{2} D: {3}% Q:{4} ::: {5}",
                         workerId,
                         new string('█', (int)(percentage / 5)),
                         new string('▓', 20 - (int)(percentage / 5)),
@@ -207,21 +206,39 @@ await Task.WhenAll(Enumerable.Range(0, workersCount).Select(async workerId =>
 
         using (audioStream)
         {
-            using (Process ffProcess = new Process())
-            {
-                ffProcess.StartInfo.FileName = "ffmpeg";
-                ffProcess.StartInfo.Arguments = $"-i - -q:a 0 \"{convertedFilePath}\"";
-                ffProcess.StartInfo.UseShellExecute = false;
-                ffProcess.StartInfo.CreateNoWindow = true;
-                ffProcess.StartInfo.RedirectStandardError = false;
-                ffProcess.StartInfo.RedirectStandardInput = true;
-                ffProcess.Start();
-                Stream ffInputStream = ffProcess.StandardInput.BaseStream;
-                audioStream.Seek(0, SeekOrigin.Begin);
-                audioStream.CopyTo(ffInputStream);
-                ffInputStream.Close();
-                ffProcess.WaitForExit();
-            }
+            await FFmpegWrapper.ConvertStreamAsync(audioStream, convertedFilePath,
+                new Progress<Tuple<TimeSpan, TimeSpan>>
+                (
+                    pValues => 
+                    {
+                        int duration = (int)pValues.Item2.TotalSeconds;
+                        int position = (int)pValues.Item1.TotalSeconds;
+                        int percentage = 0;
+
+                        if(duration > 0)
+                        {
+                            percentage = (int)Math.Ceiling(100.0 * position / duration);
+
+                            CConsole.Overwrite
+                            (
+                                string.Format
+                                (
+                                    "Worker #{0} ::: {1}{2} C: {3}% Q:{4} ::: {5}",
+                                    workerId,
+                                    new string('█', (int)(percentage / 5)),
+                                    new string('▓', 20 - (int)(percentage / 5)),
+                                    percentage.ToString("D3"),
+                                    trackInfoBag.Count.ToString("D3"),
+                                    fullName
+                                ),
+                                positionY,
+                                CConsoleType.Info,
+                                false
+                            );
+                        }
+                    }
+                )
+            );
         }
 
         CConsole.Debug($"Worker #{workerId} ::: Writing Metadata ::: {fullName}");
