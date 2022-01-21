@@ -9,8 +9,10 @@ using VideoLibrary;
 
 DrawApplicationLogo();
 
-CConsole.Note("Spotisharp v" + Assembly.GetExecutingAssembly().GetName().Version!.ToString());
-CConsole.Note($"\tCopyright \u00a92021-2022 Damian Ziolo");
+CConsole.Info("Spotisharp v" + 
+    Assembly.GetExecutingAssembly().GetName().Version!.ToString());
+
+CConsole.Info($"(\u00a9) 2021-2022 Damian Ziolo");
 
 if (!ConfigManager.Init())
 {
@@ -99,12 +101,12 @@ if(workersCount < 1 || workersCount > 6)
 
 for (int i = 0; i < workersCount; i++)
 {
-    CConsole.Note("Waiting for task...");
+    CConsole.Info("Waiting for task...", false);
 }
 
 int topCursorPosition = Console.CursorTop - workersCount;
 
-CConsole.Note("Press CTRL-C to abort");
+CConsole.Info("Press CTRL-C to abort", false);
 
 await Task.WhenAll(Enumerable.Range(0, workersCount).Select(async workerId =>
 {
@@ -307,6 +309,6 @@ void DrawApplicationLogo()
                 ansiColoredChars[j] = "\u001b[38;2;155;11;7m" + c + "\u001b[0m";
             }
         }
-        CConsole.Note(string.Join("", ansiColoredChars));
+        CConsole.Info(string.Join("", ansiColoredChars), false);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Spotisharp.Client.Enums;
+using Swan;
 using System.Runtime.InteropServices;
 
 public static class CConsole
@@ -23,11 +24,13 @@ public static class CConsole
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
             // Std output handle
-            var iStdOut = GetStdHandle(-11);
+            int STD_OUTPUT_HANDLE = -11;
+            var iStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
 
             // Enable virtual terminal processing
+            uint ENABLE_ECHO_INPUT = 0x0004;
             var enable = GetConsoleMode(iStdOut, out var outConsoleMode)
-                         && SetConsoleMode(iStdOut, outConsoleMode | 0x0004);
+                         && SetConsoleMode(iStdOut, outConsoleMode | ENABLE_ECHO_INPUT);
         }
 
         // Enable file logging
@@ -46,20 +49,10 @@ public static class CConsole
     {
         string coloredSpacing = "\u001b[48;2;63;212;147m" + " " + "\u001b[0m";
         string coloredMessage = "\u001b[38;2;24;224;166m" + message + "\u001b[0m";
-
         Console.WriteLine(coloredSpacing + ' ' + coloredMessage);
         if (writeToFile)
         {
-            _writer.WriteLine
-            (
-                string.Format
-                (
-                    "[{0}][INFO]: {1}",
-                    DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"),
-                    message
-                )
-            );
-            _writer.Flush();
+            WriteToFile(message, CConsoleType.Info);
         }
     }
 
@@ -67,58 +60,21 @@ public static class CConsole
     {
         string coloredSpacing = "\u001b[48;2;227;164;26m" + " " + "\u001b[0m";
         string coloredMessage = "\u001b[38;2;227;164;26m" + message + "\u001b[0m";
-
         Console.WriteLine(coloredSpacing + ' ' + coloredMessage);
-        _writer.WriteLine
-        (
-            string.Format
-            (
-                "[{0}][INFO]: {1}",
-                DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"),
-                message
-            )
-        );
-        _writer.Flush();
+        WriteToFile(message, CConsoleType.Warn);
     }
 
     public static void Error(object message)
     {
         string coloredSpacing = "\u001b[48;2;230;0;103m" + " " + "\u001b[0m";
         string coloredMessage = "\u001b[38;2;230;0;103m" + message + "\u001b[0m";
-
         Console.WriteLine(coloredSpacing + ' ' + coloredMessage);
-        _writer.WriteLine
-        (
-            string.Format
-            (
-                "[{0}][INFO]: {1}",
-                DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"),
-                message
-            )
-        );
-        _writer.Flush();
+        WriteToFile(message, CConsoleType.Error);
     }
 
     public static void Debug(object message)
     {
-        _writer.WriteLine
-        (
-            string.Format
-            (
-                "[{0}][DEBUG]: {1}",
-                DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"),
-                message
-            )
-        );
-        _writer.Flush();
-    }
-
-    public static void Note(object message)
-    {
-        string coloredSpacing = "\u001b[48;2;255;171;238m" + " " + "\u001b[0m";
-        string coloredMessage = "\u001b[38;2;255;171;238m" + message + "\u001b[0m";
-
-        Console.WriteLine(coloredSpacing + ' ' + coloredMessage);
+        WriteToFile(message, CConsoleType.Debug);
     }
 
     public static string ReadInput()
@@ -164,9 +120,6 @@ public static class CConsole
                     case CConsoleType.Error:
                         CConsole.Error(msg + emptySpace);
                         break;
-                    case CConsoleType.Note:
-                        CConsole.Note(msg + emptySpace);
-                        break;
                     default:
                         break;
                 }
@@ -174,4 +127,18 @@ public static class CConsole
         }
     }
 
+    private static void WriteToFile(object message, CConsoleType cType)
+    {
+        _writer.WriteLine
+        (
+            string.Format
+            (
+                "[{0}][{1}]: {2}",
+                DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"),
+                cType.ToString(),
+                message
+            )
+        );
+        _writer.Flush();
+    }
 }

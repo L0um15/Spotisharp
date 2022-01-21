@@ -5,6 +5,5 @@ public enum CConsoleType
     Info,
     Warn,
     Error,
-    Debug,
-    Note
+    Debug
 }
