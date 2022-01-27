@@ -1,4 +1,5 @@
 ﻿using SpotifyAPI.Web;
+using Spotisharp.Client.ColoredConsole;
 using Spotisharp.Client.Enums;
 using Spotisharp.Client.Models;
 using Spotisharp.Client.Resolvers;
@@ -7,16 +8,14 @@ using System.Collections.Concurrent;
 using System.Reflection;
 using VideoLibrary;
 
-DrawApplicationLogo();
-
-CConsole.Info("Spotisharp v" + 
+CConsole.WriteLine("Spotisharp v" + 
     Assembly.GetExecutingAssembly().GetName().Version!.ToString());
 
-CConsole.Info($"(\u00a9) 2021-2022 Damian Ziolo");
+CConsole.WriteLine($"(\u00a9) 2021-2022 Damian Ziolo");
 
 if (!ConfigManager.Init())
 {
-    CConsole.Error("Couldn't load or create configuration file");
+    CConsole.WriteLine("Couldn't load or create configuration file", CConsoleType.Error);
     return;
 }
 
@@ -24,7 +23,7 @@ ConfigManager.Properties.EnsureDirsExist();
 
 if (!FFmpegWrapper.IsFFmpegInstalled())
 {
-    CConsole.Error("FFmpeg is missing");
+    CConsole.WriteLine("FFmpeg is missing", CConsoleType.Error);
     return;
 }
 
@@ -32,8 +31,8 @@ string input = string.Empty;
 
 if (args.Length == 0)
 {
-    CConsole.Warn("No arguments provided. Awaiting for input");
-    input = CConsole.ReadInput();
+    CConsole.WriteLine("No arguments provided. Awaiting for input", CConsoleType.Warn);
+    input = CConsole.ReadLine();
 }
 else
 {
@@ -42,22 +41,22 @@ else
 
 if(input == string.Empty)
 {
-    CConsole.Error("Input has to contain something");
+    CConsole.WriteLine("Input has to contain something", CConsoleType.Error);
     return;
 }
 
-CConsole.Debug("Input: " + input);
+CConsole.WriteLine("Input: " + input, CConsoleType.Debug);
 
-CConsole.Info("Logging to Spotify");
+CConsole.WriteLine("Logging to Spotify");
 SpotifyClient? client = await SpotifyAuthentication.CreateSpotifyClient();
 
 if (client == null) 
 {
-    CConsole.Error("Couldn't sign in to Spotify. Exiting");
+    CConsole.WriteLine("Couldn't sign in to Spotify. Exiting", CConsoleType.Error);
     return;
 };
 
-CConsole.Info("Logged in successfully");
+CConsole.WriteLine("Logged in successfully");
 
 SpotifyUriType uriType = SpotifyUriResolver.GetUriType(input);
 SpotifyBrowseCategory category = SpotifyUriResolver.GetBrowseCategory(input);
@@ -73,20 +72,20 @@ switch (category)
 {
     case SpotifyBrowseCategory.None:
     case SpotifyBrowseCategory.Track:
-        CConsole.Info("User request type: SingleTrack");
-        CConsole.Info("Queueing track...");
+        CConsole.WriteLine("User request type: SingleTrack");
+        CConsole.WriteLine("Queueing track...");
         await SpotifyService.PackSingleTrack(client, input, trackInfoBag, uriType);
         break;
 
     case SpotifyBrowseCategory.Playlist:
-        CConsole.Info("User request type: Playlist");
-        CConsole.Info("Queueing tracks... (It might take some time)");
+        CConsole.WriteLine("User request type: Playlist");
+        CConsole.WriteLine("Queueing tracks... (It might take some time)");
         await SpotifyService.PackPlaylistTracks(client, input, trackInfoBag);
         break;
 
     case SpotifyBrowseCategory.Album:
-        CConsole.Info("User request type: Album");
-        CConsole.Info("Queueing tracks... (It might take some time)");
+        CConsole.WriteLine("User request type: Album");
+        CConsole.WriteLine("Queueing tracks... (It might take some time)");
         await SpotifyService.PackAlbumTracks(client, input, trackInfoBag);
         break;
 }
@@ -95,18 +94,18 @@ int workersCount = ConfigManager.Properties.WorkersCount;
 
 if(workersCount < 1 || workersCount > 6)
 {
-    CConsole.Warn("WorkersCount has to be set in range of 1-6. Changing to 4");
+    CConsole.WriteLine("WorkersCount has to be set in range of 1-6. Changing to 4", CConsoleType.Warn);
     workersCount = 4;
 }
 
 for (int i = 0; i < workersCount; i++)
 {
-    CConsole.Info("Waiting for task...", false);
+    CConsole.WriteLine("Waiting for task...", writeToFile: false);
 }
 
 int topCursorPosition = Console.CursorTop - workersCount;
 
-CConsole.Info("Press CTRL-C to abort", false);
+CConsole.WriteLine("Press CTRL-C to abort", writeToFile: false);
 
 await Task.WhenAll(Enumerable.Range(0, workersCount).Select(async workerId =>
 {
@@ -130,16 +129,16 @@ await Task.WhenAll(Enumerable.Range(0, workersCount).Select(async workerId =>
 
         if (File.Exists(convertedFilePath))
         {
-            CConsole.Overwrite($"Worker #{workerId} ::: Skipping: {fullName}", positionY,CConsoleType.Info);
+            CConsole.Overwrite($"W #{workerId} ::: Skipping: {fullName}", positionY);
             await Task.Delay(250);
             continue;
         }
 
-        CConsole.Debug($"Worker #{workerId} ::: Searching lyrics ::: {fullName}");
-        Task<string> lyricsTask = 
-            MusixmatchService.SearchLyricsFromText(fullName);
+        //ColoredConsole.WriteLine($"W #{workerId} ::: Getting Lyrics ::: {fullName}", CConsoleType.Debug);
+        //Task<string> lyricsTask = 
+            //MusixmatchService.SearchLyricsFromText(fullName);
 
-        CConsole.Debug($"Worker #{workerId} ::: Searching Youtube ::: {fullName}");
+        CConsole.WriteLine($"W #{workerId} ::: Getting youtube links ::: {fullName}", CConsoleType.Debug);
         string[] results = await YoutubeService.SearchByText(fullName, 3);
 
         YouTubeVideo? audioTrack = null;
@@ -163,7 +162,7 @@ await Task.WhenAll(Enumerable.Range(0, workersCount).Select(async workerId =>
         {
             CConsole.Overwrite
             (
-                $"Worker #{workerId} ::: Failed to retrieve audiostream for: {fullName}",
+                $"W #{workerId} ::: Could't retrieve audiostream: {fullName}",
                 positionY,
                 CConsoleType.Warn
             );
@@ -171,7 +170,7 @@ await Task.WhenAll(Enumerable.Range(0, workersCount).Select(async workerId =>
             continue;
         }
 
-        CConsole.Debug($"Worker #{workerId} ::: Downloading ::: {fullName}");
+        CConsole.WriteLine($"W #{workerId} ::: Downloading ::: {fullName}", CConsoleType.Debug);
 
         Task<byte[]> albumPictureTask = Task.Run(async () =>
         {
@@ -190,7 +189,7 @@ await Task.WhenAll(Enumerable.Range(0, workersCount).Select(async workerId =>
                 (
                     string.Format
                     (
-                        "Worker #{0} ::: {1}{2} D: {3}% Q:{4} ::: {5}",
+                        "W #{0} ::: {1}{2} D: {3}% Q:{4} ::: {5}",
                         workerId,
                         new string('█', (int)(percentage / 5)),
                         new string('▓', 20 - (int)(percentage / 5)),
@@ -199,12 +198,11 @@ await Task.WhenAll(Enumerable.Range(0, workersCount).Select(async workerId =>
                         fullName
                     ),
                     positionY,
-                    CConsoleType.Info,
-                    false
+                    writeToFile: false
                 );
             }));
         
-        CConsole.Debug($"Worker #{workerId} ::: Converting ::: {fullName}");
+        CConsole.WriteLine($"W #{workerId} ::: Converting ::: {fullName}", CConsoleType.Debug);
 
         using (audioStream)
         {
@@ -225,7 +223,7 @@ await Task.WhenAll(Enumerable.Range(0, workersCount).Select(async workerId =>
                             (
                                 string.Format
                                 (
-                                    "Worker #{0} ::: {1}{2} C: {3}% Q:{4} ::: {5}",
+                                    "W #{0} ::: {1}{2} C: {3}% Q:{4} ::: {5}",
                                     workerId,
                                     new string('█', (int)(percentage / 5)),
                                     new string('▓', 20 - (int)(percentage / 5)),
@@ -234,8 +232,7 @@ await Task.WhenAll(Enumerable.Range(0, workersCount).Select(async workerId =>
                                     fullName
                                 ),
                                 positionY,
-                                CConsoleType.Info,
-                                false
+                                writeToFile: false
                             );
                         }
                     }
@@ -243,7 +240,7 @@ await Task.WhenAll(Enumerable.Range(0, workersCount).Select(async workerId =>
             );
         }
 
-        CConsole.Debug($"Worker #{workerId} ::: Writing Metadata ::: {fullName}");
+        CConsole.WriteLine($"W #{workerId} ::: Adding metadata ::: {fullName}", CConsoleType.Debug);
 
         using (TagLib.File file = TagLib.File.Create(convertedFilePath))
         {
@@ -253,7 +250,7 @@ await Task.WhenAll(Enumerable.Range(0, workersCount).Select(async workerId =>
             file.Tag.AlbumArtists = new string[] { trackInfo.Artist };
             file.Tag.Composers = new string[] { trackInfo.Artist };
             file.Tag.Copyright = trackInfo.Copyright;
-            file.Tag.Lyrics = await lyricsTask;
+            //file.Tag.Lyrics = await lyricsTask;
             file.Tag.Title = trackInfo.Title;
             file.Tag.Album = trackInfo.Album;
             file.Tag.Track = Convert.ToUInt32(trackInfo.TrackNumber);
@@ -268,47 +265,7 @@ await Task.WhenAll(Enumerable.Range(0, workersCount).Select(async workerId =>
             file.Save();
         }
 
-        CConsole.Debug($"Worker #{workerId} ::: Finished writing metadata ::: {fullName}");
+        CConsole.WriteLine($"W #{workerId} ::: Finished current task ::: {fullName}", CConsoleType.Debug);
     }
-    CConsole.Overwrite($"Worker #{workerId} ::: Finished all tasks", positionY, CConsoleType.Info);
+    CConsole.Overwrite($"W #{workerId} ::: Finished all tasks", positionY);
 }));
-
-
-void DrawApplicationLogo()
-{
-    string[] logo =
-    {
-        "        ▓        ▓",
-        "        ▓        ▓      ▄▄",
-        "  ▄▄▄███▓████████▓▄▄▓▓▀▀▀",
-        " ████████████████▓█████▄▄",
-        "     ▄▄▄▓▀▀▀     ▓ ▀▀█████",
-        "▄████████████████▓▄▄",
-        "  ▀█▀▀▀▀▓▀▀▀▀▀▀▀██████▄",
-        "      ▄▄▓▄▄▄▄▄   ▓  ▀▀█▀",
-        "   █████▓█▀██████▓█▄",
-        "        ▓        ▓▀██",
-        "        ▓        ▓",
-        "        ▓        ▓",
-        "        ▀        ▀"
-    };
-
-    for (int i = 0; i < logo.Length; i++)
-    {
-        int rowCharsCount = logo[i].Length;
-        string[] ansiColoredChars = new string[rowCharsCount];
-        for (int j = 0; j < rowCharsCount; j++)
-        {
-            char c = logo[i][j];
-            if (c == '▓' || c == '▀' || c == '▄')
-            {
-                ansiColoredChars[j] = "\u001b[38;2;99;96;97m" + c + "\u001b[0m";
-            }
-            else
-            {
-                ansiColoredChars[j] = "\u001b[38;2;155;11;7m" + c + "\u001b[0m";
-            }
-        }
-        CConsole.Info(string.Join("", ansiColoredChars), false);
-    }
-}

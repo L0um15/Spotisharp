@@ -12,7 +12,6 @@ public static class FileSystemResolver
             ';', '@', '?',
             '$', '%', '#'
         };
-
         return string.Create(input.Length, input, (chars, buffer) =>
         {
             for(int i = 0; i < buffer.Length; i++)

@@ -6,7 +6,7 @@ public static class FFmpegWrapper
 {
 
     private static Regex _timeRegex = new Regex(@"\w\w:\w\w:\w\w");
-    private static string _args = "-i \"pipe:\" -q:a 0";
+    private static string _args = "-threads 1 -i \"pipe:\" -q:a 0";
 
     public static async Task ConvertStreamAsync
     (

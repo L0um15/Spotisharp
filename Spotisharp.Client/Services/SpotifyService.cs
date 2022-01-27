@@ -1,4 +1,5 @@
 ﻿using SpotifyAPI.Web;
+using Spotisharp.Client.ColoredConsole;
 using Spotisharp.Client.Enums;
 using Spotisharp.Client.Models;
 using System.Collections.Concurrent;
@@ -68,8 +69,7 @@ public static class SpotifyService
             CConsole.Overwrite
             (
                 $"Q: {bag.Count} | Added: {trackInfo}",
-                topCursorPosition,
-                CConsoleType.Info
+                topCursorPosition
             );
         }
         else
@@ -116,8 +116,7 @@ public static class SpotifyService
                     CConsole.Overwrite
                     (
                         $"Q: {bag.Count} A: {playlist.Tracks.Total} | Added: {trackInfo}",
-                        topCursorPosition,
-                        CConsoleType.Info
+                        topCursorPosition
                     );
                 }
             }
@@ -152,8 +151,7 @@ public static class SpotifyService
             CConsole.Overwrite
             (
                 $"Q: {bag.Count} A: {album.Tracks.Total} | Added: {trackInfo}",
-                topCursorPosition,
-                CConsoleType.Info
+                topCursorPosition
             );
         }
     }
