@@ -92,9 +92,9 @@ switch (category)
 
 int workersCount = ConfigManager.Properties.WorkersCount;
 
-if(workersCount < 1 || workersCount > 6)
+if(workersCount < 1 || workersCount > 4)
 {
-    CConsole.WriteLine("WorkersCount has to be set in range of 1-6. Changing to 4", CConsoleType.Warn);
+    CConsole.WriteLine("WorkersCount has to be set in range of 1-4. Changing to 4", CConsoleType.Warn);
     workersCount = 4;
 }
 
@@ -134,7 +134,7 @@ await Task.WhenAll(Enumerable.Range(0, workersCount).Select(async workerId =>
             continue;
         }
 
-        //ColoredConsole.WriteLine($"W #{workerId} ::: Getting Lyrics ::: {fullName}", CConsoleType.Debug);
+        //CConsole.WriteLine($"W #{workerId} ::: Getting Lyrics ::: {fullName}", CConsoleType.Debug);
         //Task<string> lyricsTask = 
             //MusixmatchService.SearchLyricsFromText(fullName);
 

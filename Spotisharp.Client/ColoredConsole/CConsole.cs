@@ -126,7 +126,7 @@ public static class CConsole
     {
         string prefix = 
             CConsoleColors.GrayBg + ' ' + CConsoleColors.Reset + ' ' +
-            CConsoleColors.OrangeFg;
+            CConsoleColors.RedFg;
         Console.Write(prefix);
         string? input = Console.ReadLine();
         Console.Write(CConsoleColors.Reset);

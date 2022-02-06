@@ -4,7 +4,7 @@ namespace Spotisharp.Client.Models;
 
 public class ConfigModel
 {
-    public int WorkersCount { get; set; } = 4;
+    public int WorkersCount { get; set; } = 2;
 
     public string VersionControl { get; set; } = 
         Assembly.GetExecutingAssembly().GetName().Version!.ToString();
