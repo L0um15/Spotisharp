@@ -19,6 +19,17 @@ if (!ConfigManager.Init())
     return;
 }
 
+CConsole.WriteLine("Checking for updates");
+
+if (await UpdateResolver.CheckForUpdates())
+{
+    CConsole.WriteLine("New update available", CConsoleType.Warn);
+}
+else
+{
+    CConsole.WriteLine("No updates available");
+}
+
 ConfigManager.Properties.EnsureDirsExist();
 
 if (!FFmpegWrapper.IsFFmpegInstalled())
