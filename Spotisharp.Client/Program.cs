@@ -147,9 +147,9 @@ await Task.WhenAll(Enumerable.Range(0, workersCount).Select(async workerId =>
             continue;
         }
 
-        //CConsole.WriteLine($"W #{workerId} ::: Getting Lyrics ::: {fullName}", CConsoleType.Debug);
-        //Task<string> lyricsTask = 
-            //MusixmatchService.SearchLyricsFromText(fullName);
+        CConsole.WriteLine($"W #{workerId} ::: Getting Lyrics ::: {fullName}", CConsoleType.Debug);
+        Task<string> lyricsTask = 
+            MusixmatchService.SearchLyricsFromText(fullName);
 
         CConsole.WriteLine($"W #{workerId} ::: Getting youtube links ::: {fullName}", CConsoleType.Debug);
         string[] results = await YoutubeService.SearchByText(fullName, 3);

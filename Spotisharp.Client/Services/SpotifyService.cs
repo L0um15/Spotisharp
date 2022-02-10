@@ -17,7 +17,6 @@ public static class SpotifyService
     )
     {
         int topCursorPosition = Console.CursorTop;
-
         FullTrack? track = null;
 
         if(spotifyUriType == SpotifyUriType.None)
@@ -68,7 +67,7 @@ public static class SpotifyService
             bag.Add(trackInfo);
             CConsole.Overwrite
             (
-                $"Q: {bag.Count} | Added: {trackInfo}",
+                $"Q: {bag.Count} | {trackInfo}",
                 topCursorPosition
             );
         }
@@ -115,7 +114,7 @@ public static class SpotifyService
                     bag.Add(trackInfo);
                     CConsole.Overwrite
                     (
-                        $"Q: {bag.Count} A: {playlist.Tracks.Total} | Added: {trackInfo}",
+                        $"Q: {bag.Count} A: {playlist.Tracks.Total} | {trackInfo}",
                         topCursorPosition
                     );
                 }
@@ -150,7 +149,7 @@ public static class SpotifyService
             bag.Add(trackInfo);
             CConsole.Overwrite
             (
-                $"Q: {bag.Count} A: {album.Tracks.Total} | Added: {trackInfo}",
+                $"Q: {bag.Count} A: {album.Tracks.Total} | {trackInfo}",
                 topCursorPosition
             );
         }
