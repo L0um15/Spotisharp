@@ -25,7 +25,13 @@ if (await UpdateService.CheckForUpdates())
 {
     string changelog = UpdateService.GetChangelog();
     CConsole.WriteLine("New update available", CConsoleType.Warn);
-    CConsole.WriteLine(changelog, CConsoleType.Warn);
+    CConsole.WriteLine
+    (
+        changelog, 
+        CConsoleType.Warn, 
+        writeToFile: false, 
+        trimMessage: false
+    );
 }
 else
 {

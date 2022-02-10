@@ -70,10 +70,12 @@ public static class CConsole
     (
         string message,
         CConsoleType cType = CConsoleType.Info,
-        bool writeToFile = true
+        bool writeToFile = true,
+        bool trimMessage = true
     )
     {
-        ReadOnlySpan<char> slicedMessage = SliceExcessChars(message.AsSpan(), cType);
+        ReadOnlySpan<char> slicedMessage 
+            = trimMessage ? SliceExcessChars(message.AsSpan(), cType) : message.AsSpan();
         string fgColor = CConsoleColors.GetForeground(cType);
         string bgColor = CConsoleColors.GetBackground(cType);
         if (cType != CConsoleType.Debug)
