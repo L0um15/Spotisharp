@@ -34,7 +34,7 @@ else
 
 ConfigManager.Properties.EnsureDirsExist();
 
-if (!FFmpegWrapper.IsFFmpegInstalled())
+if (!FFmpegService.IsFFmpegInstalled())
 {
     CConsole.WriteLine("FFmpeg is missing", CConsoleType.Error);
     return;
@@ -219,7 +219,7 @@ await Task.WhenAll(Enumerable.Range(0, workersCount).Select(async workerId =>
 
         using (audioStream)
         {
-            await FFmpegWrapper.ConvertStreamAsync(audioStream, convertedFilePath,
+            await FFmpegService.ConvertStreamAsync(audioStream, convertedFilePath,
                 new Progress<Tuple<TimeSpan, TimeSpan>>
                 (
                     pValues => 

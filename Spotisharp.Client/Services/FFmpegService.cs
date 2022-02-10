@@ -2,7 +2,9 @@
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 
-public static class FFmpegWrapper
+namespace Spotisharp.Client.Services;
+
+public static class FFmpegService
 {
 
     private static Regex _timeRegex = new Regex(@"\w\w:\w\w:\w\w");
