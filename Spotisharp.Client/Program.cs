@@ -21,9 +21,11 @@ if (!ConfigManager.Init())
 
 CConsole.WriteLine("Checking for updates");
 
-if (await UpdateResolver.CheckForUpdates())
+if (await UpdateService.CheckForUpdates())
 {
+    string changelog = UpdateService.GetChangelog();
     CConsole.WriteLine("New update available", CConsoleType.Warn);
+    CConsole.WriteLine(changelog, CConsoleType.Warn);
 }
 else
 {
