@@ -17,6 +17,32 @@
     <img src=".github/images/screenshot2.png">
 </p>
 
+### Prerequisites
+ - Dotnet runtime 6.0 or newer
+ - FFmpeg
+
+### Authentication
+
+Unlike previous versions of Spotisharp, version 3.0 uses now your personal account in order to retrieve information from spotify, thus you're not required to create application in dashboard anymore.
+
+Spotisharp will open a webpage with authentication request. When granted access, spotisharp will cache retrieved `refresh token` inside `config` folder in order to skip this step on next use.
+
+If `refresh token` has been corrupted/expired, spotisharp will ask you again for access to your account.
+
+### Configuration
+
+Version 3.0 stores configuration files inside `.config/spotisharp` located in `home` directory.
+
+Like previous versions, configuration file will be updated with each new update by adding or removing entries when needed.
+
+Editing values inside "VersionControl" triggers configuration update.
+```json
+{
+  "WorkersCount": 2, // How many workers should be hired. Default: 2 of 4
+  "VersionControl": "3.0.0.0", // Spotisharp updates config if values mismatch with app version
+  "MusicDirectory": "C:\\Users\\Damian\\Music\\Spotisharp" // Default download dir
+}
+```
 
 ### Usage:
 
