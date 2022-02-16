@@ -1,3 +1,5 @@
 .vs/
 bin/
 obj/
+Properties/
+Spotisharp.Client.csproj.user
