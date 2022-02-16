@@ -19,24 +19,27 @@ if (!ConfigManager.Init())
     return;
 }
 
-CConsole.WriteLine("Checking for updates");
+if (ConfigManager.Properties.CheckUpdates)
+{
+    CConsole.WriteLine("Checking for updates");
+    if (await UpdateService.CheckForUpdates())
+    {
+        string changelog = UpdateService.GetChangelog();
+        CConsole.WriteLine("New update available", CConsoleType.Warn);
+        CConsole.WriteLine
+        (
+            changelog,
+            CConsoleType.Warn,
+            writeToFile: false,
+            trimMessage: false
+        );
+    }
+    else
+    {
+        CConsole.WriteLine("No updates available");
+    }
+}
 
-if (await UpdateService.CheckForUpdates())
-{
-    string changelog = UpdateService.GetChangelog();
-    CConsole.WriteLine("New update available", CConsoleType.Warn);
-    CConsole.WriteLine
-    (
-        changelog, 
-        CConsoleType.Warn, 
-        writeToFile: false, 
-        trimMessage: false
-    );
-}
-else
-{
-    CConsole.WriteLine("No updates available");
-}
 
 ConfigManager.Properties.EnsureDirsExist();
 
@@ -122,9 +125,9 @@ for (int i = 0; i < workersCount; i++)
     CConsole.WriteLine("Waiting for task...", writeToFile: false);
 }
 
-int topCursorPosition = Console.CursorTop - workersCount;
-
 CConsole.WriteLine("Press CTRL-C to abort", writeToFile: false);
+
+int topCursorPosition = Console.CursorTop - workersCount - 1;
 
 await Task.WhenAll(Enumerable.Range(0, workersCount).Select(async workerId =>
 {
