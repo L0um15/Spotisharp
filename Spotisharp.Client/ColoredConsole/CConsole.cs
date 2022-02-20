@@ -1,5 +1,6 @@
 ﻿using Spotisharp.Client.Enums;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace Spotisharp.Client.ColoredConsole;
 
@@ -22,6 +23,9 @@ public static class CConsole
     static CConsole()
     {
         RenderApplicationLogo();
+
+        Console.InputEncoding = Encoding.Unicode;
+        Console.OutputEncoding = Encoding.Unicode;
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
