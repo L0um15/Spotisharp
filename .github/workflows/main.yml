@@ -1,0 +1,52 @@
+name: .NET
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup MSBuild
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 6.0.x
+      
+      - name: Restore packages
+        run: dotnet restore
+      
+      - name: Publish 
+        run: dotnet publish -c Release --runtime win-x64 --no-self-contained --no-restore
+      
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Spotisharp_v3_win-x64
+          path: Spotisharp.Client/bin/Release/net6.0/win-x64/publish/
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup MSBuild
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 6.0.x
+      
+      - name: Restore packages
+        run: dotnet restore
+     
+      - name: Publish 
+        run: dotnet publish -c Release --runtime linux-x64 --no-self-contained --no-restore
+      
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Spotisharp_v3_linux-x64
+          path: Spotisharp.Client/bin/Release/net6.0/linux-x64/publish/
+    
