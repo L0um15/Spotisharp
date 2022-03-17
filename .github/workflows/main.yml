@@ -17,11 +17,8 @@ jobs:
         with:
           dotnet-version: 6.0.x
       
-      - name: Restore packages
-        run: dotnet restore
-      
       - name: Publish 
-        run: dotnet publish -c Release --runtime win-x64 --no-self-contained --no-restore
+        run: dotnet publish -c Release --runtime win-x64 --no-self-contained
       
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
@@ -37,12 +34,9 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: 6.0.x
-      
-      - name: Restore packages
-        run: dotnet restore
      
       - name: Publish 
-        run: dotnet publish -c Release --runtime linux-x64 --no-self-contained --no-restore
+        run: dotnet publish -c Release --runtime linux-x64 --no-self-contained
       
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
