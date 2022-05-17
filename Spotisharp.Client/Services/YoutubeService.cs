@@ -15,7 +15,7 @@ public static class YoutubeService
         string[] urls = new string[limit];
 
         string safeSearchQuery = "https://www.youtube.com/results?search_query=" + 
-            FileSystemResolver.ReplaceForbiddenChars(input);
+            FilenameResolver.RemoveUrlSpecialChars(input);
 
         string response = await _httpClient.GetStringAsync(safeSearchQuery);
 
