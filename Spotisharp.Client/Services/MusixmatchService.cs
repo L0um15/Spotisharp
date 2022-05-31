@@ -5,11 +5,10 @@ namespace Spotisharp.Client.Services;
 public static class MusixmatchService
 {
     private static readonly string _siteUrl = "https://www.musixmatch.com";
-    private static readonly string _searchUrl = "https://www.musixmatch.com/search/{0}/tracks";
 
     public static async Task<string> SearchLyricsFromText(string query)
     {
-        string searchQuery = String.Format(_searchUrl, query);
+        string searchQuery = _siteUrl + "/search/" + query;
         using (HttpClient client = new HttpClient())
         {
             string response = await client.GetStringAsync(searchQuery);
