@@ -9,7 +9,7 @@ using System.Reflection;
 using VideoLibrary;
 
 CConsole.WriteLine("Spotisharp v" + 
-    Assembly.GetExecutingAssembly().GetName().Version!.ToString());
+                   Assembly.GetExecutingAssembly().GetName().Version!.ToString());
 
 CConsole.WriteLine($"(\u00a9) 2021-2022 Damian Ziolo");
 
@@ -112,6 +112,14 @@ switch (category)
         break;
 }
 
+string? saveFolder = null;
+
+if (args.Length == 2)
+{
+    saveFolder = args[1];
+    CConsole.WriteLine($"Download Folder: {saveFolder}", CConsoleType.Warn);
+}
+
 int workersCount = ConfigManager.Properties.WorkersCount;
 
 if(workersCount < 1 || workersCount > 4)
@@ -143,7 +151,7 @@ await Task.WhenAll(Enumerable.Range(0, workersCount).Select(async workerId =>
                     Path.Combine
                     (
                         ConfigManager.Properties.MusicDirectory,
-                        FilenameResolver.RemoveForbiddenChars(trackInfo.Playlist)
+                        saveFolder ?? FilenameResolver.RemoveForbiddenChars(trackInfo.Playlist)
                     )
                 );
 
