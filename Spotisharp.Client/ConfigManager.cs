@@ -1,4 +1,4 @@
-﻿using Spotisharp.Client.Models;
+using Spotisharp.Client.Models;
 using System.Reflection;
 using System.Text.Json;
 
@@ -19,10 +19,33 @@ public static class ConfigManager
 
     private static readonly string _configFile = Path.Join(_configFolder, "config.json");
     
+    private static readonly string _localConfigFile = Path.Join(
+        Directory.GetCurrentDirectory(),
+        "config.json"
+    );
+
     public static bool Init()
     {
         Directory.CreateDirectory(_configFolder);
-        if (File.Exists(_configFile))
+
+
+        if(File.Exists(_localConfigFile)) {
+            
+            string configFileContent = File.ReadAllText(_localConfigFile);
+            var userProperties = JsonSerializer.Deserialize<ConfigModel>(configFileContent);
+            if(userProperties != null)
+            {
+                if (userProperties.VersionControl != _appVersion)
+                {
+                    userProperties.VersionControl = _appVersion;
+                    WriteChanges();
+                }
+                _properties = userProperties;
+                return true;
+            }
+            return false;
+        }
+        else if (File.Exists(_configFile))
         {
             string configFileContent = File.ReadAllText(_configFile);
             var userProperties = JsonSerializer.Deserialize<ConfigModel>(configFileContent);
