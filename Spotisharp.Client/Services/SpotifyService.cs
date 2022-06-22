@@ -95,7 +95,7 @@ public static class SpotifyService
         {
             await foreach(var item in client.Paginate(playlist.Tracks))
             {
-                if (item.Track is FullTrack track && !string.IsNullOrEmpty(track.Album.Id))
+                if (item.Track is FullTrack track && !string.IsNullOrEmpty(track.Album?.Id))
                 {
                     FullAlbum album = await client.Albums.TryGet(track.Album.Id);
                     FullArtist artist = await client.Artists.TryGet(album.Artists[0].Id);
