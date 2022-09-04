@@ -22,8 +22,6 @@ public static class CConsole
 
     static CConsole()
     {
-        RenderApplicationLogo();
-
         Console.InputEncoding = Encoding.Unicode;
         Console.OutputEncoding = Encoding.Unicode;
 
@@ -68,6 +66,9 @@ public static class CConsole
             );
             WriteLine(exceptionMessage, CConsoleType.Error);
         };
+        
+        // Draw logo after starting virtual terminal processing. 
+        RenderApplicationLogo();
     }
 
     public static void WriteLine

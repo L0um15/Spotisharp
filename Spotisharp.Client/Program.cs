@@ -11,7 +11,7 @@ using VideoLibrary;
 CConsole.WriteLine("Spotisharp v" + 
                    Assembly.GetExecutingAssembly().GetName().Version!.ToString());
 
-CConsole.WriteLine($"(\u00a9) 2021-2022 Damian Ziolo");
+CConsole.WriteLine($"(\u00a9) 2020-2022 Damian Ziolo");
 
 if (!ConfigManager.Init())
 {
