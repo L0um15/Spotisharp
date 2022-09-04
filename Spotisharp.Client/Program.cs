@@ -263,6 +263,11 @@ await Task.WhenAll(Enumerable.Range(0, workersCount).Select(async workerId =>
         }
 
         CConsole.WriteLine($"W #{workerId} ::: Adding metadata ::: {fullName}", CConsoleType.Debug);
+        if (!File.Exists(convertedFilePath))
+        {
+            CConsole.WriteLine($"W #{workerId} ::: Not Exist In Folder ::: {fullName}", CConsoleType.Debug);
+            continue;
+        }
 
         using (TagLib.File file = TagLib.File.Create(convertedFilePath))
         {
