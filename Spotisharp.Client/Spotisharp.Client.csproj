@@ -7,8 +7,8 @@
     <Nullable>enable</Nullable>
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <AssemblyName>Spotisharp</AssemblyName>
-    <AssemblyVersion>3.0.3.0</AssemblyVersion>
-    <FileVersion>3.0.3.0</FileVersion>
+    <AssemblyVersion>3.0.4.0</AssemblyVersion>
+    <FileVersion>3.0.4.0</FileVersion>
     <RepositoryUrl>https://github.com/L0um15/SpotiSharp/</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
@@ -18,11 +18,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.42" />
-    <PackageReference Include="SpotifyAPI.Web" Version="6.2.2" />
-    <PackageReference Include="SpotifyAPI.Web.Auth" Version="6.2.2" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.45" />
+    <PackageReference Include="SpotifyAPI.Web" Version="6.3.0" />
+    <PackageReference Include="SpotifyAPI.Web.Auth" Version="6.3.0" />
     <PackageReference Include="taglib-sharp-netstandard2.0" Version="2.1.0" />
-    <PackageReference Include="VideoLibrary" Version="3.1.9" />
+    <PackageReference Include="VideoLibrary" Version="3.2.0" />
   </ItemGroup>
 
 </Project>
