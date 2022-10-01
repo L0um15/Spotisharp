@@ -5,6 +5,11 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spotisharp.Client", "Spotisharp.Client\Spotisharp.Client.csproj", "{D20E1A4B-1D21-400D-8ACD-3CEF67061CCB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spotisharp.Tests", "Spotisharp.Tests\Spotisharp.Tests.csproj", "{78B6D474-04FD-406B-BD69-4438FA2C7BF2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D20E1A4B-1D21-400D-8ACD-3CEF67061CCB} = {D20E1A4B-1D21-400D-8ACD-3CEF67061CCB}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +20,10 @@ Global
 		{D20E1A4B-1D21-400D-8ACD-3CEF67061CCB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D20E1A4B-1D21-400D-8ACD-3CEF67061CCB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D20E1A4B-1D21-400D-8ACD-3CEF67061CCB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78B6D474-04FD-406B-BD69-4438FA2C7BF2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78B6D474-04FD-406B-BD69-4438FA2C7BF2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78B6D474-04FD-406B-BD69-4438FA2C7BF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78B6D474-04FD-406B-BD69-4438FA2C7BF2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
