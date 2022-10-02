@@ -7,7 +7,9 @@ public static class FilenameResolver
 {
 
     private static char[] _forbiddenFilenameChars = { '<', '>', ':', '\"', '/', '\\', '|', '?', '*' };
-    private static char[] _forbiddenUrlChars = { '&', '+', ',', ';', '@', '?', '$', '%', '#', '!', '=', ':' };
+
+    private static char[] _forbiddenFilenameUrlChars = { '&', '+', ',', ';', '@', '$', '%', '#', '!', '=', 
+                                                         '<', '>', ':', '\"', '/', '\\', '|', '?', '*' };
 
 
     public static string RemoveForbiddenChars(string input, StringType sType)
@@ -20,7 +22,7 @@ public static class FilenameResolver
         }
         else if(sType == StringType.Url)
         {
-            charSpan = _forbiddenUrlChars.AsSpan();
+            charSpan = _forbiddenFilenameUrlChars.AsSpan();
         }
         else
         {
