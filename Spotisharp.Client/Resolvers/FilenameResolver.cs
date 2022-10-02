@@ -1,58 +1,57 @@
-﻿namespace Spotisharp.Client.Resolvers;
+﻿using Spotisharp.Client.Enums;
+using System.Text;
+
+namespace Spotisharp.Client.Resolvers;
 
 public static class FilenameResolver
 {
-    public static string RemoveForbiddenChars(string input)
+
+    private static char[] _forbiddenFilenameChars = { '<', '>', ':', '\"', '/', '\\', '|', '?', '*' };
+    private static char[] _forbiddenUrlChars = { '&', '+', ',', ';', '@', '?', '$', '%', '#', '!', '=', ':' };
+
+
+    public static string RemoveForbiddenChars(string input, StringType sType)
     {
-        char[] forbiddenChars = 
-        {   '<', '>', ':',
-            '\"', '/', '\\', 
-            '|', '?', '*'
-        };
-        return string.Create(input.Length, input, (chars, buffer) =>
+        ReadOnlySpan<char> charSpan;
+        ReadOnlySpan<char> inputSpan = input.AsSpan();
+        if (sType == StringType.Filename)
         {
-            for(int i = 0; i < buffer.Length; i++)
+            charSpan = _forbiddenFilenameChars.AsSpan();
+        }
+        else if(sType == StringType.Url)
+        {
+            charSpan = _forbiddenUrlChars.AsSpan();
+        }
+        else
+        {
+            return input; 
+        }
+        StringBuilder sb = new StringBuilder();
+
+        bool matchFound = false;
+
+        for(int i = 0; i < inputSpan.Length; i++)
+        {
+            matchFound = false;
+            for(int j = 0; j < charSpan.Length; j++)
             {
-                for(int j = 0; j < forbiddenChars.Length; j++)
+                if (inputSpan[i] == charSpan[j])
                 {
-                    if(buffer[i] == forbiddenChars[j])
-                    {
-                        chars[i] = ' ';
-                        break;
-                    }
-                    else
-                    {
-                        chars[i] = buffer[i];
-                    }
+                    matchFound = true;
                 }
             }
-        });
-    }
-    public static string RemoveUrlSpecialChars(string input)
-    {
-        char[] forbiddenChars = 
-        {   '&', '+', ',',
-            ';', '@', '?',
-            '$', '%', '#',
-            '!', '=', ':'
-        };
-        return string.Create(input.Length, input, (chars, buffer) =>
-        {
-            for(int i = 0; i < buffer.Length; i++)
+            if (!matchFound)
             {
-                for(int j = 0; j < forbiddenChars.Length; j++)
+                sb.Append(inputSpan[i]);
+            }
+            else
+            {
+                if(sType == StringType.Url)
                 {
-                    if(buffer[i] == forbiddenChars[j])
-                    {
-                        chars[i] = ' ';
-                        break;
-                    }
-                    else
-                    {
-                        chars[i] = buffer[i];
-                    }
+                    sb.Append(' ');
                 }
             }
-        });
+        }
+        return sb.ToString();
     }
 }

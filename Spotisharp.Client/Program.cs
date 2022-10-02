@@ -134,8 +134,8 @@ await Task.WhenAll(Enumerable.Range(0, workersCount).Select(async workerId =>
     int positionY = topCursorPosition + workerId;
     while (trackInfoBag.TryTake(out TrackInfoModel? trackInfo))
     {
-        string safeArtistName = FilenameResolver.RemoveForbiddenChars(trackInfo.Artist);
-        string safeTitle = FilenameResolver.RemoveForbiddenChars(trackInfo.Title);
+        string safeArtistName = FilenameResolver.RemoveForbiddenChars(trackInfo.Artist, StringType.Filename);
+        string safeTitle = FilenameResolver.RemoveForbiddenChars(trackInfo.Title, StringType.Filename);
         string fullName = safeArtistName + " - " + safeTitle;
 
         DirectoryInfo trackDir = Directory.CreateDirectory
@@ -143,7 +143,7 @@ await Task.WhenAll(Enumerable.Range(0, workersCount).Select(async workerId =>
                     Path.Combine
                     (
                         ConfigManager.Properties.MusicDirectory,
-                        FilenameResolver.RemoveForbiddenChars(trackInfo.Playlist)
+                        FilenameResolver.RemoveForbiddenChars(trackInfo.Playlist, StringType.Filename)
                     )
                 );
 
