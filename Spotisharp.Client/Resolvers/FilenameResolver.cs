@@ -46,13 +46,6 @@ public static class FilenameResolver
             {
                 sb.Append(inputSpan[i]);
             }
-            else
-            {
-                if(sType == StringType.Url)
-                {
-                    sb.Append(' ');
-                }
-            }
         }
         return sb.ToString();
     }
