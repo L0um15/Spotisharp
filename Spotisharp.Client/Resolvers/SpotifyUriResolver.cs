@@ -5,7 +5,7 @@ namespace Spotisharp.Client.Resolvers;
 
 public static class SpotifyUriResolver
 {
-    private static readonly Regex _spotifyUrlRegex = new Regex(@"http(s)?\:\/\/open\.spotify\.com\/(track|playlist|album)\/.{22}");
+    private static readonly Regex _spotifyUrlRegex = new Regex(@"http(s)?\:\/\/open\.spotify\.com\/(track|playlist|album)\/[0-9A-Za-z]{22}");
     private static readonly Regex _spotifyUrnRegex = new Regex(@"spotify\:(track|playlist|album)\:[0-9A-Za-z]{22}");
     
     public static bool IsUriValid(string uri)
