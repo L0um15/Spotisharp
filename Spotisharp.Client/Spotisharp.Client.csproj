@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="CommandLineParser" Version="2.9.1" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.45" />
     <PackageReference Include="SpotifyAPI.Web" Version="6.3.0" />
     <PackageReference Include="SpotifyAPI.Web.Auth" Version="6.3.0" />

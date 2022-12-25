@@ -1,4 +1,5 @@
-﻿using SpotifyAPI.Web;
+﻿using CommandLine;
+using SpotifyAPI.Web;
 using Spotisharp.Client.ColoredConsole;
 using Spotisharp.Client.Enums;
 using Spotisharp.Client.Models;
@@ -13,13 +14,15 @@ CConsole.WriteLine("Spotisharp v" +
 
 CConsole.WriteLine($"(\u00a9) 2020-2022 Damian Ziolo");
 
-if (!ConfigManager.Init())
+if (!ConfigManager.Init(args))
 {
     CConsole.WriteLine("Couldn't load or create configuration file", CConsoleType.Error);
     return;
 }
 
-if (ConfigManager.Properties.CheckUpdates)
+Directory.CreateDirectory(ConfigManager.Options.OutputDir!);
+
+if (ConfigManager.Options.CheckUpdates!.Value)
 {
     CConsole.WriteLine("Checking for updates");
     if (await UpdateService.CheckForUpdates())
@@ -40,25 +43,19 @@ if (ConfigManager.Properties.CheckUpdates)
     }
 }
 
-
-ConfigManager.Properties.EnsureDirsExist();
-
 if (!FFmpegService.IsFFmpegInstalled())
 {
     CConsole.WriteLine("FFmpeg is missing", CConsoleType.Error);
     return;
 }
 
-string input = string.Empty;
+string? input = ConfigManager.Options.UserInput;
 
-if (args.Length == 0)
+if (input == null)
 {
+
     CConsole.WriteLine("No arguments provided. Awaiting for input", CConsoleType.Warn);
     input = CConsole.ReadLine();
-}
-else
-{
-    input = args[0];
 }
 
 if(input == string.Empty)
@@ -112,7 +109,7 @@ switch (category)
         break;
 }
 
-int workersCount = ConfigManager.Properties.WorkersCount;
+int workersCount = ConfigManager.Options.WorkersCount!.Value;
 
 if(workersCount < 1 || workersCount > 4)
 {
@@ -142,7 +139,7 @@ await Task.WhenAll(Enumerable.Range(0, workersCount).Select(async workerId =>
                 (
                     Path.Combine
                     (
-                        ConfigManager.Properties.MusicDirectory,
+                        ConfigManager.Options.OutputDir!,
                         FilenameResolver.RemoveForbiddenChars(trackInfo.Playlist, StringType.Filename)
                     )
                 );
