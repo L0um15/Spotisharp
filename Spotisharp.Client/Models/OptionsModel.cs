@@ -15,10 +15,10 @@ namespace Spotisharp.Client.Models
         [Option('u', "check-updates", Required = false, HelpText = "Default: True, if false skips update check.")]
         public bool? CheckUpdates { get; set; }
 
-        [Option("keep-options", Required = false, HelpText = "If set to true, saves all launch parameters to config file")]
+        [Option("keep-options", Required = false, HelpText = "Default: False, if set to true, saves all launch parameters to config file")]
         public bool? KeepOptions { get; set; }
 
-        [Option('w', "workers", Required = false, HelpText = "Set amount of workers needed for simultaneous downloading")]
+        [Option('w', "workers", Required = false, HelpText = "Default: 2, sets amount of workers needed for simultaneous downloading")]
         public int? WorkersCount { get; set; }
 
         [Option('i', "input", Required = false, HelpText = "Type title of the song, url of the song or playlist or album")]

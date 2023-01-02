@@ -1,5 +1,7 @@
 ﻿using CommandLine;
+using CommandLine.Text;
 using Spotisharp.Client.ColoredConsole;
+using Spotisharp.Client.Enums;
 using Spotisharp.Client.Models;
 using System.Reflection;
 using System.Text.Json;
@@ -26,8 +28,11 @@ public static class ConfigManager
     {
         OptionsModel? launchOptions = null;
 
-        Parser.Default.ParseArguments<OptionsModel>(args)
-            .WithParsed(options => launchOptions = options);
+        Parser parser = new Parser(ps => ps.HelpWriter = null);
+        ParserResult<OptionsModel> parserResult = parser.ParseArguments<OptionsModel>(args);
+        
+        parserResult.WithParsed(options => launchOptions = options)
+            .WithNotParsed(errs => DisplayHelp(parserResult, errs));
 
         if (launchOptions == null)
         {
@@ -64,6 +69,21 @@ public static class ConfigManager
         _options = userConfiguration.Item2;
 
         return true;
+    }
+
+    private static void DisplayHelp(ParserResult<OptionsModel> result, IEnumerable<Error> errs)
+    {
+        var helpText = HelpText.AutoBuild(result, h =>
+        {
+            h.Heading = string.Empty;
+            h.Copyright = string.Empty;
+            return HelpText.DefaultParsingErrorsHandler(result, h);
+        }, e => e);
+
+        string trimmedHelpText = helpText.ToString().TrimStart();
+
+        CConsole.WriteLine(trimmedHelpText, CConsoleType.Warn, writeToFile: false, trimMessage: false);
+        Environment.Exit(-1);
     }
 
     private static Tuple<ConfigModel, OptionsModel> FillOutConfigurations(ConfigModel configModel, OptionsModel optionsModel)
