@@ -8,6 +8,8 @@ public class ConfigModel
 
     public bool CheckUpdates { get; set; } = true; 
 
+    public bool ExplicitContents { get; set; } = true;
+
     public int WorkersCount { get; set; } = 2;
 
     public string OutputDir { get; set; } =
