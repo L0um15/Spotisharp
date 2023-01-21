@@ -22,8 +22,8 @@ public static class CConsole
 
     static CConsole()
     {
-        Console.InputEncoding = Encoding.Unicode;
-        Console.OutputEncoding = Encoding.Unicode;
+        Console.InputEncoding = Encoding.UTF8;
+        Console.OutputEncoding = Encoding.UTF8;
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
