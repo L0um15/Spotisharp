@@ -36,7 +36,12 @@ public static class SpotifyService
                 {
                     if (searchResponse.Tracks.Items.Count > 0)
                     {
-                        track = searchResponse.Tracks.Items[0];
+                        FullTrack tempTrack = searchResponse.Tracks.Items[0];
+                        if(tempTrack.Explicit && !ConfigManager.Properties.ExplicitContents)
+                        {
+                            return;
+                        }
+                        track = tempTrack;
                     }
                 }
             }
@@ -44,7 +49,13 @@ public static class SpotifyService
         }
         else
         {
-            track = await client.Tracks.Get(input);
+            FullTrack tempTrack = await client.Tracks.Get(input);
+            if (tempTrack.Explicit && !ConfigManager.Properties.ExplicitContents)
+            {
+                CConsole.Overwrite($"Skipping: {tempTrack.Name}. Reason: Explicit Contents", topCursorPosition);
+                return;
+            }
+            track = tempTrack;
         }
 
         if(track != null)
@@ -97,6 +108,13 @@ public static class SpotifyService
             {
                 if (item.Track is FullTrack track && !string.IsNullOrEmpty(track.Album?.Id))
                 {
+
+                    if (track.Explicit && !ConfigManager.Properties.ExplicitContents)
+                    {
+                        CConsole.Overwrite($"Skipping: {track.Name}. Reason: Explicit Contents", topCursorPosition);
+                        continue;
+                    }
+
                     FullAlbum album = await client.Albums.TryGet(track.Album.Id);
                     FullArtist artist = await client.Artists.TryGet(album.Artists[0].Id);
                     TrackInfoModel trackInfo = new TrackInfoModel()
@@ -135,6 +153,13 @@ public static class SpotifyService
         FullArtist artist = await client.Artists.TryGet(album.Artists[0].Id);
         await foreach (SimpleTrack track in client.Paginate(album.Tracks))
         {
+
+            if(track.Explicit && !ConfigManager.Properties.ExplicitContents)
+            {
+                CConsole.Overwrite($"Skipping: {track.Name}. Reason: Explicit Contents", topCursorPosition);
+                continue;
+            }
+
             TrackInfoModel trackInfo = new TrackInfoModel()
             {
                 Artist = track.Artists[0].Name,
