@@ -37,8 +37,9 @@ public static class SpotifyService
                     if (searchResponse.Tracks.Items.Count > 0)
                     {
                         FullTrack tempTrack = searchResponse.Tracks.Items[0];
-                        if(tempTrack.Explicit && !ConfigManager.Properties.ExplicitContents)
+                        if(tempTrack.Explicit && ConfigManager.Options.ExplicitContents == false)
                         {
+                            CConsole.Overwrite($"Skipping: {tempTrack.Name}. Reason: Explicit Contents", topCursorPosition);
                             return;
                         }
                         track = tempTrack;
@@ -50,7 +51,7 @@ public static class SpotifyService
         else
         {
             FullTrack tempTrack = await client.Tracks.Get(input);
-            if (tempTrack.Explicit && !ConfigManager.Properties.ExplicitContents)
+            if (tempTrack.Explicit && ConfigManager.Options.ExplicitContents == false)
             {
                 CConsole.Overwrite($"Skipping: {tempTrack.Name}. Reason: Explicit Contents", topCursorPosition);
                 return;
@@ -109,7 +110,7 @@ public static class SpotifyService
                 if (item.Track is FullTrack track && !string.IsNullOrEmpty(track.Album?.Id))
                 {
 
-                    if (track.Explicit && !ConfigManager.Properties.ExplicitContents)
+                    if (track.Explicit && ConfigManager.Options.ExplicitContents == false)
                     {
                         CConsole.Overwrite($"Skipping: {track.Name}. Reason: Explicit Contents", topCursorPosition);
                         continue;
@@ -154,7 +155,7 @@ public static class SpotifyService
         await foreach (SimpleTrack track in client.Paginate(album.Tracks))
         {
 
-            if(track.Explicit && !ConfigManager.Properties.ExplicitContents)
+            if(track.Explicit && ConfigManager.Options.ExplicitContents == false)
             {
                 CConsole.Overwrite($"Skipping: {track.Name}. Reason: Explicit Contents", topCursorPosition);
                 continue;

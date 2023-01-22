@@ -15,6 +15,9 @@ namespace Spotisharp.Client.Models
         [Option('u', "check-updates", Required = false, HelpText = "Default: True, if false skips update check.")]
         public bool? CheckUpdates { get; set; }
 
+        [Option('e', "explicit", Required = false, HelpText = "Default: True, if false skips explicit contents.")]
+        public bool? ExplicitContents { get; set; }
+
         [Option("keep-options", Required = false, HelpText = "Default: False, if set to true, saves all launch parameters to config file")]
         public bool? KeepOptions { get; set; }
 
