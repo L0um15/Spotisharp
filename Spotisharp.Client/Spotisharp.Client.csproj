@@ -18,11 +18,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.45" />
-    <PackageReference Include="SpotifyAPI.Web" Version="6.3.0" />
-    <PackageReference Include="SpotifyAPI.Web.Auth" Version="6.3.0" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.59" />
+    <PackageReference Include="SpotifyAPI.Web" Version="7.1.1" />
+    <PackageReference Include="SpotifyAPI.Web.Auth" Version="7.1.1" />
     <PackageReference Include="taglib-sharp-netstandard2.0" Version="2.1.0" />
-    <PackageReference Include="VideoLibrary" Version="3.2.2" />
+    <PackageReference Include="VideoLibrary" Version="3.2.3" />
   </ItemGroup>
 
 </Project>
