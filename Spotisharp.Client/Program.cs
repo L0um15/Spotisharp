@@ -285,10 +285,13 @@ await Task.WhenAll(Enumerable.Range(0, workersCount).Select(async workerId =>
             file.Tag.Year = Convert.ToUInt32(trackInfo.Year);
             file.Tag.Comment = trackInfo.Url;
             file.Tag.Genres = new string[] { trackInfo.Genres };
-            file.Tag.Pictures = new TagLib.Picture[]
+            if (trackInfo.AlbumPicture != string.Empty)
             {
-                new TagLib.Picture(await albumPictureTask)
-            };
+                file.Tag.Pictures = new TagLib.Picture[]
+                {
+                    new TagLib.Picture(await albumPictureTask)
+                };
+            }
             file.Save();
         }
 
